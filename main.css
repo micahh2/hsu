@@ -12,12 +12,19 @@ body {
     background-color: rgb(100, 100, 100);
 }
 
-h1 {
+#logo {
     position: absolute;
     top: 20px;
     left: 20px;
     margin: 0;
     padding: 0;
+    display: flex;
+}
+#logo h1 {
+    margin: 0;
+    margin-left: 1em;
+    line-height: 2em;
+    letter-spacing: .2em;
 }
 
 #canvas {
@@ -39,4 +46,16 @@ h1 {
     position: absolute;
     top: 20px;
     right: 20px;
+}
+
+#icon {
+    width: 4em;
+    height: 4em;
+    animation: spin 128s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform:rotate(-360deg);
+    }
 }
