@@ -1,12 +1,20 @@
 let player = { x: 100, y: 20, size: 5, speed: 3 };
 let requestedVert;
 let requestedHorz;
-let frames = 0;
 let attack = false;
+let pause = false;
+
+let frames = 0;
+let mapMakingTime = 0;
+let collisionTime = 0;
+let collisionChecks = 0;
+let collisionCalls = 0;
+
+let context;
 
 window.addEventListener('load', () => {
   let canvas = document.getElementById('canvas');
-  let context = canvas.getContext('2d');
+  /* let */ context = canvas.getContext('2d');
   let image = document.getElementById('layout');
   canvas.width = image.width;
   canvas.height = image.width;
@@ -26,53 +34,59 @@ window.addEventListener('load', () => {
     pixels[i] = allAlpha.slice(start, start+imageData.width);
   }
   // Draw initial player
-  context.fillRect(player.x, player.y, player.size, player.size);
+  //context.fillRect(player.x, player.y, player.size, player.size);
+
   // Add some npc's
   const center = Math.floor(image.width/2);
   //const others = [];
+  const other = { speed: 1, size: 5, isNew: true };
   const others = [
-    ...(new Array(200).fill({ x: center, y: Math.floor(center*.8), speed: 1, size: 5 })),
-    ...(new Array(200).fill({ x: Math.floor(center*1.3), y: center, speed: 1, size: 5 })),
-    ...(new Array(200).fill({ x: Math.floor(center/2), y: Math.floor(center/2), speed: 1, size: 5 })),
-    ...(new Array(200).fill({ x: Math.floor(center*1.35), y: Math.floor(center/4), speed: 1, size: 5 })), // Cafateria
-    ...(new Array(200).fill({ x: Math.floor(center*1.8), y: Math.floor(center/4), speed: 1, size: 5 })), // Mensa
-  ].map(t => ({ ...t }));
+    ...(new Array(200).fill({ ...other, x: center, y: Math.floor(center*.8) })),
+    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.3), y: center })),
+    ...(new Array(200).fill({ ...other, x: Math.floor(center/2), y: Math.floor(center/2)})),
+    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.35), y: Math.floor(center/4)})), // Cafeteria
+    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.8), y: Math.floor(center/4) })), // Mensa
+  ];
+  let otherMap = others.reduce((map, actor) => updateLocationMap({ actor, map }), {});
   // Start main loop
-  main({ context, pixels, player, others, width: image.width, height: image.width });
+  main({ image, imageRatio: ratio, context, pixels, player, others, width: image.width, height: image.width, otherMap });
 
   // Update FPS display
   setInterval(() => {
-    updateFPS(frames);
+    updateDiagnostics({ fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls });
     frames = 0;
+    mapMakingTime = 0;
+    collisionTime = 0;
+    collisionChecks = 0;
+    collisionCalls = 0;
   }, 1000);
 });
 
-function main({ context, pixels, player, others, width, height }) {
-  let otherMap = others.reduce((map, actor) => updateLocationMap({ map, actor }), {});
-
+function main({ image, imageRatio, context, pixels, player, others, width, height, otherMap }) {
   let newPlayer = movePlayer({ player, requestedVert, requestedHorz, width, height });
   newPlayer = getUseableMove({ player, newPlayer, pixels, requestedVert, requestedHorz, width, height, otherMap });
-  otherMap = updateLocationMap({ actor: newPlayer, map: otherMap });
+  let newOtherMap = updateLocationMap({ actor: newPlayer, map: otherMap, oldActor: player });
 
   let newOthers = new Array(others.length);
   for (let i = 0; i < others.length; i++) {
-    newOthers[i] = moveNPC({ npc: others[i], pixels, width, height, otherMap, player: newPlayer, attack });
-    otherMap = updateLocationMap({ actor: newOthers[i], map: otherMap, oldActor: others[i] });
+    newOthers[i] = moveNPC({ npc: others[i], pixels, width, height, otherMap: newOtherMap, player: newPlayer, attack, pause});
+    newOtherMap = updateLocationMap({ actor: newOthers[i], map: newOtherMap, oldActor: others[i] });
   }
 
+  // Remove old
+  context.clearRect(0, 0, width, height);
+  // Redraw image
+  context.drawImage(image, 0, 50, width, width*imageRatio);
+
   context.fillStyle = 'black';
-  if (player !== newPlayer) {
-    // Remove old position
-    context.clearRect(player.x, player.y, player.size, player.size);
-    // Draw new position
-    context.fillRect(newPlayer.x, newPlayer.y, player.size, player.size);
-  }
+
+  // Draw new position
+  context.fillRect(newPlayer.x, newPlayer.y, player.size, player.size);
+
   context.fillStyle = 'blue';
   for(let i = 0; i < others.length; i++) {
     const other = others[i];
     const newOther = newOthers[i];
-    // Remove old position
-    context.clearRect(other.x, other.y, other.size, other.size);
     // Draw new position
     context.fillRect(newOther.x, newOther.y, newOther.size, newOther.size);
   }
@@ -82,7 +96,7 @@ function main({ context, pixels, player, others, width, height }) {
 
   // Call this function in an infinite recursive loop
   window.requestAnimationFrame(() => {
-    main({ context, pixels, player: newPlayer, others: newOthers, width, height });
+    main({ image, imageRatio, context, pixels, player: newPlayer, others: newOthers, width, height, otherMap: newOtherMap });
   });
 }
 
@@ -90,17 +104,26 @@ function eq(a, b) {
   return a.x === b.x && a.y === b.y && a.size === b.size && a.speed === b.speed;
 }
 
-function mapKey({ x, y }) {
-  return `${Math.floor(x/50)}:${Math.floor(y/50)}`;
+function mapKey(x, y, offsetx, offsety) {
+  offsetx = offsetx || 0;
+  offsety = offsety || 0;
+  const keyx = Math.max(Math.floor(x/10)+offsetx, 0);
+  const keyy = Math.max(Math.floor(y/10)+offsety, 0);
+  return 10000*keyx+keyy;
 }
 
 function updateLocationMap({ actor, map, oldActor }) {
-  let key = mapKey(actor);
-  let newMap = { ...map, [key]: (map[key] || []).concat(actor) };
+  let start = new Date();
+  let newMap = map; //{ ...map };
+  let key = mapKey(actor.x, actor.y);
   if (oldActor) {
-    let oldKey = mapKey(oldActor);
-    newMap[oldKey] = newMap[oldKey].filter(t => !eq(t, oldActor));
+    let oldKey = mapKey(oldActor.x, oldActor.y);
+    if (newMap[oldKey]) {
+      newMap[oldKey] = newMap[oldKey].filter(t => !eq(t, oldActor));
+    }
   }
+  newMap[key] = (newMap[key] || []).concat(actor);
+  mapMakingTime += (new Date()) - start;
   return newMap;
 }
 
@@ -116,10 +139,14 @@ function newDestination({ width, height, player, attack }) {
     y: Math.floor(Math.random()*height), 
   };
 }
-function moveNPC({ npc, pixels, otherMap, width, height, player, attack }) {
+function moveNPC({ npc, pixels, otherMap, width, height, player, attack, pause }) {
+  if (pause) { return npc; }
   let newNPC = npc;
+  if (npc.isNew) {
+    newNPC = { ...newNPC, speed: npc.size+5, fallbackSpeed: npc.speed };
+  }
   if (!npc.destination || dist(npc, npc.destination) < npc.speed) {
-    newNPC = { ...npc, destination: newDestination({ width, height, attack }) };
+    newNPC = { ...newNPC, destination: newDestination({ width, height, attack, player }) };
   }
   const xdist = Math.abs(newNPC.x-newNPC.destination.x);
   const xmove = Math.sign(-newNPC.x+newNPC.destination.x)*Math.min(xdist, newNPC.speed);
@@ -133,6 +160,8 @@ function moveNPC({ npc, pixels, otherMap, width, height, player, attack }) {
     };
     if (collision({ actor: newNPC, pixels, otherMap, oldActor: npc })) {
       newNPC = { ...npc, destination: newDestination({ width, height, attack, player }) };
+    } else if(newNPC.isNew) {
+      newNPC = { ...newNPC, speed: newNPC.fallbackSpeed, isNew: false };
     }
   }
   return newNPC;
@@ -157,34 +186,45 @@ function movePlayer({ player, handycap, requestedVert, requestedHorz, width, hei
 
 // Returns if a player has a collision
 function collision({ actor, otherMap, pixels, oldActor }) {
-  // Check against other players
-  const fourCorners = [
-    mapKey({ x: actor.x, y: actor.y }),
-    mapKey({ x: actor.x, y: actor.y+actor.size }),
-    mapKey({ x: actor.x+actor.size, y: actor.y }),
-    mapKey({ x: actor.x+actor.size, y: actor.y+actor.size })
+  start = new Date();
+  // Check against other players in a region
+  const nineSquares = [
+    mapKey(actor.x, actor.y, -1, -1),
+    mapKey(actor.x, actor.y,  0, -1),
+    mapKey(actor.x, actor.y,  1, -1),
+    mapKey(actor.x, actor.y, -1,  0),
+    mapKey(actor.x, actor.y,  0,  0),
+    mapKey(actor.x, actor.y,  1,  0),
+    mapKey(actor.x, actor.y, -1,  1),
+    mapKey(actor.x, actor.y,  0,  1),
+    mapKey(actor.x, actor.y,  1,  1),
   ].filter((t, i, self) => self.indexOf(t) === i);
-  const possibleCollisions = fourCorners.map(t => otherMap[t]).reduce((a, b) => b ? a.concat(b) : a, []);
+  const possibleCollisions = nineSquares.map(t => otherMap[t]).reduce((a, b) => b ? a.concat(b) : a, []);
+
+  collisionChecks += possibleCollisions.length;
+  collisionCalls++;
   const hasCollision = possibleCollisions.some(t => {
     const sizex = t.x > actor.x ? actor.size : t.size;
     const sizey = t.y > actor.y ? actor.size : t.size;
-    return t !== oldActor
+    return (!oldActor || !eq(t, oldActor))
       && Math.abs(t.x-actor.x) < sizex 
       && Math.abs(t.y-actor.y) < sizey;
-  })
+  });
   if (hasCollision) {
+    collisionTime += (new Date()) - start;
     return true; 
   }
-
   // Bounds check
-    for (let j = actor.y; j < actor.y+actor.size; j++) {
-      if (pixels[j] == null) { continue; }
-      for (let i = actor.x; i < actor.x+actor.size; i++) {
-        // IMPORTANT! Pixels are stored in rows first, then columns
-        if (pixels[j][i] === 0) { continue; }
-        return true;
-      }
+  for (let j = actor.y; j < actor.y+actor.size; j++) {
+    if (pixels[j] == null) { continue; }
+    for (let i = actor.x; i < actor.x+actor.size; i++) {
+      // IMPORTANT! Pixels are stored in rows first, then columns
+      if (pixels[j][i] === 0) { continue; }
+      collisionTime += (new Date()) - start;
+      return true;
     }
+  }
+  collisionTime += (new Date()) - start;
   return false;
 }
 
@@ -192,20 +232,20 @@ function collision({ actor, otherMap, pixels, oldActor }) {
 function getUseableMove({ player, newPlayer, requestedVert, requestedHorz, width, height, pixels, otherMap }) {
   if (player === newPlayer) { return newPlayer; }
 
-  if (!collision({ actor: newPlayer, pixels, otherMap })) {
+  if (!collision({ actor: newPlayer, pixels, otherMap, oldActor: player })) {
     return newPlayer;
   }
   const withoutx = { ...newPlayer, x: player.x };
-  if (newPlayer.y !== player.y && newPlayer.x !== player.x && !collision({ actor: withoutx, pixels, otherMap })) {
+  if (newPlayer.y !== player.y && newPlayer.x !== player.x && !collision({ actor: withoutx, pixels, otherMap, oldActor: player })) {
     return withoutx;
   }
   const withouty = { ...newPlayer, y: player.y };
-  if (newPlayer.x !== player.x && newPlayer.y !== player.y && !collision({ actor: withouty, pixels, otherMap })) {
+  if (newPlayer.x !== player.x && newPlayer.y !== player.y && !collision({ actor: withouty, pixels, otherMap, oldActor: player })) {
     return withouty;
   }
   for (let handycap = 0; handycap < newPlayer.speed; handycap++) {
     const handycapped = movePlayer({ player, handycap, requestedVert, requestedHorz, width, height });
-    if (!collision({ actor: handycapped, pixels, otherMap })) {
+    if (!collision({ actor: handycapped, pixels, otherMap, oldActor: player })) {
       return handycapped;
     }
   }
@@ -262,7 +302,9 @@ window.addEventListener('keyup', (e) => {
       break;
     case "Space":
       attack = !attack;
-      console.log('Space', attack);
+      break;
+    case "KeyP":
+      pause = !pause;
       break;
     default:
       console.log(event.code);
@@ -270,7 +312,12 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-function updateFPS(fps) {
+function updateDiagnostics({ fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls }) {
   const el = document.getElementById('fps');
-  el.innerHTML = `${fps} FPS`;
+  el.innerHTML = `<ul>
+    <li>${fps} FPS</li>
+    <li>${collisionTime} Col. ms </li>
+    <li>${mapMakingTime} Map. ms </li>
+    <li>${Math.round(collisionChecks/collisionCalls)} Ave. Col. Checks </li>
+  </ul>`;
 }
