@@ -48,11 +48,11 @@ View what files are conflicting
 #### Create changeset
 > git format-patch --stdout > changenames.patch
 
-Then email them to ~sircmpwn/email-test-drive@lists.sr.ht
+Then email them to: ~electric/hsu@lists.sr.ht
 
-#### or if you're using `git send-email` (https://git-send-email.io)
+#### Or, if you're using [git send-email](https://git-send-email.io)
 
-> git format-patch --to="~electric/hsu@lists.sr.ht"
+> git send-email --to="~electric/hsu@lists.sr.ht" origin/master
 
 ## License
 
