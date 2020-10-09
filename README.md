@@ -54,6 +54,9 @@ Then email them to: ~electric/hsu@lists.sr.ht
 
 > git send-email --to="~electric/hsu@lists.sr.ht" origin/master
 
+#### Finaly, if you feel so inclined, create a fork or branch, push to your fork and create a pull request
+
+
 ## License
 
 This software is licensed under [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)
