@@ -2,9 +2,21 @@
 
 The official HSU game. Play it in a modern browser!
 
-## Starting the game
+## Starting the game locally
 
-Download the repository, open index.html
+Download the repository (git clone)
+> git clone https://github.com/micahh2/hsu
+
+Download and install [nodejs](https://nodejs.org/)
+
+Install dependancies
+
+> npm i
+
+Start local http server
+
+> npm start
+
 
 ## Development
 
@@ -54,7 +66,7 @@ Then email them to: ~electric/hsu@lists.sr.ht
 
 > git send-email --to="~electric/hsu@lists.sr.ht" origin/master
 
-#### Finaly, if you feel so inclined, create a fork or branch, push to your fork and create a pull request
+#### Finaly, if you feel so inclined, create a fork or branch, push to it, and create a pull request within Github
 
 
 ## License

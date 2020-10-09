@@ -1,0 +1,23 @@
+{
+  "name": "hsu",
+  "version": "1.0.0",
+  "description": "Hochschule Ulm Game",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micahh2/hsu.git"
+  },
+  "author": "",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/micahh2/hsu/issues"
+  },
+  "homepage": "https://github.com/micahh2/hsu#readme",
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
