@@ -13,7 +13,7 @@ Edit a file. Save and reload.
 ## Git - The Basics
 
 Git clone (will create dir "hsu"), you only need to do this once!
-> git clone https://git.sr.ht/~electric/hsu
+> git clone https://github.com/micahh2/hsu
 
 **Git status** - show the overview of what's going on 
 > git status
