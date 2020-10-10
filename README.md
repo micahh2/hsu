@@ -4,10 +4,13 @@ The official HSU game. Play it in a modern browser!
 
 ## Starting the game locally
 
+Download and install [nodejs](https://nodejs.org/)
+
 Download the repository (git clone)
 > git clone https://github.com/micahh2/hsu
 
-Download and install [nodejs](https://nodejs.org/)
+Change your current directory
+> cd hsu
 
 Install dependancies
 
@@ -17,10 +20,12 @@ Start local http server
 
 > npm start
 
+Open your browser to http://localhost:8080
 
 ## Development
 
-Edit a file. Save and reload.
+Open your browser to http://localhost:8080
+Edit one of the files, save it, and reload your browser.
 
 ## Git - The Basics
 
