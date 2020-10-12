@@ -4,14 +4,15 @@ window.addEventListener('load', () => {
   let image = document.getElementById('layout');
 
   // Set canvas resolution
-  canvas.width = image.width;
-  canvas.height = image.width;
+  let canvasSize = image.width;
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
 
   // Get bounds pixels and context
   const { context, pixels } = getGameContextPixels({ canvas, image });
 
   // Add some npc's
-  const center = Math.floor(image.width/2);
+  const center = Math.floor(canvasSize/2);
   const other = { speed: 1, size: 5, isNew: true };
   const others = [
     ...(new Array(200).fill({ ...other, x: center, y: Math.floor(center*.8) })),
@@ -28,8 +29,8 @@ window.addEventListener('load', () => {
     context, pixels,
     player, 
     others,
-    width: image.width,
-    height: image.width,
+    width: canvasSize,
+    height: canvasSize,
     locMap: {},
     updateStats,
     moveNPC,
