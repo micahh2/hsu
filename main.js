@@ -90,27 +90,31 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
 // Take all the input requests give an updated player
 function movePlayer({ player, handycap, width, height }) {
   let newPlayer = player;
-  handycap = handycap || 0; if (requestedVert === 'up') {
+  handycap = handycap || 0; if (up) {
     newPlayer = { ...newPlayer, y: Math.max(newPlayer.y - newPlayer.speed + handycap, 0)};
-  } else if (requestedVert === 'down') {
+  } 
+  if (down) {
     newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed - handycap, height-newPlayer.size)};
   }
-  if (requestedHorz === 'left') {
+  if (left) {
     newPlayer = { ...newPlayer, x: Math.max(newPlayer.x - newPlayer.speed + handycap, 0)};
-  } else if (requestedHorz === 'right') {
+  }
+  if (right) {
     newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed - handycap, width-newPlayer.size)};
   }
   return newPlayer;
 }
 // wrapper around certain external states 
 function getGameState() {
-  return { paused: pause, requestedVert, requestedHorz, attack };
+  return { paused: pause, attack };
 }
 
 
 // Modified by the eventListener
-let requestedVert;
-let requestedHorz;
+let up = false;
+let down = false;
+let left = false;
+let right = false;
 let attack = false;
 let pause = false;
 window.addEventListener('keydown', (e) => {
@@ -121,22 +125,22 @@ window.addEventListener('keydown', (e) => {
     case "KeyS":
     case "ArrowDown":
       // Handle "back"
-      requestedVert = 'down';
+      down = true;
       break;
     case "KeyW":
     case "ArrowUp":
       // Handle "forward"
-      requestedVert = 'up';
+      up = true;
       break;
     case "KeyA":
     case "ArrowLeft":
       // Handle "turn left"
-      requestedHorz = 'left';
+      left = true;
       break;
     case "KeyD":
     case "ArrowRight":
       // Handle "turn right"
-      requestedHorz = 'right';
+      right = true;
       break;
   }
 });
@@ -147,19 +151,19 @@ window.addEventListener('keyup', (e) => {
   switch(event.code) {
     case "KeyS":
     case "ArrowDown":
-      requestedVert = null;
+      down = false;
       break;
     case "KeyW":
     case "ArrowUp":
-      requestedVert = null;
+      up = false;
       break;
     case "KeyA":
     case "ArrowLeft":
-      requestedHorz = null;
+      left = false;
       break;
     case "KeyD":
     case "ArrowRight":
-      requestedHorz = null;
+      right = false;
       break;
     case "Space":
       attack = !attack;
