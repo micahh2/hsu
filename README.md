@@ -27,6 +27,11 @@ Open your browser to http://localhost:8080
 Open your browser to http://localhost:8080
 Edit one of the files, save it, and reload your browser.
 
+## Testing
+
+Run
+> npm test
+
 ## Git - The Basics
 
 Git clone (will create dir "hsu"), you only need to do this once!
