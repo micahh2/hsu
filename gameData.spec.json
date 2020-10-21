@@ -1,0 +1,49 @@
+{
+  "areas": [],
+  "player": { "x": 0.1, "y": 0.1, "width": 0.005, "height": 0.005, "speed": 0.005 },
+  "events": [
+    {
+      "type": "set-destination",
+      "trigger": { "type": "time", "time": 100000 },
+      "destination": { "x": 0.7, "y": 0.3 },
+      "selector": { "characterId": 1 }
+    },
+    { 
+      "type": "set-destination",
+      "trigger": { "type": "interval", "interval": 100000 },
+      "destination": { "x": 0.5, "y": 0.5 }
+    },
+    { 
+      "type": "start-conversation",
+      "trigger": { "type": "distance", "characterId": 1, "distance": 0.01 },
+      "selector": { "characterId": 1 }
+    }
+  ],
+  "characters": [{
+    "id": 1,
+    "name": "Frau Kold",
+    "x": 0.5,
+    "y": 0.1,
+    "speed": 0.001,
+    "width": 0.005,
+    "height": 0.005,
+    "isNew": true,
+    "dialog": {
+      "response": "Hello then.",
+      "options": [
+        { "id": 1, "query": "Goodbye.", "event": "end-conversation" },
+        { "id": 2, "query": "Are you going home?", "response": "No.", "event": "return-root" },
+        {
+          "id": 3,
+          "query": "Where can I find food?",
+          "response": "There's a number of palces.",
+          "options": [
+            { "id": 1, "query": "Where is cheap?", "response": "The Mensa is cheap." },
+            { "id": 2, "query": "Where is convienent?", "response": "The Cafeteria is convienent" },
+            { "id": 3, "query": "Where is delicious?", "response": "No where around here!" }
+          ]
+        }
+      ]
+    }
+  }]
+}

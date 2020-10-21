@@ -48,6 +48,18 @@ body {
     right: 20px;
 }
 
+#conversation {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 20%;
+    background: grey;
+    padding: 30px;
+    box-sizing: border-box;
+    display: none;
+}
+
 #icon {
     width: 4em;
     height: 4em;

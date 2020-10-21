@@ -1,4 +1,16 @@
-window.addEventListener('load', () => {
+import { Story } from './story.js';
+import { Util } from './util.js';
+import { Physics } from './physics.js';
+
+const fetchGameData = new Promise((res, rej) => {
+  fetch('./gameData.json')
+    .then(response => res(response.json()))
+});
+
+window.addEventListener('load', async () => {
+  const start = new Date(); // Save the start time
+  const gameData = await fetchGameData;
+
   // Load element from DOM (look in index.html)
   let canvas = document.getElementById('canvas');
   let image = document.getElementById('layout');
@@ -9,26 +21,19 @@ window.addEventListener('load', () => {
   canvas.height = canvasSize;
 
   // Get bounds pixels and context
-  const { context, pixels } = getGameContextPixels({ canvas, image });
+  const { context, pixels } = Physics.getGameContextPixels({ canvas, image });
 
   // Add some npc's
   const center = Math.floor(canvasSize/2);
-  const other = { speed: 1, size: 5, isNew: true };
-  const others = [
-    ...(new Array(200).fill({ ...other, x: center, y: Math.floor(center*.8) })),
-    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.3), y: center })),
-    ...(new Array(200).fill({ ...other, x: Math.floor(center/2), y: Math.floor(center/2)})),
-    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.35), y: Math.floor(center/4)})), // Cafeteria
-    ...(new Array(200).fill({ ...other, x: Math.floor(center*1.8), y: Math.floor(center/4) })), // Mensa
-  ];
-  const player = { x: 100, y: 20, size: 5, speed: 3 };
+  // Load the initial story
+  let gameState = Story.loadGameState({ gameData, width: canvasSize, height: canvasSize });
 
-  // Start main game loop
-  gameLoop({ 
+  let physicsState = { 
     image, 
-    context, pixels,
-    player, 
-    others,
+    context,
+    pixels,
+    player: gameState.player, 
+    characters: gameState.characters,
     width: canvasSize,
     height: canvasSize,
     locMap: {},
@@ -36,7 +41,33 @@ window.addEventListener('load', () => {
     moveNPC,
     movePlayer,
     getGameState
-  });
+  };
+  const physicsLoop = () => {
+    physicsState = Physics.updatePhysicsState(physicsState);
+    window.requestAnimationFrame(physicsLoop);
+  };
+  // Start main game loop
+  physicsLoop();
+
+
+  // Update game state periodically (100ms)
+  let last = new Date();
+  setInterval(() => {
+    const timeSinceLast = new Date()-last;
+    const now = - new Date() - start;
+    let newGameState = Story.updateGameState({ 
+      ...gameState, 
+      now,
+      timeSinceLast,
+      player: physicsState.player,
+      characters: physicsState.characters,
+    });
+    last = new Date();
+
+    if (gameState.conversation !== newGameState.conversation) {
+      renderConversation(newGameState.conversation);
+    }
+  }, 100);
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {
@@ -62,13 +93,13 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
   let newNPC = npc;
 
   if (npc.isNew && npc.fallbackSpeed == null) {
-    newNPC = { ...newNPC, speed: npc.size+1, fallbackSpeed: npc.speed };
+    newNPC = { ...newNPC, speed: npc.width+1, fallbackSpeed: npc.speed };
   } else if (npc.isNew && !npc.hasCollision) {
     newNPC = { ...newNPC, speed: newNPC.fallbackSpeed, isNew: false };
   }
 
   // If we're near to destination, or have a collision pick a new destination
-  if (!npc.destination || dist(npc, npc.destination) < npc.speed || npc.hasCollision) {
+  if (!npc.destination || Util.dist(npc, npc.destination) < npc.speed || npc.hasCollision) {
     newNPC = { ...newNPC, destination: newDestination({ width, height, attack, player }) };
   }
 
@@ -87,6 +118,10 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
   return newNPC;
 }
 
+function getGameState() {
+  return { paused: pause, attack };
+}
+
 // Take all the input requests give an updated player
 function movePlayer({ player, handycap, width, height }) {
   let newPlayer = player;
@@ -94,21 +129,16 @@ function movePlayer({ player, handycap, width, height }) {
     newPlayer = { ...newPlayer, y: Math.max(newPlayer.y - newPlayer.speed + handycap, 0)};
   } 
   if (down) {
-    newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed - handycap, height-newPlayer.size)};
+    newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed - handycap, height-newPlayer.height)};
   }
   if (left) {
     newPlayer = { ...newPlayer, x: Math.max(newPlayer.x - newPlayer.speed + handycap, 0)};
   }
   if (right) {
-    newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed - handycap, width-newPlayer.size)};
+    newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed - handycap, width-newPlayer.height)};
   }
   return newPlayer;
 }
-// wrapper around certain external states 
-function getGameState() {
-  return { paused: pause, attack };
-}
-
 
 // Modified by the eventListener
 let up = false;
@@ -220,4 +250,19 @@ function updateDiagnostDisp({ fps, collisionTime, mapMakingTime, collisionChecks
     <li>${mapMakingTime} Map. ms </li>
     <li>${Math.round(collisionChecks/collisionCalls)} Ave. Col. Checks </li>
   </ul>`;
+}
+
+function renderConversation(conversation) {
+  const el = document.getElementById('conversation');
+  if (!conversation) {
+    el.style.display = 'none';
+    return;
+  }
+  const { character, currentDialog } = conversation;
+  el.style.display = 'block';
+  let html = `<p>
+    <b>${character.name}:</b>
+    ${currentDialog.response}
+  </p>`;
+  el.innerHTML = html;
 }

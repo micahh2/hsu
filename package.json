@@ -4,7 +4,7 @@
   "description": "Hochschule Ulm Game",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --require esm -w *.spec.js",
     "start": "http-server -c-1"
   },
   "repository": {
@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/micahh2/hsu#readme",
   "dependencies": {
-    "http-server": "^0.12.3"
+    "chai": "^4.2.0",
+    "esm": "^3.2.25",
+    "http-server": "^0.12.3",
+    "mocha": "^8.2.0"
   }
 }

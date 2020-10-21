@@ -1,9 +1,15 @@
+import { Util } from '../util.js';
+import { Physics } from '../physics.js';
+import { Story } from '../story.js';
+
 window.addEventListener('load', () => {
   // Load element from DOM (look in index.html)
   let canvas = document.getElementById('canvas');
   let image = document.getElementById('layout');
 
   // Set canvas resolution
+  const width = image.width;
+  const height = image.height;
   const canvasSize = image.width;
   canvas.width = canvasSize;
   canvas.height = canvasSize;
@@ -12,9 +18,10 @@ window.addEventListener('load', () => {
   
 
   // Get bounds pixels and context
-  const { context, pixels } = getGameContextPixels({ canvas, image });
+  const { context, pixels } = Physics.getGameContextPixels({ canvas, image });
 
   let areas = [];
+  let gameData = {};
 
   const args = { context, image, width: canvasSize, height: canvasSize, areas };
   let selected;
@@ -29,7 +36,8 @@ window.addEventListener('load', () => {
     } else if (selected) { // Drag area
       stat = 'move';
     } else { // New area
-      selected = { x, y, width: 0, height: 0, color: getShade(), name: newName() };
+      let id = Story.newId(areas);
+      selected = { id, x, y, width: 0, height: 0, color: getShade(), name: newName(id) };
       stat = 'resize';
     }
 
@@ -89,27 +97,68 @@ window.addEventListener('load', () => {
   const filePicker = document.getElementById('file');
   filePicker.addEventListener('change', async (e) => {
     const file = filePicker.files[0];
-    const data = await importFile(file);
-    areas = data.areas;
+    gameData = await importFile({ file, width, height});
+    areas = gameData.areas;
   });
   const download = document.getElementById('download');
   download.addEventListener('click', (e) => {
-    const dataURI = exportFile({ areas });
+    const dataURI = exportFile({ 
+      gameData: { ...gameData, areas },
+      width, 
+      height
+    });
     download.href = dataURI;
   });
 });
 
-async function importFile(file) {
+async function importFile({ file, width, height }) {
   const text = await file.text()
-  return JSON.parse(text);
+  return Story.loadGameState({ gameData: JSON.parse(text), width, height });
 }
 
-function exportFile(args) {
-  return 'data:text/json;base64,' + btoa(JSON.stringify(args));
+function absToRelXYWidthHeight(abs, w, h) {
+  return {
+    ...abs,
+    x: absToRel(abs.x, w),
+    y: absToRel(abs.y, h),
+    width: absToRel(abs.width, w),
+    height: absToRel(abs.height, h)
+  };
 }
 
-function newName() {
-  return `name${Math.floor(Math.random()*1000000)}`;
+function absToRel(abs, max) {
+  return Math.round(abs/max*10000)/10000;
+}
+
+function exportFile({ gameData, width, height }) {
+  const exportData = {
+    ...gameData,
+    player: gameData.player != null ? {
+      ...absToRelXYWidthHeight(gameData.player, width, height),
+      speed: absToRel(gameData.player.speed, width) 
+    } : gameData.player,
+    areas: (gameData.areas || []).map(t => absToRelXYWidthHeight(t, width, height)),
+    characters: (gameData.characters || []).map(t => ({
+      ...absToRelXYWidthHeight(t, width, height),
+      speed: absToRel(t.speed, width) 
+    })),
+    events: (gameData.events || []).map(t => ({
+      ...t,
+      trigger: t.trigger.distance != null ? {
+        ...t.trigger,
+        distance: absToRel(t.trigger.distance, width)
+      } : t.trigger,
+      destination: t.destination != null ? {
+        x: absToRel(t.destination.x, width),
+        y: absToRel(t.destination.y, height)
+      } : t.destination
+    }))
+  };
+  return 'data:text/json;base64,' + btoa(JSON.stringify(exportData, null, 2));
+}
+
+function newName(id) {
+  return `name${id}`;
 }
 
 function inArea({ areas, x, y }) {
