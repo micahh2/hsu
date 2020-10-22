@@ -27,13 +27,14 @@ window.addEventListener('load', async () => {
   const center = Math.floor(canvasSize/2);
   // Load the initial story
   let gameState = Story.loadGameState({ gameData, width: canvasSize, height: canvasSize });
+  //let newCharacters = new Array(100).fill(gameState.characters[0]).map((t, i) => ({ ...t, id:i+1 }));
 
   let physicsState = { 
     image, 
     context,
     pixels,
     player: gameState.player, 
-    characters: gameState.characters,
+    characters: gameState.characters, //.concat(newCharacters),
     width: canvasSize,
     height: canvasSize,
     locMap: {},
@@ -119,23 +120,23 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
 }
 
 function getGameState() {
-  return { paused: pause, attack };
+  return { paused: pause, attack, up, down, left, right };
 }
 
 // Take all the input requests give an updated player
-function movePlayer({ player, handycap, width, height }) {
+function movePlayer({ player, width, height, up, down, left, right }) {
   let newPlayer = player;
-  handycap = handycap || 0; if (up) {
-    newPlayer = { ...newPlayer, y: Math.max(newPlayer.y - newPlayer.speed + handycap, 0)};
+  if (up) {
+    newPlayer = { ...newPlayer, y: Math.max(newPlayer.y - newPlayer.speed, 0)};
   } 
   if (down) {
-    newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed - handycap, height-newPlayer.height)};
+    newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed, height-newPlayer.height)};
   }
   if (left) {
-    newPlayer = { ...newPlayer, x: Math.max(newPlayer.x - newPlayer.speed + handycap, 0)};
+    newPlayer = { ...newPlayer, x: Math.max(newPlayer.x - newPlayer.speed, 0)};
   }
   if (right) {
-    newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed - handycap, width-newPlayer.height)};
+    newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed, width-newPlayer.height)};
   }
   return newPlayer;
 }

@@ -26,8 +26,8 @@ export class Physics {
   // This is the main game loop, it calls itself recursively
   static updatePhysicsState({ image, context, pixels, player, characters, width, height, locMap, updateStats, moveNPC, movePlayer, getGameState }) {
     // Get the move the player wants to make
-    let newPlayer = movePlayer({ player, width, height });
-    const { paused, attack } = getGameState();
+    const { paused, attack, up, down, left, right } = getGameState();
+    let newPlayer = movePlayer({ player, width, height, up, down, left, right });
 
     // Get the move the player is allowed to make (bounds check, ect)
     newPlayer = Physics.getUseableMove({ oldActor: player, actor: newPlayer, pixels, width, height, locMap, updateStats, useHandycap: true });
@@ -112,13 +112,15 @@ export class Physics {
     if (!Physics.collision({ actor, pixels, locMap, oldActor, updateStats })) {
       return actor;
     }
-    const withoutx = { ...actor, x: oldActor.x };
-    if (actor.y !== actor.y && actor.x !== oldActor.x && !Physics.collision({ actor: withoutx, pixels, locMap, oldActor: oldActor, updateStats })) {
-      return withoutx;
-    }
-    const withouty = { ...actor, y: oldActor.y };
-    if (actor.x !== oldActor.x && actor.y !== oldActor.y && !Physics.collision({ actor: withouty, pixels, locMap, oldActor: oldActor, updateStats })) {
-      return withouty;
+    if (actor.y !== oldActor.y && actor.x !== oldActor.x) {
+      const withoutx = { ...actor, x: oldActor.x };
+      if (!Physics.collision({ actor: withoutx, pixels, locMap, oldActor: oldActor, updateStats })) {
+        return withoutx;
+      }
+      const withouty = { ...actor, y: oldActor.y };
+      if (!Physics.collision({ actor: withouty, pixels, locMap, oldActor: oldActor, updateStats })) {
+        return withouty;
+      }
     }
     if (useHandycap) {
       for (let handycap = 0; handycap < actor.speed; handycap++) {
