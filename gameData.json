@@ -1,6 +1,6 @@
 {
   "areas": [],
-  "player": { "x": 0.05, "y": 0.05, "width": 0.025, "height": 0.025, "spriteIndex": 8, "speed": 0.0025 },
+  "player": { "x": 0.05, "y": 0.05, "width": 0.015, "height": 0.015, "spriteIndex": 8, "speed": 0.0015 },
   "events": [
     {
       "type": "set-destination",
@@ -15,7 +15,7 @@
     },
     { 
       "type": "start-conversation",
-      "trigger": { "type": "distance", "characterId": 1, "distance": 0.05 },
+      "trigger": { "type": "distance", "characterId": 1, "distance": 0.02 },
       "selector": { "characterId": 1 }
     }
   ],
@@ -25,8 +25,8 @@
     "x": 0.5,
     "y": 0.1,
     "speed": 0.001,
-    "width": 0.025,
-    "height": 0.025,
+    "width": 0.015,
+    "height": 0.015,
     "spriteIndex": 12,
     "isNew": true,
     "dialog": {
