@@ -111,14 +111,14 @@ describe('isWithinInterval', () => {
 
 describe('isWithinDistance', () => {
   it('should be within distance when near', () => {
-    const one = { x: 1, y: 2 };
-    const two = { x: 20, y: 10 };
+    const one = { x: 1, y: 2, width: 10, height: 10 };
+    const two = { x: 20, y: 10, width: 10, height: 10 };
     expect(Story.isWithinDistance({ a: one, b: two, distance: 21 })).true;
     expect(Story.isWithinDistance({ a: two, b: one, distance: 21 })).true;
   });
   it('should not be within distance when far', () => {
-    const one = { x: 1, y: 2 };
-    const two = { x: 20, y: 10 };
+    const one = { x: 1, y: 2, width: 10, height: 10 };
+    const two = { x: 20, y: 10, width: 10, height: 10 };
     expect(Story.isWithinDistance({ a: one, b: two, distance: 20 })).false;
     expect(Story.isWithinDistance({ a: two, b: one, distance: 20 })).false;
   });
@@ -159,8 +159,8 @@ describe('isTriggered', () => {
     expect(Story.isTriggered({ trigger, player, areas })).true;
   });
   it('should trigger on distance', () => {
-    const one = { x: 1, y: 2 };
-    const two = { x: 1, y: 3, id: 1 };
+    const one = { x: 1, y: 2, width: 10, height: 10 };
+    const two = { x: 1, y: 3, width: 10, height: 10, id: 1 };
     const characters = [two];
     const trigger = events[3].trigger; // characterId: 1
     expect(Story.isTriggered({ trigger, player: one, characters })).true;
@@ -175,7 +175,7 @@ describe('updateGameState', () => {
     const gs = {
       ...gameState,
       conversation: null,
-      player: { x: 0.5, y: 0.1009 },
+      player: { x: 0.5, y: 0.1009, width: 0.005, height: 0.005 },
       characters: [character],
       events: [gameData.events[2]] // Just one for now
     };

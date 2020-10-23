@@ -1,12 +1,13 @@
 import { Util } from './util.js';
+import { Sprite } from './sprite.js';
 
 export class Physics {
   // This is used when initializing the game world and should only be called once
   static getGameContextPixels({ canvas, image }) {
     const bounds = canvas.getBoundingClientRect();
     const ratio = bounds.width/bounds.height;
-    const canvasWidth = bounds.width; //image.width;
-    const canvasHeight = bounds.height; //Math.round(image.width/ratio);
+    const canvasWidth = Math.round(bounds.width);
+    const canvasHeight = Math.round(bounds.height);
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     const context = canvas.getContext('2d');
@@ -33,7 +34,7 @@ export class Physics {
     const { 
       image, context, pixels, player, 
       characters, width, height, locMap, updateStats, 
-      moveNPC, movePlayer, getGameState, characterSprite
+      moveNPC, movePlayer, getGameState, sprites
     } = state;
 
     // Get the move the player wants to make
@@ -41,7 +42,16 @@ export class Physics {
     let newPlayer = movePlayer({ player, width, height, up, down, left, right });
 
     // Get the move the player is allowed to make (bounds check, ect)
-    newPlayer = Physics.getUseableMove({ oldActor: player, actor: newPlayer, pixels, width, height, locMap, updateStats, useHandycap: true });
+    newPlayer = Physics.getUseableMove({
+      oldActor: player,
+      actor: newPlayer,
+      pixels,
+      width,
+      height,
+      locMap,
+      updateStats,
+      useHandycap: true
+    });
     // Update player location in map
     Physics.updateLocationMap(locMap, { actor: newPlayer, oldActor: player, updateStats });
 
@@ -62,50 +72,13 @@ export class Physics {
     // Redraw the bounds
     context.drawImage(image, 0, 50, width, height);
 
-    context.fillStyle = 'black';
-
     // Draw new position player position
-    //context.fillRect(newPlayer.x, newPlayer.y, player.width, player.height);
-    const spriteOffset = characterSprite.width/15;
-    const spriteSize = characterSprite.width/3-(spriteOffset*2);
-    const centerx = (newPlayer.x + newPlayer.width/2);
-    const centery = (newPlayer.y + newPlayer.height/2);
+    Sprite.drawActorToContext({ context, sprites, actor: player });
 
-    context.translate(centerx, centery);
-    switch(player.facing) {
-      case 'left':
-        context.rotate(-90 * Math.PI / 180);
-        break;
-      case 'right':
-        context.rotate(90 * Math.PI / 180);
-        break;
-      case 'down':
-        context.rotate(Math.PI);
-        break;
-      case 'upleft':
-        context.rotate(-45 * Math.PI / 180);
-        break;
-      case 'upright':
-        context.rotate(45 * Math.PI / 180);
-        break;
-      case 'downright':
-        context.rotate(135 * Math.PI / 180);
-        break;
-      case 'downleft':
-        context.rotate(225 * Math.PI / 180);
-        break;
-    }
-    context.translate(-centerx, -centery);
-    context.drawImage(characterSprite, 
-      spriteOffset, spriteOffset, spriteSize, spriteSize,
-      newPlayer.x, newPlayer.y, newPlayer.width, newPlayer.height
-    );
-    context.setTransform(1, 0, 0, 1, 0, 0);
-
-    context.fillStyle = 'blue';
     for(let i = 0; i < newOthers.length; i++) {
       // Draw new position
-      context.fillRect(newOthers[i].x, newOthers[i].y, newOthers[i].width, newOthers[i].height);
+      //context.fillRect(newOthers[i].x, newOthers[i].y, newOthers[i].width, newOthers[i].height);
+      Sprite.drawActorToContext({ context, sprites, actor: newOthers[i] });
     }
 
     // Increment Frames

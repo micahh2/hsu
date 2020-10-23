@@ -1,6 +1,7 @@
 import { Story } from './story.js';
 import { Util } from './util.js';
 import { Physics } from './physics.js';
+import { Sprite } from './sprite.js';
 
 const fetchGameData = new Promise((res, rej) => {
   fetch('./gameData.json')
@@ -11,10 +12,25 @@ window.addEventListener('load', async () => {
   const start = new Date(); // Save the start time
   const gameData = await fetchGameData;
 
-  // Load element from DOM (look in index.html)
+  // Load elements from DOM (look in index.html)
   const canvas = document.getElementById('canvas');
   const image = document.getElementById('layout');
   const characterSprite = document.getElementById('character-sprite');
+  // const someOtherSprite = document.getElementById('someother-sprite');
+  const sprites = Sprite.loadSprites({
+    characterSprite: {
+      image: characterSprite, // Actual image data
+      columns: 3, // How many columns
+      rows: 5, // How many rows
+      padding: 60 // How much whitespace to ignore
+    }//,
+    // someOtherSprite: {
+    //   image: someOtherSprite,
+    //   columns: 3,
+    //   rows: 5,
+    //   padding: 60
+    // }
+  });
 
   // Get bounds pixels and context
   const { context, pixels, ratio, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
@@ -25,6 +41,7 @@ window.addEventListener('load', async () => {
 
   let physicsState = { 
     image, 
+    sprites,
     context,
     pixels,
     player: gameState.player, 
@@ -88,6 +105,7 @@ function newDestination({ width, height, player, attack }) {
 function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateStats }) {
   let newNPC = npc;
 
+  // Allow for spawn points
   if (npc.isNew && npc.fallbackSpeed == null) {
     newNPC = { ...newNPC, speed: npc.width+1, fallbackSpeed: npc.speed };
   } else if (npc.isNew && !npc.hasCollision) {
@@ -97,20 +115,32 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
   // If we're near to destination, or have a collision pick a new destination
   if (!npc.destination || Util.dist(npc, npc.destination) < npc.speed || npc.hasCollision) {
     newNPC = { ...newNPC, destination: newDestination({ width, height, attack, player }) };
-  }
+  } 
 
-  const xdist = Math.abs(newNPC.x-newNPC.destination.x);
-  const xmove = Math.sign(-newNPC.x+newNPC.destination.x)*Math.min(xdist, newNPC.speed);
-  const ydist = Math.abs(newNPC.y-newNPC.destination.y);
-  const ymove = Math.sign(-newNPC.y+newNPC.destination.y)*Math.min(ydist, newNPC.speed);
+  const x = newNPC.x + newNPC.width/2;
+  const y = newNPC.y + newNPC.height/2;
+  const xdist = Math.abs(x-newNPC.destination.x);
+  const xmove = Math.sign(-x+newNPC.destination.x)*Math.min(xdist, newNPC.speed);
+  const ydist = Math.abs(y-newNPC.destination.y);
+  const ymove = Math.sign(-y+newNPC.destination.y)*Math.min(ydist, newNPC.speed);
   if (xmove !== 0 || ymove !== 0) {
+    let prefix = '';
+    let facing = newNPC.facing;
+    if (ymove < 0) { prefix = 'up'; }
+    else if (ymove > 0) { prefix = 'down'; }
+    if (xmove < 0) { facing = prefix + 'left'; }
+    else if (xmove > 0) { facing = prefix + 'right'; }
+    else if (prefix) { facing = prefix; }
+
     newNPC = {
       ...newNPC,
+      facing,
       x: Math.min(Math.max(newNPC.x+xmove, 0), width-1),
       y: Math.min(Math.max(newNPC.y+ymove, 0), height-1),
       hasCollision: false
     };
   }
+
   return newNPC;
 }
 
