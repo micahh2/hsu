@@ -8,8 +8,7 @@ window.addEventListener('load', () => {
   let image = document.getElementById('layout');
 
 
-  // Get bounds pixels and context
-  const { context, pixels, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
+  const { context, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
   const width = canvasWidth;
   const height = canvasHeight;
 
@@ -178,7 +177,6 @@ function inHandle({ areas, x, y }) {
 function draw({ context, areas, image, width, height, selected }) {
   window.requestAnimationFrame(() => {
     context.clearRect(0, 0, width, height);
-    context.drawImage(image, 0, 50, width, height);
 
     for (let i = 0; i < areas.length; i++) {
       const area = areas[areas.length-i-1];

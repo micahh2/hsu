@@ -11,7 +11,7 @@ export class Physics {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     const context = canvas.getContext('2d');
-    context.drawImage(image, 0, 50, canvasWidth, canvasHeight);
+    context.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
     // Transparent pixels
     const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight)
@@ -24,7 +24,7 @@ export class Physics {
       let start = i*imageData.width;
       const slice = allAlpha.slice(start, start+imageData.width);
       if (slice.every(t => t === 0)) { continue; }
-      pixels[i] = allAlpha.slice(start, start+imageData.width);
+      pixels[i] = Uint8Array.from(allAlpha.slice(start, start+imageData.width));
     }
     return { context, pixels, bounds, ratio, canvasWidth, canvasHeight };
   }
@@ -61,23 +61,24 @@ export class Physics {
       for (let i = 0; i < characters.length; i++) {
         // Get new NPC move
         let newActor = moveNPC({ npc: characters[i], width, height, player: newPlayer, attack, updateStats });
-        newOthers[i] = Physics.getUseableMove({ oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats });
+        newOthers[i] = Physics.getUseableMove({ 
+          oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats
+        });
         // Update npc location in map
-        Physics.updateLocationMap(locMap, { actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats });
+        Physics.updateLocationMap(locMap, 
+          { actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats }
+        );
       }
     }
 
     // Remove old
     context.clearRect(0, 0, width, height);
-    // Redraw the bounds
-    context.drawImage(image, 0, 50, width, height);
 
     // Draw new position player position
     Sprite.drawActorToContext({ context, sprites, actor: player });
 
     for(let i = 0; i < newOthers.length; i++) {
       // Draw new position
-      //context.fillRect(newOthers[i].x, newOthers[i].y, newOthers[i].width, newOthers[i].height);
       Sprite.drawActorToContext({ context, sprites, actor: newOthers[i] });
     }
 

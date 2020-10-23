@@ -27,7 +27,7 @@ body {
     letter-spacing: .2em;
 }
 
-#canvas {
+#canvas, #hidden {
     position: absolute;
     top: 0;
     left: 0;
@@ -35,6 +35,13 @@ body {
     max-width: calc(178vh);
     height: 100%;
     max-height: calc(56vw);
+}
+
+#canvas {
+  background: url(assets/layout_export.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
 
 #layout, #character-sprite {
