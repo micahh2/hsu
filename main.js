@@ -12,21 +12,15 @@ window.addEventListener('load', async () => {
   const gameData = await fetchGameData;
 
   // Load element from DOM (look in index.html)
-  let canvas = document.getElementById('canvas');
-  let image = document.getElementById('layout');
-
-  // Set canvas resolution
-  let canvasSize = image.width;
-  canvas.width = canvasSize;
-  canvas.height = canvasSize;
+  const canvas = document.getElementById('canvas');
+  const image = document.getElementById('layout');
+  const characterSprite = document.getElementById('character-sprite');
 
   // Get bounds pixels and context
-  const { context, pixels } = Physics.getGameContextPixels({ canvas, image });
+  const { context, pixels, ratio, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
 
-  // Add some npc's
-  const center = Math.floor(canvasSize/2);
   // Load the initial story
-  let gameState = Story.loadGameState({ gameData, width: canvasSize, height: canvasSize });
+  let gameState = Story.loadGameState({ gameData, width: canvasWidth, height: canvasHeight });
   //let newCharacters = new Array(100).fill(gameState.characters[0]).map((t, i) => ({ ...t, id:i+1 }));
 
   let physicsState = { 
@@ -35,13 +29,14 @@ window.addEventListener('load', async () => {
     pixels,
     player: gameState.player, 
     characters: gameState.characters, //.concat(newCharacters),
-    width: canvasSize,
-    height: canvasSize,
+    width: canvasWidth,
+    height: canvasHeight,
     locMap: {},
     updateStats,
     moveNPC,
     movePlayer,
-    getGameState
+    getGameState,
+    characterSprite
   };
   const physicsLoop = () => {
     physicsState = Physics.updatePhysicsState(physicsState);
@@ -126,17 +121,35 @@ function getGameState() {
 // Take all the input requests give an updated player
 function movePlayer({ player, width, height, up, down, left, right }) {
   let newPlayer = player;
-  if (up) {
-    newPlayer = { ...newPlayer, y: Math.max(newPlayer.y - newPlayer.speed, 0)};
+  let prefix = '';
+  if (up && !down) {
+    prefix = 'up';
+    newPlayer = { 
+      ...newPlayer,
+      y: Math.max(newPlayer.y - newPlayer.speed, 0), facing: prefix
+    };
   } 
-  if (down) {
-    newPlayer = { ...newPlayer, y: Math.min(newPlayer.y + newPlayer.speed, height-newPlayer.height)};
+  if (down && !up) {
+    prefix = 'down';
+    newPlayer = { 
+      ...newPlayer, 
+      y: Math.min(newPlayer.y + newPlayer.speed, height-newPlayer.height),
+      facing: prefix
+    };
   }
-  if (left) {
-    newPlayer = { ...newPlayer, x: Math.max(newPlayer.x - newPlayer.speed, 0)};
+  if (left && !right) {
+    newPlayer = {
+      ...newPlayer,
+      x: Math.max(newPlayer.x - newPlayer.speed, 0),
+      facing: prefix + 'left'
+    };
   }
-  if (right) {
-    newPlayer = { ...newPlayer, x: Math.min(newPlayer.x + newPlayer.speed, width-newPlayer.height)};
+  if (right && !left) {
+    newPlayer = { 
+      ...newPlayer,
+      x: Math.min(newPlayer.x + newPlayer.speed, width-newPlayer.height),
+      facing: prefix + 'right'
+    };
   }
   return newPlayer;
 }

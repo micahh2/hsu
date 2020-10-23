@@ -32,13 +32,12 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    max-width: calc(100vh);
+    max-width: calc(178vh);
     height: 100%;
-    max-height: calc(100vw);
-    margin-left: calc(50vh-50vw);
+    max-height: calc(56vw);
 }
 
-#layout {
+#layout, #character-sprite {
     display:none;
 }
 

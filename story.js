@@ -4,16 +4,12 @@ export class Story {
 
   static areaObjectMap({ objects, areas }) { }
 
-  static relativeToAbsolute({ relative, width, height }) {
+  static relativeToAbsolute({ relative, width }) {
     if (!relative) { return relative; }
     const abs = { ...relative };
-    for (let i of ['x', 'width', 'speed']) {
+    for (let i of ['x', 'y', 'height', 'width', 'speed', 'distance']) {
       if(abs[i] == null) { continue; }
       abs[i] = Math.round(abs[i]*width);
-    }
-    for (let i of ['y', 'height']) {
-      if(abs[i] == null) { continue; }
-      abs[i] = Math.round(abs[i]*height);
     }
     return abs;
   }
@@ -21,14 +17,14 @@ export class Story {
   static loadGameState({ gameData, width, height }) {
     return {
       ...gameData,
-      areas: (gameData.areas || []).map(t => Story.relativeToAbsolute({ relative: t, width, height })),
-      player: Story.relativeToAbsolute({ relative: gameData.player, width, height }),
+      areas: (gameData.areas || []).map(t => Story.relativeToAbsolute({ relative: t, width })),
+      player: Story.relativeToAbsolute({ relative: gameData.player, width }),
       characters: (gameData || []).characters.map(t => Story.relativeToAbsolute({ relative: t, width, height })),
       events: (gameData.events || []).map(t => ({
         ...t,
-        trigger: t.trigger.distance != null ? {
-          ...t.trigger, distance: Math.round(t.trigger.distance*width)
-        } : t.trigger,
+        trigger: t.trigger.distance != null
+          ? Story.relativeToAbsolute({ relative: t.trigger, width })
+          : t.trigger,
         destination: Story.relativeToAbsolute({ relative: t.destination, width, height })
       }))
     };

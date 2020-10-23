@@ -2,16 +2,21 @@ import { Util } from './util.js';
 
 export class Physics {
   // This is used when initializing the game world and should only be called once
-  static getGameContextPixels({ canvas, image  }) {
-    let context = canvas.getContext('2d');
-    let ratio = image.height/image.width;
-    context.drawImage(image, 0, 50, canvas.width, canvas.width*ratio);
+  static getGameContextPixels({ canvas, image }) {
+    const bounds = canvas.getBoundingClientRect();
+    const ratio = bounds.width/bounds.height;
+    const canvasWidth = bounds.width; //image.width;
+    const canvasHeight = bounds.height; //Math.round(image.width/ratio);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 50, canvasWidth, canvasHeight);
 
     // Transparent pixels
-    let imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-    let allAlpha = imageData.data
+    const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight)
+    const allAlpha = imageData.data
       .filter((_, index) => (index+1) % 4 === 0);
-    let pixels = {};
+    const pixels = {};
 
     // Split them into the map for faster access
     for(let i = 0; i < imageData.height; i++) {
@@ -20,11 +25,17 @@ export class Physics {
       if (slice.every(t => t === 0)) { continue; }
       pixels[i] = allAlpha.slice(start, start+imageData.width);
     }
-    return { context, pixels };
+    return { context, pixels, bounds, ratio, canvasWidth, canvasHeight };
   }
 
   // This is the main game loop, it calls itself recursively
-  static updatePhysicsState({ image, context, pixels, player, characters, width, height, locMap, updateStats, moveNPC, movePlayer, getGameState }) {
+  static updatePhysicsState(state) {
+    const { 
+      image, context, pixels, player, 
+      characters, width, height, locMap, updateStats, 
+      moveNPC, movePlayer, getGameState, characterSprite
+    } = state;
+
     // Get the move the player wants to make
     const { paused, attack, up, down, left, right } = getGameState();
     let newPlayer = movePlayer({ player, width, height, up, down, left, right });
@@ -49,12 +60,47 @@ export class Physics {
     // Remove old
     context.clearRect(0, 0, width, height);
     // Redraw the bounds
-    context.drawImage(image, 0, 50, image.width, image.height);
+    context.drawImage(image, 0, 50, width, height);
 
     context.fillStyle = 'black';
 
     // Draw new position player position
-    context.fillRect(newPlayer.x, newPlayer.y, player.width, player.height);
+    //context.fillRect(newPlayer.x, newPlayer.y, player.width, player.height);
+    const spriteOffset = characterSprite.width/15;
+    const spriteSize = characterSprite.width/3-(spriteOffset*2);
+    const centerx = (newPlayer.x + newPlayer.width/2);
+    const centery = (newPlayer.y + newPlayer.height/2);
+
+    context.translate(centerx, centery);
+    switch(player.facing) {
+      case 'left':
+        context.rotate(-90 * Math.PI / 180);
+        break;
+      case 'right':
+        context.rotate(90 * Math.PI / 180);
+        break;
+      case 'down':
+        context.rotate(Math.PI);
+        break;
+      case 'upleft':
+        context.rotate(-45 * Math.PI / 180);
+        break;
+      case 'upright':
+        context.rotate(45 * Math.PI / 180);
+        break;
+      case 'downright':
+        context.rotate(135 * Math.PI / 180);
+        break;
+      case 'downleft':
+        context.rotate(225 * Math.PI / 180);
+        break;
+    }
+    context.translate(-centerx, -centery);
+    context.drawImage(characterSprite, 
+      spriteOffset, spriteOffset, spriteSize, spriteSize,
+      newPlayer.x, newPlayer.y, newPlayer.width, newPlayer.height
+    );
+    context.setTransform(1, 0, 0, 1, 0, 0);
 
     context.fillStyle = 'blue';
     for(let i = 0; i < newOthers.length; i++) {
@@ -66,17 +112,9 @@ export class Physics {
     updateStats('frames', 1);
 
     return { 
-      image, 
-      context,
-      pixels, 
+      ...state,
       player: newPlayer,
       characters: newOthers, 
-      width, height, 
-      locMap, 
-      updateStats,
-      moveNPC,
-      movePlayer,
-      getGameState
     };
   }
 
@@ -84,8 +122,8 @@ export class Physics {
   static mapKey(x, y, offsetx, offsety) {
     offsetx = offsetx || 0; // Default to 0
     offsety = offsety || 0; // Default to 0
-    const keyx = Math.max(Math.floor(x/10)+offsetx, 0); // This means that we can have no items LARGER than 10x10
-    const keyy = Math.max(Math.floor(y/10)+offsety, 0);
+    const keyx = Math.max(Math.floor(x/30)+offsetx, 0); // This means that we can have no items LARGER than 30
+    const keyy = Math.max(Math.floor(y/30)+offsety, 0);
     // Note this breaks down if we have more than 10000 objects
     return 10000*keyx+keyy;
   }

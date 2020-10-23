@@ -1,6 +1,6 @@
 {
   "areas": [],
-  "player": { "x": 0.1, "y": 0.1, "width": 0.005, "height": 0.005, "speed": 0.005 },
+  "player": { "x": 0.1, "y": 0.1, "width": 0.025, "height": 0.025, "speed": 0.005 },
   "events": [
     {
       "type": "set-destination",

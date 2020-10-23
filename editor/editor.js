@@ -7,28 +7,21 @@ window.addEventListener('load', () => {
   let canvas = document.getElementById('canvas');
   let image = document.getElementById('layout');
 
-  // Set canvas resolution
-  const width = image.width;
-  const height = image.height;
-  const canvasSize = image.width;
-  canvas.width = canvasSize;
-  canvas.height = canvasSize;
-  const rect = canvas.getBoundingClientRect();
-  const scale = canvas.width / rect.width; 
-  
 
   // Get bounds pixels and context
-  const { context, pixels } = Physics.getGameContextPixels({ canvas, image });
+  const { context, pixels, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
+  const width = canvasWidth;
+  const height = canvasHeight;
 
   let areas = [];
   let gameData = {};
 
-  const args = { context, image, width: canvasSize, height: canvasSize, areas };
+  const args = { context, image, width, height, areas };
   let selected;
   let stat;
   canvas.addEventListener('mousedown', (e) => {
-    const x = e.offsetX*scale;
-    const y = e.offsetY*scale;
+    const x = e.offsetX;
+    const y = e.offsetY;
     const grabbed = inHandle({ areas, x, y });
     selected = grabbed || inArea({ areas, x, y })
     if (grabbed) {
@@ -52,14 +45,14 @@ window.addEventListener('load', () => {
       if (stat === 'resize') {
         selected = {
           ...selected,
-          width: e.offsetX*scale - selected.x,
-          height: e.offsetY*scale - selected.y,
+          width: e.offsetX - selected.x,
+          height: e.offsetY - selected.y,
         };
       } else if(stat === 'move') {
         selected = {
           ...selected,
-          x: selected.x+e.movementX*scale,
-          y: selected.y+e.movementY*scale,
+          x: selected.x+e.movementX,
+          y: selected.y+e.movementY,
         };
       }
       areas = updatedAreas.concat(selected);
@@ -116,13 +109,13 @@ async function importFile({ file, width, height }) {
   return Story.loadGameState({ gameData: JSON.parse(text), width, height });
 }
 
-function absToRelXYWidthHeight(abs, w, h) {
+function absToRelXYWidthHeight(abs, w) {
   return {
     ...abs,
     x: absToRel(abs.x, w),
-    y: absToRel(abs.y, h),
+    y: absToRel(abs.y, w),
     width: absToRel(abs.width, w),
-    height: absToRel(abs.height, h)
+    height: absToRel(abs.height, w)
   };
 }
 
@@ -130,16 +123,16 @@ function absToRel(abs, max) {
   return Math.round(abs/max*10000)/10000;
 }
 
-function exportFile({ gameData, width, height }) {
+function exportFile({ gameData, width }) {
   const exportData = {
     ...gameData,
     player: gameData.player != null ? {
-      ...absToRelXYWidthHeight(gameData.player, width, height),
+      ...absToRelXYWidthHeight(gameData.player, width),
       speed: absToRel(gameData.player.speed, width) 
     } : gameData.player,
-    areas: (gameData.areas || []).map(t => absToRelXYWidthHeight(t, width, height)),
+    areas: (gameData.areas || []).map(t => absToRelXYWidthHeight(t, width)),
     characters: (gameData.characters || []).map(t => ({
-      ...absToRelXYWidthHeight(t, width, height),
+      ...absToRelXYWidthHeight(t, width),
       speed: absToRel(t.speed, width) 
     })),
     events: (gameData.events || []).map(t => ({
@@ -150,7 +143,7 @@ function exportFile({ gameData, width, height }) {
       } : t.trigger,
       destination: t.destination != null ? {
         x: absToRel(t.destination.x, width),
-        y: absToRel(t.destination.y, height)
+        y: absToRel(t.destination.y)
       } : t.destination
     }))
   };
@@ -185,7 +178,7 @@ function inHandle({ areas, x, y }) {
 function draw({ context, areas, image, width, height, selected }) {
   window.requestAnimationFrame(() => {
     context.clearRect(0, 0, width, height);
-    context.drawImage(image, 0, 50, image.width, image.height);
+    context.drawImage(image, 0, 50, width, height);
 
     for (let i = 0; i < areas.length; i++) {
       const area = areas[areas.length-i-1];
