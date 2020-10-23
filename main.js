@@ -113,7 +113,7 @@ function moveNPC({ npc, pixels, locMap, width, height, player, attack, updateSta
   }
 
   // If we're near to destination, or have a collision pick a new destination
-  if (!npc.destination || Util.dist(npc, npc.destination) < npc.speed || npc.hasCollision) {
+  if (!npc.destination || Util.dist(npc, npc.destination) < npc.width || npc.hasCollision) {
     newNPC = { ...newNPC, destination: newDestination({ width, height, attack, player }) };
   } 
 
