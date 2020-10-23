@@ -60,7 +60,7 @@ export class Physics {
       newOthers = new Array(characters.length);
       for (let i = 0; i < characters.length; i++) {
         // Get new NPC move
-        let newActor = moveNPC({ npc: characters[i], pixels, width, height, locMap, player: newPlayer, attack, updateStats });
+        let newActor = moveNPC({ npc: characters[i], width, height, player: newPlayer, attack, updateStats });
         newOthers[i] = Physics.getUseableMove({ oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats });
         // Update npc location in map
         Physics.updateLocationMap(locMap, { actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats });
