@@ -56,6 +56,7 @@ window.addEventListener('load', async () => {
     return { ...t, id:i+1, spriteIndex };
   });
 
+  let storyChanges;
   let physicsState = { 
     image, 
     sprites,
@@ -74,6 +75,10 @@ window.addEventListener('load', async () => {
   };
   const physicsLoop = () => {
     physicsState = Physics.updatePhysicsState(physicsState);
+    if (storyChanges) {
+      physicsState = Story.applyChanges(physicsState, storyChanges);
+      storyChanges = null;
+    }
     window.requestAnimationFrame(physicsLoop);
   };
   // Start main game loop
@@ -84,15 +89,21 @@ window.addEventListener('load', async () => {
   let last = new Date();
   setInterval(() => {
     const timeSinceLast = new Date()-last;
-    const now = - new Date() - start;
-    let newGameState = Story.updateGameState({ 
-      ...gameState, 
-      now,
-      timeSinceLast,
+    gameState = {
+      ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
+    };
+    const now = new Date() - start;
+    let newGameState = Story.updateGameState({ 
+      gameState, 
+      now,
+      timeSinceLast,
     });
     last = new Date();
+    if (newGameState !== gameState) {
+      storyChanges = Story.getChanges(gameState, newGameState);
+    }
 
     if (gameState.conversation !== newGameState.conversation) {
       renderConversation(newGameState.conversation);

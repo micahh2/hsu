@@ -1,3 +1,4 @@
+// I thought there would be audio but... whatever.
 
 export class Camera {
   static setCanvasResolution(canvas, canvasWidth, canvasHeight) {

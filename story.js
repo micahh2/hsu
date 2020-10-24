@@ -2,6 +2,40 @@ import { Util } from './util.js';
 
 export class Story {
 
+  static getChanges(oldState, state) {
+    const changes = {};
+    const stateKeys = Object.keys(state);
+    for (let i of stateKeys) {
+      if (oldState[i] === state[i]) { continue; }
+      if (typeof oldState[i] === typeof state[i] && typeof state[i] === 'object') {
+        const subChanges = Story.getChanges(oldState[i], state[i]);
+        if (Object.keys(subChanges).length === 0) { continue; }
+        changes[i] = subChanges
+        continue;
+      }
+      changes[i] = state[i];
+    }
+    return changes;
+  }
+
+  static applyChanges(state, changes) {
+    if (state == null) { return changes; }
+    if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
+    const changeKeys = Object.keys(changes);
+    if (changeKeys.length === 0) { return state; }
+    let newState;
+    if (state instanceof Array) {
+      newState = [...state];
+    } else {
+      newState = { ...state };
+    }
+
+    for (let i of changeKeys) {
+      newState[i] = Story.applyChanges(newState[i], changes[i]);
+    }
+    return newState;
+  }
+
   static areaObjectMap({ objects, areas }) { }
 
   static relativeToAbsolute({ relative, width }) {
@@ -70,8 +104,10 @@ export class Story {
     return e.trigger.type === 'interval' && (e.trigger.end == null || now < e.trigger.end);
   }
 
-  static updateGameState({ player, areas, conversation, inventory, mail, characters, events, now, collisions, timeSinceLast }) {
+  static updateGameState({ gameState, now, locMap, collisions, timeSinceLast }) {
+    let { player, areas, conversation, inventory, mail, characters, events } = gameState;
     let expired = [];
+
     for (let i = 0; i < events.length; i++) {
 
       if (!Story.isTriggered({ areas, player, characters, trigger: events[i].trigger, now, timeSinceLast })) {
@@ -97,13 +133,9 @@ export class Story {
     events = events.filter(t => !expired.includes(t));
 
     return {
+      ...gameState,
       conversation,
-      characters,
-      player,
-      inventory,
-      mail,
-      events,
-      player
+      characters
     };
   }
 

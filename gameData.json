@@ -10,8 +10,9 @@
     },
     { 
       "type": "set-destination",
-      "trigger": { "type": "interval", "interval": 100000 },
-      "destination": { "x": 0.5, "y": 0.5 }
+      "trigger": { "type": "interval", "start": 5000, "interval": 10000 },
+      "destination": { "x": 1, "y": 1 },
+      "selector": { "characterId": 1 }
     },
     { 
       "type": "start-conversation",
@@ -29,6 +30,10 @@
     "height": 0.015,
     "spriteIndex": 12,
     "isNew": true,
+    "actions": {
+      "t": "start-conversation",
+      "a": "attack"
+    },
     "dialog": {
       "response": "Hello then.",
       "options": [

@@ -2,6 +2,52 @@ import { expect } from 'chai';
 import gameData from './gameData.spec.json';
 import { Story } from './story.js';
 
+describe('getChanges', () => {
+  it('should show the diff between two single level objects', () => {
+    const oldState = { a: 1, b: 2, c: 3 };
+    const state = { a: 1, b: 3, c: 2 };
+
+    expect(Story.getChanges(oldState, state)).to.eql({ b: 3, c: 2 });
+  });
+
+  it('should show the diff between two double level objects', () => {
+    const oldState = { a: { d: 'something' }, b: 2, c: { e: 12 } };
+    const state = { a: { d: 'something' }, b: 3, c: { olga: 12 } };
+
+    expect(Story.getChanges(oldState, state)).to.eql({ b: 3, c: { olga: 12 } });
+  });
+
+  it('should show the diff between two arrays', () => {
+    const oldState = { a: [1,2,3] };
+    const state = { a: [4,5,6] };
+
+    expect(Story.getChanges(oldState, state)).to.eql({ a: { 0: 4, 1: 5, 2: 6 } });
+  });
+});
+
+describe('applyChanges', () => {
+  it('should apply some changes to a flat object', () => {
+    const state = { a: 1, b: 2, c: 3 };
+    const changes = { b: 4 };
+
+    expect(Story.applyChanges(state, changes)).to.eql({ a: 1, b: 4, c: 3 });
+  });
+
+  it('should should be able to process multi-level changes', () => {
+    const state = { a: { d: 1 }, b: 2, c: 3 };
+    const changes = { a: { d: 2, e: 2 } };
+
+    expect(Story.applyChanges(state, changes)).to.eql({ a: { d: 2, e: 2 }, b: 2, c: 3 });
+  });
+
+  it('should should be able to update arrays', () => {
+    const state = [1,2,3,4];
+    const changes = { 0: 2, 1: 3 };
+
+    expect(Story.applyChanges(state, changes)).to.eql([2,3,3,4]);
+  });
+});
+
 describe('newId', () => {
   it ('should return the highest id+1', () => {
     let ids = [{ id: 1}, { id: 5 }, { id: 3 }];
@@ -179,7 +225,7 @@ describe('updateGameState', () => {
       characters: [character],
       events: [gameData.events[2]] // Just one for now
     };
-    const newGameState = Story.updateGameState(gs);
+    const newGameState = Story.updateGameState({ gameState: gs });
     expect(newGameState.conversation.currentDialog).to.eql(character.dialog);
   });
   it('should set destination on time', () => {
@@ -188,11 +234,10 @@ describe('updateGameState', () => {
     const gameState = {
       conversation: null,
       ...gameData,
-      now: 100090,
       characters: [character],
       events: [e] // Just one for now
     };
-    const newGameState = Story.updateGameState(gameState);
+    const newGameState = Story.updateGameState({ gameState, now: 100090 });
     expect(newGameState.conversation).null;
     expect(newGameState.characters[0].destination).to.eql(e.destination);
   });

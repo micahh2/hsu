@@ -8,6 +8,10 @@ node_modules
 !.vscode/extensions.json
 *.code-workspace
 
+# Floo shit
+.floo
+.flooignore
+
 # Cache files for Sublime Text
 *.tmlanguage.cache
 *.tmPreferences.cache
