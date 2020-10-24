@@ -3,6 +3,7 @@ import { Util } from './util.js';
 import { Physics } from './physics.js';
 import { Sprite } from './sprite.js';
 import { Characters } from './characters.js';
+import { Camera } from './camera.js';
 
 const fetchGameData = new Promise((res, rej) => {
   fetch('./gameData.json')
@@ -14,7 +15,8 @@ window.addEventListener('load', async () => {
   const gameData = await fetchGameData;
 
   // Load elements from DOM (look in index.html)
-  const canvas = document.getElementById('canvas');
+  const objectCanvas = document.getElementById('objects-layer');
+  const layoutCanvas = document.getElementById('layout-layer');
   const image = document.getElementById('layout');
   const characterSprite = document.getElementById('character-sprite');
   // const someOtherSprite = document.getElementById('someother-sprite');
@@ -34,11 +36,25 @@ window.addEventListener('load', async () => {
   });
 
   // Get bounds pixels and context
-  const { context, pixels, ratio, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
+  const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
+  const { canvasWidth, canvasHeight } = layoutCanvasData;
+
+  Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+  layoutCanvasData.context.drawImage(layout, 0, 0, canvasWidth, canvasHeight);
+
+  const pixels = Camera.getContextPixels(layoutCanvasData);
+  // Default layer context
+  const context = objectCanvas.getContext('2d');
 
   // Load the initial story
   let gameState = Story.loadGameState({ gameData, width: canvasWidth, height: canvasHeight });
-  //let newCharacters = new Array(100).fill(gameState.characters[0]).map((t, i) => ({ ...t, id:i+1 }));
+  // Add some random characters
+  let newCharacters = new Array(100).fill(gameState.characters[0]).map((t, i) => {
+    let spriteIndex = 8;
+    while(spriteIndex === 8) { spriteIndex = Math.floor(Math.random()*13); }
+    return { ...t, id:i+1, spriteIndex };
+  });
 
   let physicsState = { 
     image, 
@@ -46,7 +62,7 @@ window.addEventListener('load', async () => {
     context,
     pixels,
     player: gameState.player, 
-    characters: gameState.characters, //.concat(newCharacters),
+    characters: gameState.characters.concat(newCharacters),
     width: canvasWidth,
     height: canvasHeight,
     locMap: {},
