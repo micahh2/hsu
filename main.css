@@ -43,7 +43,7 @@ body {
   z-index: -2;
 }
 
-#layout, #character-sprite {
+#images img {
     display:none;
 }
 

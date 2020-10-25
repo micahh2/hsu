@@ -18,6 +18,7 @@ window.addEventListener('load', async () => {
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
   const layoutImage = document.getElementById('layout');
+  const backgroundImage = document.getElementById('background');
 
   // Get bounds pixels and context
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -49,8 +50,8 @@ window.addEventListener('load', async () => {
       // How big should the cached tile versions be - we just have two sizes
       scales: [gameState.player.width, gameState.player.width*2]
     },
-    layout: {
-      image: layoutImage,
+    background: {
+      image: backgroundImage,
       columns: 1,
       rows: 1,
       padding: 0,
@@ -102,7 +103,6 @@ window.addEventListener('load', async () => {
       width: canvasWidth,
       height: canvasHeight,
       sprites,
-      layoutImage,
       layoutContext: layoutCanvasData.context,
       viewport
     });

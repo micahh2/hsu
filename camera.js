@@ -68,14 +68,13 @@ export class Camera {
     width,
     height,
     sprites,
-    layoutImage,
-    layoutContext, 
     viewport,
     oldViewport,
+    layoutContext
   })  {
     if (oldViewport !== viewport) {
       //layoutContext.clearRect(0, 0, width, height);
-      const layoutData = sprites['layout'][width*viewport.scale];
+      const layoutData = sprites.background[width*viewport.scale];
       const layoutPart = layoutData.parts[0];
       const w = 
       layoutContext.drawImage(layoutData.canvas, 

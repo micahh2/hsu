@@ -1,6 +1,6 @@
 {
   "areas": [],
-  "player": { "x": 0.05, "y": 0.05, "width": 0.015, "height": 0.015, "spriteIndex": 8, "speed": 0.0015 },
+  "player": { "x": 0.05, "y": 0.05, "width": 0.01, "height": 0.01, "spriteIndex": 8, "speed": 0.0015 },
   "events": [
     {
       "type": "set-destination",
@@ -24,10 +24,10 @@
     "id": 1,
     "name": "Frau Kold",
     "x": 0.5,
-    "y": 0.1,
+    "y": 0.2,
     "speed": 0.001,
-    "width": 0.015,
-    "height": 0.015,
+    "width": 0.01,
+    "height": 0.01,
     "spriteIndex": 12,
     "isNew": true,
     "actions": {
