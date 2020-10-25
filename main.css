@@ -32,9 +32,15 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    max-width: calc(178vh);
+    max-width: calc(197vh);
     height: 100%;
-    max-height: calc(56vw);
+    max-height: calc(51vw);
+}
+#object-layer {
+  z-index: -1;
+}
+#layout-layer {
+  z-index: -2;
 }
 
 #layout, #character-sprite {

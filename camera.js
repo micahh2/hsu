@@ -40,8 +40,8 @@ export class Camera {
     const viewportWidth = width / scale;
     const viewportHeight =  height / scale;
 
-    const centerx = player.x + player.width/2;
-    const centery = player.y + player.height/2;
+    const centerx = Math.round((player.x + player.width/2)/width)*width;
+    const centery = Math.round((player.y + player.height/2)/height)*height;
 
     const viewport = {
       x: Math.min(Math.max(0, Math.round(centerx - viewportWidth/2)), width-viewportWidth),
@@ -62,17 +62,32 @@ export class Camera {
   }
 
   static drawScene({ 
-    player, characters, context, width, height, sprites, layoutImage, layoutContext, viewport, oldViewport
+    player,
+    characters, 
+    context,
+    width,
+    height,
+    sprites,
+    layoutImage,
+    layoutContext, 
+    viewport,
+    oldViewport,
   })  {
     if (oldViewport !== viewport) {
-      layoutContext.clearRect(0, 0, width, height);
-      layoutContext.scale(viewport.scale, viewport.scale);
-      layoutContext.drawImage(layoutImage, -viewport.x, -viewport.y, width, height);
-      layoutContext.setTransform(1, 0, 0, 1, 0, 0);
+      //layoutContext.clearRect(0, 0, width, height);
+      const layoutData = sprites['layout'][width*viewport.scale];
+      const layoutPart = layoutData.parts[0];
+      const w = 
+      layoutContext.drawImage(layoutData.canvas, 
+        -viewport.x*viewport.scale,
+        -viewport.y*viewport.scale,
+        layoutPart.width,
+        layoutPart.height
+      );
     }
+
     // Remove old
     context.clearRect(0, 0, width, height);
-
 
     // Draw new position player position
     Sprite.drawActorToContext({ context, sprites, actor: player, offset: viewport, scale: viewport.scale });

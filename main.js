@@ -18,22 +18,6 @@ window.addEventListener('load', async () => {
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
   const layoutImage = document.getElementById('layout');
-  const characterSprite = document.getElementById('character-sprite');
-  // const someOtherSprite = document.getElementById('someother-sprite');
-  const sprites = Sprite.loadSprites({
-    characterSprite: {
-      image: characterSprite, // Actual image data
-      columns: 3, // How many columns
-      rows: 5, // How many rows
-      padding: 60 // How much whitespace to ignore
-    }//,
-    // someOtherSprite: {
-    //   image: someOtherSprite,
-    //   columns: 3,
-    //   rows: 5,
-    //   padding: 60
-    // }
-  });
 
   // Get bounds pixels and context
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -41,14 +25,40 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
-  layoutCanvasData.context.drawImage(layoutImage, 0, 0, canvasWidth, canvasHeight);
+  layoutCanvasData.context.drawImage(layoutImage, 0, 0, 
+    canvasWidth, Math.round(canvasWidth*layoutImage.height/layoutImage.width)
+  );
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
   // Default layer context
   const context = objectCanvas.getContext('2d');
+  context.imageSmoothingEnabled = false;
+  layoutCanvasData.context.imageSmoothingEnabled = false;
 
   // Load the initial story
   let gameState = Story.loadGameState({ gameData, width: canvasWidth, height: canvasHeight });
+
+  // Load sprites
+  const characterSprite = document.getElementById('character-sprite');
+  const sprites = Sprite.loadSprites({
+    characterSprite: {
+      image: characterSprite, // Actual image data
+      columns: 3, // How many columns
+      rows: 5, // How many rows
+      padding: 60, // How much whitespace to ignore
+      // How big should the cached tile versions be - we just have two sizes
+      scales: [gameState.player.width, gameState.player.width*2]
+    },
+    layout: {
+      image: layoutImage,
+      columns: 1,
+      rows: 1,
+      padding: 0,
+      scales: [canvasWidth, canvasWidth*2],
+      alpha: false
+    }
+  }, canvasProvider);
+
   // Add some random characters
   let newCharacters = new Array(100).fill(gameState.characters[0]).map((t, i) => {
     let spriteIndex = 8;
@@ -305,4 +315,8 @@ function renderConversation(conversation) {
     ${currentDialog.response}
   </p>`;
   el.innerHTML = html;
+}
+
+function canvasProvider() {
+  return document.createElement('canvas');
 }

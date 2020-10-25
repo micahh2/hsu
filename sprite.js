@@ -1,34 +1,49 @@
 
 export class Sprite {
 
-  static loadSprites(args) {
+  static loadSprites(args, canvasProvider) {
     const spriteNames = Object.keys(args);
     return spriteNames.reduce((a, b) => ({
       ...a,
-      [b]: Sprite.loadSpriteData(args[b])
+      [b]: Sprite.loadSpriteData({ ...args[b], canvasProvider })
     }), {});
   }
 
-  static loadSpriteData({ image, rows, columns, padding }) {
-    const cellWidth = image.width/columns;
-    const cellHeight = image.height/rows;
+  static loadSpriteData({ image, rows, columns, padding, canvasProvider, scales, alpha }) {
+    alpha = alpha == null ? true : !!alpha;
+    const scaleData = {};
+    for (let i = 0; i < scales.length; i++) {
+      const cellWidth = image.width/columns;
+      const cellHeight = image.height/rows;
+      const ratio = scales[i]/cellWidth;
 
-    const parts = [];
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        parts[i*columns+j] = {
-          x: Math.round(cellWidth * j + padding),
-          y: Math.round(cellHeight * i + padding),
-          width: Math.round(cellWidth-(padding*2)),
-          height: Math.round(cellHeight-(padding*2))
-        };
+      const canvas = canvasProvider();
+      const canvasWidth = Math.round(image.width * ratio);
+      const canvasHeight = Math.round(image.height * ratio);
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      const context = canvas.getContext('2d', { alpha });
+      context.imageSmoothingEnabled = false;
+      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvasWidth, canvasHeight); 
+
+      const parts = [];
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+          parts[i*columns+j] = {
+            x: Math.round((cellWidth * j + padding)*ratio),
+            y: Math.round((cellHeight * i + padding)*ratio),
+            width: Math.round((cellWidth-(padding*2))*ratio),
+            height: Math.round((cellHeight-(padding*2))*ratio)
+          };
+        }
       }
+      scaleData[scales[i]] = {
+        canvas,
+        parts
+      };
     }
 
-    return {
-      image,
-      parts
-    };
+    return scaleData;
   }
 
   static drawActorToContext({ context, actor, sprites, offset, scale }) {
@@ -42,9 +57,9 @@ export class Sprite {
     context.translate(centerx, centery);
     context.rotate(Sprite.getRotationFromFacing(actor.facing));
     context.translate(-centerx, -centery);
-    const spriteData = sprites[actor.spriteName || 'characterSprite'];
+    const spriteData = sprites[actor.spriteName || 'characterSprite'][actor.width*scale];
     const spritePart = spriteData.parts[actor.spriteIndex || 0];
-    context.drawImage(spriteData.image, 
+    context.drawImage(spriteData.canvas, 
       spritePart.x, spritePart.y, spritePart.width, spritePart.height,
       x, y, actor.width, actor.height
     );
