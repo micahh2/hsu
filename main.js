@@ -17,7 +17,7 @@ window.addEventListener('load', async () => {
   // Load elements from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
-  const image = document.getElementById('layout');
+  const layoutImage = document.getElementById('layout');
   const characterSprite = document.getElementById('character-sprite');
   // const someOtherSprite = document.getElementById('someother-sprite');
   const sprites = Sprite.loadSprites({
@@ -41,7 +41,7 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
-  layoutCanvasData.context.drawImage(layout, 0, 0, canvasWidth, canvasHeight);
+  layoutCanvasData.context.drawImage(layoutImage, 0, 0, canvasWidth, canvasHeight);
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
   // Default layer context
@@ -57,9 +57,8 @@ window.addEventListener('load', async () => {
   });
 
   let storyChanges;
+  let oldViewport;
   let physicsState = { 
-    image, 
-    sprites,
     context,
     pixels,
     player: gameState.player, 
@@ -70,8 +69,7 @@ window.addEventListener('load', async () => {
     updateStats,
     moveNPC: Characters.moveNPC,
     movePlayer,
-    getGameState,
-    characterSprite
+    getGameState
   };
   const physicsLoop = () => {
     physicsState = Physics.updatePhysicsState(physicsState);
@@ -79,6 +77,26 @@ window.addEventListener('load', async () => {
       physicsState = Story.applyChanges(physicsState, storyChanges);
       storyChanges = null;
     }
+    const viewport = Camera.updateViewport({
+      oldViewport,
+      player: physicsState.player,
+      width: physicsState.width,
+      height: physicsState.height,
+      scale: zoom ? 2 : 1
+    });
+    Camera.drawScene({
+      oldViewport,
+      player: physicsState.player,
+      characters: physicsState.characters,
+      context, 
+      width: canvasWidth,
+      height: canvasHeight,
+      sprites,
+      layoutImage,
+      layoutContext: layoutCanvasData.context,
+      viewport
+    });
+    oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
   };
   // Start main game loop
@@ -165,6 +183,7 @@ let left = false;
 let right = false;
 let attack = false;
 let pause = false;
+let zoom = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
   if (event.defaultPrevented) { return; }
@@ -218,6 +237,9 @@ window.addEventListener('keyup', (e) => {
       break;
     case "KeyP":
       pause = !pause;
+      break;
+    case "KeyZ":
+      zoom = !zoom;
       break;
     default:
       console.log(event.code);

@@ -1,4 +1,4 @@
-// I thought there would be audio but... whatever.
+import { Sprite } from './sprite.js';
 
 export class Camera {
   static setCanvasResolution(canvas, canvasWidth, canvasHeight) {
@@ -34,5 +34,55 @@ export class Camera {
       pixels[i] = Uint8Array.from(allAlpha.slice(start, start+imageData.width));
     }
     return pixels;
+  }
+
+  static updateViewport({ oldViewport, player, width, height, scale }) {
+    const viewportWidth = width / scale;
+    const viewportHeight =  height / scale;
+
+    const centerx = player.x + player.width/2;
+    const centery = player.y + player.height/2;
+
+    const viewport = {
+      x: Math.min(Math.max(0, Math.round(centerx - viewportWidth/2)), width-viewportWidth),
+      y: Math.min(Math.max(0, Math.round(centery - viewportHeight/2)), height-viewportHeight),
+      width: Math.round(viewportWidth),
+      height: Math.round(viewportHeight),
+      scale
+    };
+    if (oldViewport &&
+        oldViewport.x === viewport.x &&
+        oldViewport.y === viewport.y &&
+        oldViewport.width === viewport.width &&
+        oldViewport.height === viewport.height &&
+        oldViewport.scale === viewport.scale) {
+      return oldViewport;
+    }
+    return viewport;
+  }
+
+  static drawScene({ 
+    player, characters, context, width, height, sprites, layoutImage, layoutContext, viewport, oldViewport
+  })  {
+    if (oldViewport !== viewport) {
+      layoutContext.clearRect(0, 0, width, height);
+      layoutContext.scale(viewport.scale, viewport.scale);
+      layoutContext.drawImage(layoutImage, -viewport.x, -viewport.y, width, height);
+      layoutContext.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    // Remove old
+    context.clearRect(0, 0, width, height);
+
+
+    // Draw new position player position
+    Sprite.drawActorToContext({ context, sprites, actor: player, offset: viewport, scale: viewport.scale });
+
+    for(let i = 0; i < characters.length; i++) {
+      const actor = characters[i];
+      if (viewport.x > (actor.x+actor.width) || (viewport.x+viewport.width) < actor.x) { continue; }
+      if (viewport.y > (actor.y+actor.height) || (viewport.y+viewport.height) < actor.y) { continue; }
+      // Draw new position
+      Sprite.drawActorToContext({ context, sprites, actor, offset: viewport, scale: viewport.scale });
+    }
   }
 }

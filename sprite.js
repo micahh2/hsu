@@ -31,10 +31,14 @@ export class Sprite {
     };
   }
 
-  static drawActorToContext({ context, actor, sprites }) {
-    const centerx = (actor.x + actor.width/2);
-    const centery = (actor.y + actor.height/2);
+  static drawActorToContext({ context, actor, sprites, offset, scale }) {
+    offset = offset || { x: 0, y: 0 };
+    const x = actor.x -offset.x;
+    const y = actor.y -offset.y;
+    const centerx = (x + actor.width/2);
+    const centery = (y + actor.height/2);
 
+    context.scale(scale, scale);
     context.translate(centerx, centery);
     context.rotate(Sprite.getRotationFromFacing(actor.facing));
     context.translate(-centerx, -centery);
@@ -42,7 +46,7 @@ export class Sprite {
     const spritePart = spriteData.parts[actor.spriteIndex || 0];
     context.drawImage(spriteData.image, 
       spritePart.x, spritePart.y, spritePart.width, spritePart.height,
-      actor.x, actor.y, actor.width, actor.height
+      x, y, actor.width, actor.height
     );
     context.setTransform(1, 0, 0, 1, 0, 0);
   }

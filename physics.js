@@ -1,14 +1,15 @@
 import { Util } from './util.js';
-import { Sprite } from './sprite.js';
+import { Camera } from './camera.js';
 
 export class Physics {
 
   // This is the main game loop, it calls itself recursively
   static updatePhysicsState(state) {
     const { 
-      image, context, pixels, player, 
-      characters, width, height, locMap, updateStats, 
-      moveNPC, movePlayer, getGameState, sprites
+      pixels, player, 
+      characters, width, height,
+      locMap, updateStats, 
+      moveNPC, movePlayer, getGameState
     } = state;
 
     // Get the move the player wants to make
@@ -43,17 +44,6 @@ export class Physics {
           { actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats }
         );
       }
-    }
-
-    // Remove old
-    context.clearRect(0, 0, width, height);
-
-    // Draw new position player position
-    Sprite.drawActorToContext({ context, sprites, actor: player });
-
-    for(let i = 0; i < newOthers.length; i++) {
-      // Draw new position
-      Sprite.drawActorToContext({ context, sprites, actor: newOthers[i] });
     }
 
     // Increment Frames
