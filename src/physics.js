@@ -1,9 +1,24 @@
 import { Util } from './util.js';
 import { Camera } from './camera.js';
 
+
 export class Physics {
 
-  // This is the main game loop, it calls itself recursively
+  /**
+   * This is used in the main game loop.
+   * @param {Object} state physics state
+   * @param {Uint8Array[]} state.pixels 2d Array with wall data
+   * @param {Character[]} state.characters Non-playable characters
+   * @param {Player} state.player Current player
+   * @param {Object} state.locMap Location Look up Map (Empty on first call, modified)
+   * @param {function} state.updateState Function to provide timing statistics
+   * @param {function} state.moveNPC Function to get next NPC move
+   * @param {function} state.movePlayer Function to move Player
+   * @param {function} state.getGameState Function to get game state
+   * @returns {Object} changes
+   * @returns {Character[]} changes.characters
+   * @returns {Player} changes.player
+   */
   static updatePhysicsState(state) {
     const { 
       pixels, player, 
