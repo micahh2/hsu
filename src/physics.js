@@ -2,10 +2,11 @@ import { Util } from './util.js';
 import { Camera } from './camera.js';
 
 
+/** A class containing methods for dealing with physics  */
 export class Physics {
 
   /**
-   * This is used in the main game loop.
+   * This function provides a 1 tick update to the physics state
    * @param {Object} state physics state
    * @param {Uint8Array[]} state.pixels 2d Array with wall data
    * @param {Character[]} state.characters Non-playable characters
@@ -16,8 +17,6 @@ export class Physics {
    * @param {function} state.movePlayer Function to move Player
    * @param {function} state.getGameState Function to get game state
    * @returns {Object} changes
-   * @returns {Character[]} changes.characters
-   * @returns {Player} changes.player
    */
   static updatePhysicsState(state) {
     const { 

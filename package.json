@@ -1,11 +1,13 @@
 {
   "name": "hsu",
-  "version": "1.0.0",
-  "description": "Hochschule Ulm Game",
+  "version": "0.0.1",
+  "description": "Hochschule Ulm, The Game",
   "main": "main.js",
   "scripts": {
     "test": "mocha --require esm -w src/**/*.spec.js",
-    "start": "http-server -c-1 src"
+    "start": "http-server -c-1 src",
+    "serve-docs": "npx documentation serve --watch src/main.js src/editor/editor.js",
+    "build-docs": "npx documentation build src/main.js src/editor/editor.js -f html -o docs"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,16 @@
 import { Util } from './util.js';
 
+/** A class containing methods for dealing with characters  */
 export class Characters {
-  // This is given to the game engine to determine the next move for a given NPC
+
+  /**
+   * This function determines the next move for a given NPC
+   * @param {Object} state
+   * @param {Character} state.npc the npc in question
+   * @param {number} state.width the width of the whole map
+   * @param {number} state.height the heigth of the whole map
+   * @returns {Character} an updated version of the npc
+   */
   static moveNPC({ npc, width, height, player, attack, updateStats }) {
     let newNPC = npc;
 

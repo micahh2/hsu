@@ -1,5 +1,6 @@
 import { Sprite } from './sprite.js';
 
+/** A class for dealing with perspective and rendering */
 export class Camera {
   static setCanvasResolution(canvas, canvasWidth, canvasHeight) {
 
@@ -36,6 +37,16 @@ export class Camera {
     return pixels;
   }
 
+  /**
+   * updateViewport
+   *
+   * @param {Object} arguments
+   * @param {Viewport=} arguments.oldViewport - old viewport which will be returned if there
+   *                                    is no difference between the new and the old viewport 
+   * @param {number} arguments.width - absolute width of the screen 
+   * @param {number} arguments.height - absolute height of the screen 
+   * @param {number} arguments.scale - an integer, 1 => no scaling
+   */
   static updateViewport({ oldViewport, player, width, height, scale }) {
     const viewportWidth = width / scale;
     const viewportHeight =  height / scale;
@@ -61,6 +72,16 @@ export class Camera {
     return viewport;
   }
 
+  /**
+   * updateViewport
+   *
+   * @param {Object} arguments
+   * @param {Player} arguments.player the player
+   * @param {Characters} arguments.characters Non-playable characters
+   * @param {CanvasRenderingContext2D} arguments.context The active collision context scene
+   * @param {Viewport} arguments.viewport The current viewport
+   * @param {Viewport} arguments.[oldViewport] The viewport from last time
+   */
   static drawScene({ 
     player,
     characters, 

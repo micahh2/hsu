@@ -1,6 +1,15 @@
 
+/**
+ * Sprite.
+ */
 export class Sprite {
 
+  /**
+   * loadSprites.
+   *
+   * @param {} args
+   * @param {} canvasProvider
+   */
   static loadSprites(args, canvasProvider) {
     const spriteNames = Object.keys(args);
     return spriteNames.reduce((a, b) => ({
@@ -9,6 +18,11 @@ export class Sprite {
     }), {});
   }
 
+  /**
+   * loadSpriteData.
+   *
+   * @param {Object} args
+   */
   static loadSpriteData({ image, rows, columns, padding, canvasProvider, scales, alpha }) {
     alpha = alpha == null ? true : !!alpha;
     const scaleData = {};
@@ -46,6 +60,11 @@ export class Sprite {
     return scaleData;
   }
 
+  /**
+   * drawActorToContext.
+   *
+   * @param {}
+   */
   static drawActorToContext({ context, actor, sprites, offset, scale }) {
     offset = offset || { x: 0, y: 0 };
     const x = actor.x -offset.x;
@@ -66,6 +85,11 @@ export class Sprite {
     context.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  /**
+   * getRotationFromFacing.
+   *
+   * @param {} facing
+   */
   static getRotationFromFacing(facing) {
     switch(facing) {
       case 'left':

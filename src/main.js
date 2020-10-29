@@ -82,6 +82,9 @@ window.addEventListener('load', async () => {
     movePlayer,
     getGameState
   };
+  /**
+   * physicsLoop.
+   */
   const physicsLoop = () => {
     physicsState = Physics.updatePhysicsState(physicsState);
     if (storyChanges) {
@@ -146,11 +149,20 @@ window.addEventListener('load', async () => {
 });
 
 
+/**
+ * getGameState.
+ * @deprecated
+ */
 function getGameState() {
   return { paused: pause, attack, up, down, left, right };
 }
 
-// Take all the input requests give an updated player
+// 
+/**
+ * Take all the input requests give an updated player
+ *
+ * @param {}
+ */
 function movePlayer({ player, width, height, up, down, left, right }) {
   let newPlayer = player;
   let prefix = '';
@@ -264,6 +276,9 @@ let collisionTime = 0;
 let collisionChecks = 0;
 let collisionCalls = 0;
 
+/**
+ * clearStats.
+ */
 function clearStats() {
   frames = 0;
   mapMakingTime = 0;
@@ -272,6 +287,12 @@ function clearStats() {
   collisionCalls = 0;
 }
 
+/**
+ * updateStats.
+ *
+ * @param {} key
+ * @param {} value
+ */
 function updateStats(key, value) {
   switch(key) {
     case 'frames':
@@ -292,6 +313,11 @@ function updateStats(key, value) {
   }
 }
 
+/**
+ * updateDiagnostDisp.
+ *
+ * @param {}
+ */
 function updateDiagnostDisp({ fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls }) {
   const el = document.getElementById('fps');
   el.innerHTML = `<ul>
@@ -302,6 +328,11 @@ function updateDiagnostDisp({ fps, collisionTime, mapMakingTime, collisionChecks
   </ul>`;
 }
 
+/**
+ * renderConversation.
+ *
+ * @param {} conversation
+ */
 function renderConversation(conversation) {
   const el = document.getElementById('conversation');
   if (!conversation) {
@@ -317,6 +348,9 @@ function renderConversation(conversation) {
   el.innerHTML = html;
 }
 
+/**
+ * canvasProvider.
+ */
 function canvasProvider() {
   return document.createElement('canvas');
 }

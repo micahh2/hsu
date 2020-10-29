@@ -1,7 +1,16 @@
 import { Util } from './util.js';
 
+/**
+ * Story.
+ */
 export class Story {
 
+  /**
+   * getChanges.
+   *
+   * @param {} oldState
+   * @param {} state
+   */
   static getChanges(oldState, state) {
     const changes = {};
     const stateKeys = Object.keys(state);
@@ -18,6 +27,12 @@ export class Story {
     return changes;
   }
 
+  /**
+   * applyChanges.
+   *
+   * @param {} state
+   * @param {} changes
+   */
   static applyChanges(state, changes) {
     if (state == null) { return changes; }
     if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
@@ -36,8 +51,18 @@ export class Story {
     return newState;
   }
 
+  /**
+   * areaObjectMap.
+   *
+   * @param {}
+   */
   static areaObjectMap({ objects, areas }) { }
 
+  /**
+   * relativeToAbsolute.
+   *
+   * @param {}
+   */
   static relativeToAbsolute({ relative, width }) {
     if (!relative) { return relative; }
     const abs = { ...relative };
@@ -48,6 +73,11 @@ export class Story {
     return abs;
   }
 
+  /**
+   * loadGameState.
+   *
+   * @param {}
+   */
   static loadGameState({ gameData, width, height }) {
     return {
       ...gameData,
@@ -64,26 +94,51 @@ export class Story {
     };
   }
 
+  /**
+   * isTime.
+   *
+   * @param {}
+   */
   static isTime({ time, now }) {
     return time <= now;
   }
 
+  /**
+   * isWithinInterval.
+   *
+   * @param {}
+   */
   static isWithinInterval({ interval, now, start, end, threshold }) {
     start = start || 0;
     if (now < start || (end != null && now > end)) { return false; }
     return (now-start) % interval <= threshold;
   }
 
+  /**
+   * isWithinDistance.
+   *
+   * @param {}
+   */
   static isWithinDistance({ distance, a, b }) {
     return Util.dist(a, b) <= distance;
   }
 
+  /**
+   * isWithinArea.
+   *
+   * @param {}
+   */
   static isWithinArea({ area, actor }) {
     const diffx = actor.x - area.x;
     const diffy = actor.y - area.y;
     return diffx >= 0 && diffx <= area.width && diffy >= 0 && diffy <= area.height;
   }
 
+  /**
+   * isTriggered.
+   *
+   * @param {}
+   */
   static isTriggered({ player, characters, areas, trigger, now, timeSinceLast }) {
     switch(trigger.type) {
       case 'time':
@@ -100,10 +155,21 @@ export class Story {
     throw Error(`Unexpected Trigger: ${trigger.type}`);
   }
 
+  /**
+   * isRecurrentEvent.
+   *
+   * @param {} e
+   * @param {} now
+   */
   static isRecurrentEvent(e, now) {
     return e.trigger.type === 'interval' && (e.trigger.end == null || now < e.trigger.end);
   }
 
+  /**
+   * updateGameState.
+   *
+   * @param {}
+   */
   static updateGameState({ gameState, now, locMap, collisions, timeSinceLast }) {
     let { player, areas, conversation, inventory, mail, characters, events } = gameState;
     let expired = [];
@@ -139,6 +205,11 @@ export class Story {
     };
   }
 
+  /**
+   * startConversation.
+   *
+   * @param {}
+   */
   static startConversation({ characters, selector }) {
     const character = characters.find(selector); 
     return { 
@@ -148,6 +219,11 @@ export class Story {
     };
   }
 
+  /**
+   * createSelector.
+   *
+   * @param {} sel
+   */
   static createSelector(sel) {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
@@ -155,6 +231,11 @@ export class Story {
     throw Error('Unknown selector type: ' + JSON.stringify(sel));
   }
 
+  /**
+   * setDestination.
+   *
+   * @param {}
+   */
   static setDestination({ characters, destination, selector }) {
     return characters.map(actor =>  {
       if (selector(actor)) {
@@ -164,10 +245,20 @@ export class Story {
     });
   }
 
+  /**
+   * updateDialog.
+   *
+   * @param {}
+   */
   static updateDialog({ dialog, action }) {
     // Todo
   }
 
+  /**
+   * newId.
+   *
+   * @param {} collection
+   */
   static newId(collection) {
     return collection.reduce((a,b) => Math.max(a,b.id), -1)+1;
   }
