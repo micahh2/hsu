@@ -42,7 +42,11 @@ export class Characters {
       else if (prefix) { facing = prefix; }
 
       // console.log(width + ": " + height);
-      if (newNPC.type === 'vip' && !attack && (newNPC.x >= width*newNPC.maxRight || newNPC.y >= height*newNPC.maxDown)){
+      if (newNPC.type === 'vip' && !attack && (
+          newNPC.x >= width*newNPC.maxRight ||
+          newNPC.y <= height*newNPC.maxLeft ||
+          newNPC.y >= height*newNPC.maxDown ||
+          newNPC.y <= height*newNPC.maxUp)){
         newNPC = {
           ...newNPC,
           facing,
