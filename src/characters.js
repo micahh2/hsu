@@ -44,7 +44,7 @@ export class Characters {
       // console.log(width + ": " + height);
       if (newNPC.type === 'vip' && !attack && (
           newNPC.x >= width*newNPC.maxRight ||
-          newNPC.y <= height*newNPC.maxLeft ||
+          newNPC.y <= width*newNPC.maxLeft ||
           newNPC.y >= height*newNPC.maxDown ||
           newNPC.y <= height*newNPC.maxUp)){
         newNPC = {
