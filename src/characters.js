@@ -24,7 +24,7 @@ export class Characters {
     // If we're near to destination, or have a collision pick a new destination
     if (!npc.destination || Util.dist(npc, npc.destination) < npc.width || npc.hasCollision) {
       newNPC = { ...newNPC, destination: Characters.newDestination({ width, height, attack, player }) };
-    } 
+    }
 
     const x = newNPC.x + Math.round(newNPC.width/2);
     const y = newNPC.y + Math.round(newNPC.height/2);
@@ -41,13 +41,24 @@ export class Characters {
       else if (xmove > 0) { facing = prefix + 'right'; }
       else if (prefix) { facing = prefix; }
 
-      newNPC = {
-        ...newNPC,
-        facing,
-        x: Math.min(Math.max(newNPC.x+xmove, 0), width-1),
-        y: Math.min(Math.max(newNPC.y+ymove, 0), height-1),
-        hasCollision: false
-      };
+      // console.log(width + ": " + height);
+      if (newNPC.type === 'vip' && !attack && (newNPC.x >= width*newNPC.maxRight || newNPC.y >= height*newNPC.maxDown)){
+        newNPC = {
+          ...newNPC,
+          facing,
+          x: Math.min(Math.max(newNPC.x-xmove, 0), width-1),
+          y: Math.min(Math.max(newNPC.y-ymove, 0), height-1),
+          hasCollision: true
+        };
+      }else {
+        newNPC = {
+          ...newNPC,
+          facing,
+          x: Math.min(Math.max(newNPC.x + xmove, 0), width - 1),
+          y: Math.min(Math.max(newNPC.y + ymove, 0), height - 1),
+          hasCollision: false
+        };
+      }
     }
 
     return newNPC;
@@ -59,8 +70,8 @@ export class Characters {
       return { x: player.x, y: player.y };
     }
     return {
-      x: Math.floor(Math.random()*width), 
-      y: Math.floor(Math.random()*height), 
+      x: Math.floor(Math.random()*width),
+      y: Math.floor(Math.random()*height),
     };
   }
 }
