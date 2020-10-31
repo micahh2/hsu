@@ -4,7 +4,6 @@ import { Util } from './util.js';
  * Story.
  */
 export class Story {
-
   /**
    * getChanges.
    *
@@ -14,12 +13,12 @@ export class Story {
   static getChanges(oldState, state) {
     const changes = {};
     const stateKeys = Object.keys(state);
-    for (let i of stateKeys) {
+    for (const i of stateKeys) {
       if (oldState[i] === state[i]) { continue; }
       if (typeof oldState[i] === typeof state[i] && typeof state[i] === 'object') {
         const subChanges = Story.getChanges(oldState[i], state[i]);
         if (Object.keys(subChanges).length === 0) { continue; }
-        changes[i] = subChanges
+        changes[i] = subChanges;
         continue;
       }
       changes[i] = state[i];
@@ -45,7 +44,7 @@ export class Story {
       newState = { ...state };
     }
 
-    for (let i of changeKeys) {
+    for (const i of changeKeys) {
       newState[i] = Story.applyChanges(newState[i], changes[i]);
     }
     return newState;
@@ -66,9 +65,9 @@ export class Story {
   static relativeToAbsolute({ relative, width }) {
     if (!relative) { return relative; }
     const abs = { ...relative };
-    for (let i of ['x', 'y', 'height', 'width', 'speed', 'distance']) {
-      if(abs[i] == null) { continue; }
-      abs[i] = Math.round(abs[i]*width);
+    for (const i of ['x', 'y', 'height', 'width', 'speed', 'distance']) {
+      if (abs[i] == null) { continue; }
+      abs[i] = Math.round(abs[i] * width);
     }
     return abs;
   }
@@ -81,16 +80,16 @@ export class Story {
   static loadGameState({ gameData, width, height }) {
     return {
       ...gameData,
-      areas: (gameData.areas || []).map(t => Story.relativeToAbsolute({ relative: t, width })),
+      areas: (gameData.areas || []).map((t) => Story.relativeToAbsolute({ relative: t, width })),
       player: Story.relativeToAbsolute({ relative: gameData.player, width }),
-      characters: (gameData || []).characters.map(t => Story.relativeToAbsolute({ relative: t, width, height })),
-      events: (gameData.events || []).map(t => ({
+      characters: (gameData || []).characters.map((t) => Story.relativeToAbsolute({ relative: t, width, height })),
+      events: (gameData.events || []).map((t) => ({
         ...t,
         trigger: t.trigger.distance != null
           ? Story.relativeToAbsolute({ relative: t.trigger, width })
           : t.trigger,
-        destination: Story.relativeToAbsolute({ relative: t.destination, width, height })
-      }))
+        destination: Story.relativeToAbsolute({ relative: t.destination, width, height }),
+      })),
     };
   }
 
@@ -108,10 +107,12 @@ export class Story {
    *
    * @param {}
    */
-  static isWithinInterval({ interval, now, start, end, threshold }) {
+  static isWithinInterval({
+    interval, now, start, end, threshold,
+  }) {
     start = start || 0;
     if (now < start || (end != null && now > end)) { return false; }
-    return (now-start) % interval <= threshold;
+    return (now - start) % interval <= threshold;
   }
 
   /**
@@ -139,18 +140,20 @@ export class Story {
    *
    * @param {}
    */
-  static isTriggered({ player, characters, areas, trigger, now, timeSinceLast }) {
-    switch(trigger.type) {
+  static isTriggered({
+    player, characters, areas, trigger, now, timeSinceLast,
+  }) {
+    switch (trigger.type) {
       case 'time':
         return Story.isTime({ time: trigger.time, now });
       case 'interval':
-        return Story.isWithinInterval({ ...trigger, now, threshold: timeSinceLast })
+        return Story.isWithinInterval({ ...trigger, now, threshold: timeSinceLast });
       case 'distance':
-        const character = characters.find(t => t.id === trigger.characterId);
-        return Story.isWithinDistance({ distance: trigger.distance, a: player, b: character })
+        const character = characters.find((t) => t.id === trigger.characterId);
+        return Story.isWithinDistance({ distance: trigger.distance, a: player, b: character });
       case 'area':
-        const area = areas.find(t => t.id === trigger.areaId);
-        return Story.isWithinArea({ area, actor: player })
+        const area = areas.find((t) => t.id === trigger.areaId);
+        return Story.isWithinArea({ area, actor: player });
     }
     throw Error(`Unexpected Trigger: ${trigger.type}`);
   }
@@ -170,24 +173,29 @@ export class Story {
    *
    * @param {}
    */
-  static updateGameState({ gameState, now, locMap, collisions, timeSinceLast }) {
-    let { player, areas, conversation, inventory, mail, characters, events } = gameState;
+  static updateGameState({
+    gameState, now, locMap, collisions, timeSinceLast,
+  }) {
+    let {
+      player, areas, conversation, inventory, mail, characters, events,
+    } = gameState;
     let expired = [];
 
     for (let i = 0; i < events.length; i++) {
-
-      if (!Story.isTriggered({ areas, player, characters, trigger: events[i].trigger, now, timeSinceLast })) {
-        continue; 
+      if (!Story.isTriggered({
+        areas, player, characters, trigger: events[i].trigger, now, timeSinceLast,
+      })) {
+        continue;
       }
 
       const selector = events[i].selector && Story.createSelector(events[i].selector);
-      switch(events[i].type) {
+      switch (events[i].type) {
         case 'set-destination':
           // Set destination
           characters = Story.setDestination({ characters, selector, destination: events[i].destination });
           break;
         case 'start-conversation':
-          conversation = Story.startConversation({ characters, selector })
+          conversation = Story.startConversation({ characters, selector });
           break;
       }
       // Tag expired events for removal
@@ -196,12 +204,12 @@ export class Story {
       }
     }
     // Update Events
-    events = events.filter(t => !expired.includes(t));
+    events = events.filter((t) => !expired.includes(t));
 
     return {
       ...gameState,
       conversation,
-      characters
+      characters,
     };
   }
 
@@ -211,11 +219,11 @@ export class Story {
    * @param {}
    */
   static startConversation({ characters, selector }) {
-    const character = characters.find(selector); 
-    return { 
+    const character = characters.find(selector);
+    return {
       character,
       currentDialog: character.dialog,
-      selectedOption: 0
+      selectedOption: 0,
     };
   }
 
@@ -228,7 +236,7 @@ export class Story {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }
-    throw Error('Unknown selector type: ' + JSON.stringify(sel));
+    throw Error(`Unknown selector type: ${JSON.stringify(sel)}`);
   }
 
   /**
@@ -237,7 +245,7 @@ export class Story {
    * @param {}
    */
   static setDestination({ characters, destination, selector }) {
-    return characters.map(actor =>  {
+    return characters.map((actor) => {
       if (selector(actor)) {
         return { ...actor, destination };
       }
@@ -260,6 +268,6 @@ export class Story {
    * @param {} collection
    */
   static newId(collection) {
-    return collection.reduce((a,b) => Math.max(a,b.id), -1)+1;
+    return collection.reduce((a, b) => Math.max(a, b.id), -1) + 1;
   }
 }

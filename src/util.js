@@ -9,11 +9,11 @@ export class Util {
    * @param {} b
    */
   static dist(a, b) {
-      const ax = a.x+(a.width || 0)/2; // Get the centers
-      const ay = a.y+(a.height || 0)/2;
-      const bx = b.x+(b.width || 0)/2;
-      const by = b.y+(b.height || 0)/2;
-      return Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+    const ax = a.x + (a.width || 0) / 2; // Get the centers
+    const ay = a.y + (a.height || 0) / 2;
+    const bx = b.x + (b.width || 0) / 2;
+    const by = b.y + (b.height || 0) / 2;
+    return Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
   }
 
   /**
@@ -24,6 +24,6 @@ export class Util {
    * @depreciated
    */
   static eq(a, b) {
-      return a.x === b.x && a.y === b.y && a.size === b.size && a.speed === b.speed;
+    return a.x === b.x && a.y === b.y && a.size === b.size && a.speed === b.speed;
   }
 }

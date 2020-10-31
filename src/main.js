@@ -7,7 +7,7 @@ import { Camera } from './camera.js';
 
 const fetchGameData = new Promise((res, rej) => {
   fetch('./gameData.json')
-    .then(response => res(response.json()))
+    .then((response) => res(response.json()));
 });
 
 window.addEventListener('load', async () => {
@@ -26,9 +26,8 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
-  layoutCanvasData.context.drawImage(layoutImage, 0, 0, 
-    canvasWidth, Math.round(canvasWidth*layoutImage.height/layoutImage.width)
-  );
+  layoutCanvasData.context.drawImage(layoutImage, 0, 0,
+    canvasWidth, Math.round(canvasWidth * layoutImage.height / layoutImage.width));
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
   // Default layer context
@@ -48,20 +47,20 @@ window.addEventListener('load', async () => {
       rows: 5, // How many rows
       padding: 60, // How much whitespace to ignore
       // How big should the cached tile versions be - we just have two sizes
-      scales: [gameState.player.width, gameState.player.width*2]
+      scales: [gameState.player.width, gameState.player.width * 2],
     },
     background: {
       image: backgroundImage,
       columns: 1,
       rows: 1,
       padding: 0,
-      scales: [canvasWidth, canvasWidth*2],
-      alpha: false
-    }
+      scales: [canvasWidth, canvasWidth * 2],
+      alpha: false,
+    },
   }, canvasProvider);
 
   // Add some random characters
-  let newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
+  const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
     let spriteIndex = 8;
     while(spriteIndex === 8) { spriteIndex = Math.floor(Math.random()*13); }
     return { ...t, id:i+gameState.characters.length+1, spriteIndex, type:'' }; //other NPCs' IDs follow the 'vip' NPCs'
@@ -72,10 +71,10 @@ window.addEventListener('load', async () => {
 
   let storyChanges;
   let oldViewport;
-  let physicsState = { 
+  let physicsState = {
     context,
     pixels,
-    player: gameState.player, 
+    player: gameState.player,
     characters: gameState.characters.concat(newCharacters),
     width: canvasWidth,
     height: canvasHeight,
@@ -83,7 +82,7 @@ window.addEventListener('load', async () => {
     updateStats,
     moveNPC: Characters.moveNPC,
     movePlayer,
-    getGameState
+    getGameState,
   };
   /**
    * physicsLoop.
@@ -99,18 +98,18 @@ window.addEventListener('load', async () => {
       player: physicsState.player,
       width: physicsState.width,
       height: physicsState.height,
-      scale: zoom ? 2 : 1
+      scale: zoom ? 2 : 1,
     });
     Camera.drawScene({
       oldViewport,
       player: physicsState.player,
       characters: physicsState.characters,
-      context, 
+      context,
       width: canvasWidth,
       height: canvasHeight,
       sprites,
       layoutContext: layoutCanvasData.context,
-      viewport
+      viewport,
     });
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
@@ -118,19 +117,18 @@ window.addEventListener('load', async () => {
   // Start main game loop
   physicsLoop();
 
-
   // Update game state periodically (100ms)
   let last = new Date();
   setInterval(() => {
-    const timeSinceLast = new Date()-last;
+    const timeSinceLast = new Date() - last;
     gameState = {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
     };
     const now = new Date() - start;
-    let newGameState = Story.updateGameState({ 
-      gameState, 
+    const newGameState = Story.updateGameState({
+      gameState,
       now,
       timeSinceLast,
     });
@@ -146,56 +144,62 @@ window.addEventListener('load', async () => {
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {
-    updateDiagnostDisp({ fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls });
+    updateDiagnostDisp({
+      fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls,
+    });
     clearStats();
   }, 1000);
 });
-
 
 /**
  * getGameState.
  * @deprecated
  */
 function getGameState() {
-  return { paused: pause, attack, up, down, left, right };
+  return {
+    paused: pause, attack, up, down, left, right,
+  };
 }
 
-// 
+//
 /**
  * Take all the input requests give an updated player
  *
  * @param {}
  */
-function movePlayer({ player, width, height, up, down, left, right }) {
+function movePlayer({
+  player, width, height, up, down, left, right,
+}) {
   let newPlayer = player;
   let prefix = '';
   if (up && !down) {
     prefix = 'up';
-    newPlayer = { 
+    newPlayer = {
       ...newPlayer,
-      y: Math.max(newPlayer.y - newPlayer.speed, 0), facing: prefix
+      y: Math.max(newPlayer.y - newPlayer.speed, 0),
+      facing: prefix,
     };
-  } 
+  }
   if (down && !up) {
     prefix = 'down';
-    newPlayer = { 
-      ...newPlayer, 
-      y: Math.min(newPlayer.y + newPlayer.speed, height-newPlayer.height),
-      facing: prefix
+    newPlayer = {
+      ...newPlayer,
+      y: Math.min(newPlayer.y + newPlayer.speed, height - newPlayer.height),
+      facing: prefix,
     };
   }
   if (left && !right) {
     newPlayer = {
       ...newPlayer,
       x: Math.max(newPlayer.x - newPlayer.speed, 0),
-      facing: prefix + 'left'
+      facing: `${prefix}left`,
     };
   }
   if (right && !left) {
-    newPlayer = { 
+    newPlayer = {
       ...newPlayer,
-      x: Math.min(newPlayer.x + newPlayer.speed, width-newPlayer.height),
-      facing: prefix + 'right'
+      x: Math.min(newPlayer.x + newPlayer.speed, width - newPlayer.height),
+      facing: `${prefix}right`,
     };
   }
   return newPlayer;
@@ -213,24 +217,24 @@ window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
   if (event.defaultPrevented) { return; }
 
-  switch(event.code) {
-    case "KeyS":
-    case "ArrowDown":
+  switch (event.code) {
+    case 'KeyS':
+    case 'ArrowDown':
       // Handle "back"
       down = true;
       break;
-    case "KeyW":
-    case "ArrowUp":
+    case 'KeyW':
+    case 'ArrowUp':
       // Handle "forward"
       up = true;
       break;
-    case "KeyA":
-    case "ArrowLeft":
+    case 'KeyA':
+    case 'ArrowLeft':
       // Handle "turn left"
       left = true;
       break;
-    case "KeyD":
-    case "ArrowRight":
+    case 'KeyD':
+    case 'ArrowRight':
       // Handle "turn right"
       right = true;
       break;
@@ -240,30 +244,30 @@ window.addEventListener('keyup', (e) => {
   // Do nothing if event already handled
   if (event.defaultPrevented) { return; }
 
-  switch(event.code) {
-    case "KeyS":
-    case "ArrowDown":
+  switch (event.code) {
+    case 'KeyS':
+    case 'ArrowDown':
       down = false;
       break;
-    case "KeyW":
-    case "ArrowUp":
+    case 'KeyW':
+    case 'ArrowUp':
       up = false;
       break;
-    case "KeyA":
-    case "ArrowLeft":
+    case 'KeyA':
+    case 'ArrowLeft':
       left = false;
       break;
-    case "KeyD":
-    case "ArrowRight":
+    case 'KeyD':
+    case 'ArrowRight':
       right = false;
       break;
-    case "Space":
+    case 'Space':
       attack = !attack;
       break;
-    case "KeyP":
+    case 'KeyP':
       pause = !pause;
       break;
-    case "KeyZ":
+    case 'KeyZ':
       zoom = !zoom;
       break;
     default:
@@ -297,22 +301,21 @@ function clearStats() {
  * @param {} value
  */
 function updateStats(key, value) {
-  switch(key) {
+  switch (key) {
     case 'frames':
-      frames+=value;
+      frames += value;
       return;
     case 'mapMakingTime':
-      mapMakingTime+=value;
+      mapMakingTime += value;
       return;
     case 'collisionTime':
-      collisionTime+=value;
+      collisionTime += value;
       return;
     case 'collisionChecks':
-      collisionChecks+=value;
+      collisionChecks += value;
       return;
     case 'collisionCalls':
-      collisionCalls+=value;
-      return;
+      collisionCalls += value;
   }
 }
 
@@ -321,13 +324,15 @@ function updateStats(key, value) {
  *
  * @param {}
  */
-function updateDiagnostDisp({ fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls }) {
+function updateDiagnostDisp({
+  fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls,
+}) {
   const el = document.getElementById('fps');
   el.innerHTML = `<ul>
     <li>${fps} FPS</li>
     <li>${collisionTime} Col. ms </li>
     <li>${mapMakingTime} Map. ms </li>
-    <li>${Math.round(collisionChecks/collisionCalls)} Ave. Col. Checks </li>
+    <li>${Math.round(collisionChecks / collisionCalls)} Ave. Col. Checks </li>
   </ul>`;
 }
 
@@ -344,7 +349,7 @@ function renderConversation(conversation) {
   }
   const { character, currentDialog } = conversation;
   el.style.display = 'block';
-  let html = `<p>
+  const html = `<p>
     <b>${character.name}:</b>
     ${currentDialog.response}
   </p>`;

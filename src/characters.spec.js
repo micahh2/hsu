@@ -10,18 +10,30 @@ describe('moveNPC', () => {
     const attack = false;
 
     for (let i = 0; i < 100; i++) {
-      const npc1 = { x: i, y: i*i, speed: i*2, width: i, height: i*3, isNew: true };
-      const newNPC1 = Characters.moveNPC({ npc: npc1, width, height, player, attack, updateStats });
+      const npc1 = {
+        x: i, y: i * i, speed: i * 2, width: i, height: i * 3, isNew: true,
+      };
+      const newNPC1 = Characters.moveNPC({
+        npc: npc1, width, height, player, attack, updateStats,
+      });
       expect(newNPC1.x).to.satisfy(Number.isInteger);
       expect(newNPC1.y).to.satisfy(Number.isInteger);
 
-      const npc2 = { x: i*3, y: i*4, speed: i*i, width: i*i, height: 3, isNew: false };
-      const newNPC2 = Characters.moveNPC({ npc: npc2, width, height, player, attack, updateStats });
+      const npc2 = {
+        x: i * 3, y: i * 4, speed: i * i, width: i * i, height: 3, isNew: false,
+      };
+      const newNPC2 = Characters.moveNPC({
+        npc: npc2, width, height, player, attack, updateStats,
+      });
       expect(newNPC2.x).to.satisfy(Number.isInteger);
       expect(newNPC2.y).to.satisfy(Number.isInteger);
 
-      const npc3 = { x: i*3, y: i*4, speed: i*i, width: i*i, height: 3, isNew: true };
-      const newNPC3 = Characters.moveNPC({ npc: npc3, width, height, player, attack, updateStats });
+      const npc3 = {
+        x: i * 3, y: i * 4, speed: i * i, width: i * i, height: 3, isNew: true,
+      };
+      const newNPC3 = Characters.moveNPC({
+        npc: npc3, width, height, player, attack, updateStats,
+      });
       expect(newNPC3.x).to.satisfy(Number.isInteger);
       expect(newNPC3.y).to.satisfy(Number.isInteger);
     }
