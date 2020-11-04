@@ -4,21 +4,33 @@ import { Physics } from './physics.js';
 import { Sprite } from './sprite.js';
 import { Characters } from './characters.js';
 import { Camera } from './camera.js';
+import { Map } from './map.js';
 
 const fetchGameData = new Promise((res, rej) => {
   fetch('./gameData.json')
     .then((response) => res(response.json()));
 });
+const fetchTilesetData = new Promise((res, rej) => {
+  fetch('./tileset.json')
+    .then((response) => res(response.json()));
+});
 
 window.addEventListener('load', async () => {
   const start = new Date(); // Save the start time
-  const gameData = await fetchGameData;
+  const [gameData, tilemap] = await Promise.all([
+    fetchGameData,
+    fetchTilesetData,
+  ]);
+
+  const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
+  const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
 
   // Load elements from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
-  const layoutImage = document.getElementById('layout');
-  const backgroundImage = document.getElementById('background');
+
+  //const layoutImage = document.getElementById('layout');
+  //const backgroundImage = document.getElementById('background');
 
   // Get bounds pixels and context
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -26,8 +38,16 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
-  layoutCanvasData.context.drawImage(layoutImage, 0, 0,
-    canvasWidth, Math.round(canvasWidth * layoutImage.height / layoutImage.width));
+
+  Map.drawTileMapToContext({ 
+    context: layoutCanvasData.context,
+    tilemap,
+    only: ["Buildings"],
+    sprites: tileSprites,
+    zoomLevel: 1
+  });
+  //layoutCanvasData.context.drawImage(layoutImage, 0, 0,
+  //  canvasWidth, Math.round(canvasWidth * layoutImage.height / layoutImage.width));
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
   // Default layer context
@@ -49,15 +69,17 @@ window.addEventListener('load', async () => {
       // How big should the cached tile versions be - we just have two sizes
       scales: [gameState.player.width, gameState.player.width * 2],
     },
-    background: {
-      image: backgroundImage,
-      columns: 1,
-      rows: 1,
-      padding: 0,
-      scales: [canvasWidth, canvasWidth * 2],
-      alpha: false,
-    },
   }, canvasProvider);
+  // set background
+  sprites.background = Map.loadTileMapAsSpriteData({
+    tilemap,
+    loadedTilesets,
+    setCanvasResolution: Camera.setCanvasResolution,
+    sprites: tileSprites,
+    canvasWidth,
+    zoomLevels: [1, 2],
+    canvasProvider
+  });
 
   // Add some random characters
   const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
@@ -72,7 +94,6 @@ window.addEventListener('load', async () => {
   let storyChanges;
   let oldViewport;
   let physicsState = {
-    context,
     pixels,
     player: gameState.player,
     characters: gameState.characters.concat(newCharacters),
@@ -101,7 +122,6 @@ window.addEventListener('load', async () => {
       scale: zoom ? 2 : 1,
     });
     Camera.drawScene({
-      oldViewport,
       player: physicsState.player,
       characters: physicsState.characters,
       context,
@@ -109,7 +129,9 @@ window.addEventListener('load', async () => {
       height: canvasHeight,
       sprites,
       layoutContext: layoutCanvasData.context,
+      oldViewport,
       viewport,
+      drawActorToContext: Sprite.drawActorToContext
     });
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);

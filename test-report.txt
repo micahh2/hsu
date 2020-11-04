@@ -5,7 +5,13 @@
     ✓ should provide a zoomed view
 
   moveNPC
-    ✓ should always move an npc as an integer
+    ✓ should always move an npc as an integer (63ms)
+
+  getSpritable
+    ✓ should take loaded tile data and return something we can make into a sprite
+
+  loadImages
+    ✓ should fetch images
 
   getUseableMove
     ✓ should move a player left if left is requested
@@ -13,6 +19,7 @@
     ✓ should let a player move left if down-left is requested, and down is not allowed
 
   loadSpriteData
+    ✓ should set the internal canvas size according to different scales
     ✓ should load sprite data into parts
     ✓ should load sprite data with different scales
 
@@ -77,5 +84,5 @@
     ✓ should transform choordinates from relative to abs
 
 
-  40 passing (34ms)
+  43 passing (149ms)
 

@@ -7,7 +7,7 @@ export class Characters {
    * @param {Object} state
    * @param {Character} state.npc the npc in question
    * @param {number} state.width the width of the whole map
-   * @param {number} state.height the heigth of the whole map
+   * @param {number} state.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
   static moveNPC({
