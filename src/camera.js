@@ -1,5 +1,3 @@
-import { Sprite } from './sprite.js';
-
 /** A class for dealing with perspective and rendering */
 export class Camera {
   static setCanvasResolution(canvas, canvasWidth, canvasHeight) {
@@ -56,8 +54,13 @@ export class Camera {
     const viewportWidth = width / scale;
     const viewportHeight = height / scale;
 
+    // Viewport broken into screens
     const centerx = Math.round((player.x + player.width / 2) / width) * width;
     const centery = Math.round((player.y + player.height / 2) / height) * height;
+
+    // Constantly updating vieport
+    //const centerx = Math.round((player.x + player.width / 2));
+    //const centery = Math.round((player.y + player.height / 2));
 
     const viewport = {
       x: Math.min(Math.max(0, Math.round(centerx - viewportWidth / 2)), width - viewportWidth),
@@ -97,23 +100,22 @@ export class Camera {
     viewport,
     oldViewport,
     layoutContext,
+    drawActorToContext
   }) {
     if (oldViewport !== viewport) {
       // layoutContext.clearRect(0, 0, width, height);
       const layoutData = sprites.background[width * viewport.scale];
       const layoutPart = layoutData.parts[0];
-      const w = layoutContext.drawImage(layoutData.canvas,
-        -viewport.x * viewport.scale,
-        -viewport.y * viewport.scale,
-        layoutPart.width,
-        layoutPart.height);
+      layoutContext.drawImage(layoutData.canvas,
+        -viewport.x * viewport.scale, -viewport.y * viewport.scale, layoutPart.width, layoutPart.height,
+      );
     }
 
     // Remove old
     context.clearRect(0, 0, width, height);
 
     // Draw new position player position
-    Sprite.drawActorToContext({
+    drawActorToContext({
       context, sprites, actor: player, offset: viewport, scale: viewport.scale,
     });
 
@@ -122,7 +124,7 @@ export class Camera {
       if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) { continue; }
       if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) { continue; }
       // Draw new position
-      Sprite.drawActorToContext({
+      drawActorToContext({
         context, sprites, actor, offset: viewport, scale: viewport.scale,
       });
     }

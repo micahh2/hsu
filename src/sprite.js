@@ -1,3 +1,5 @@
+import { Camera } from './camera.js';
+
 /**
  * Sprite.
  */
@@ -32,13 +34,14 @@ export class Sprite {
       const ratio = scales[i] / cellWidth;
 
       const canvas = canvasProvider();
-      const canvasWidth = Math.round(image.width * ratio);
-      const canvasHeight = Math.round(image.height * ratio);
+      const canvasWidth = Math.round(columns*scales[i]);
+      const canvasHeight = Math.round(rows*cellHeight*ratio);
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
+      canvas.style.width = canvasWidth;
+      canvas.style.height = canvasHeight;
       const context = canvas.getContext('2d', { alpha });
-      context.imageSmoothingEnabled = false;
-      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvasWidth, canvasHeight);
+      context.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
       const parts = [];
       for (let i = 0; i < rows; i++) {

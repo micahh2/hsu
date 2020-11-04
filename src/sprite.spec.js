@@ -1,16 +1,27 @@
 import { expect } from 'chai';
 import { Sprite } from './sprite.js';
 
+
 // fake canvas provider for unit testing
 const canvasProvider = () => ({
   width: 100,
   height: 100,
+  style: { },
   getContext: () => ({
     drawImage: () => {},
   }),
 });
 
 describe('loadSpriteData', () => {
+  it('should set the internal canvas size according to different scales', () => {
+    const image = { width: 20, height: 20 };
+    const spriteData = Sprite.loadSpriteData({
+      image, rows: 2, columns: 2, padding: 2, canvasProvider, scales: [10, 20],
+    });
+    expect(spriteData).to.have.all.keys(10, 20);
+    expect(spriteData[10].canvas.width).to.equal(20);
+    expect(spriteData[20].canvas.width).to.equal(40);
+  });
   it('should load sprite data into parts', () => {
     const image = { width: 20, height: 20 };
     const spriteData = Sprite.loadSpriteData({
