@@ -44,13 +44,28 @@ export class Characters {
       if (ymove < 0) { prefix = 'up'; } else if (ymove > 0) { prefix = 'down'; }
       if (xmove < 0) { facing = `${prefix}left`; } else if (xmove > 0) { facing = `${prefix}right`; } else if (prefix) { facing = prefix; }
 
-      newNPC = {
-        ...newNPC,
-        facing,
-        x: Math.min(Math.max(newNPC.x + xmove, 0), width - 1),
-        y: Math.min(Math.max(newNPC.y + ymove, 0), height - 1),
-        hasCollision: false,
-      };
+      // console.log(width + ": " + height);
+      if (newNPC.type === 'vip' && !attack && (
+          newNPC.x >= width*newNPC.maxRight ||
+          newNPC.y <= width*newNPC.maxLeft ||
+          newNPC.y >= height*newNPC.maxDown ||
+          newNPC.y <= height*newNPC.maxUp)){
+        newNPC = {
+          ...newNPC,
+          facing,
+          x: Math.min(Math.max(newNPC.x-xmove, 0), width-1),
+          y: Math.min(Math.max(newNPC.y-ymove, 0), height-1),
+          hasCollision: true
+        };
+      } else {
+        newNPC = {
+          ...newNPC,
+          facing,
+          x: Math.min(Math.max(newNPC.x + xmove, 0), width - 1),
+          y: Math.min(Math.max(newNPC.y + ymove, 0), height - 1),
+          hasCollision: false
+        };
+      }
     }
 
     return newNPC;
