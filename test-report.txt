@@ -5,7 +5,7 @@
     ✓ should provide a zoomed view
 
   moveNPC
-    ✓ should always move an npc as an integer (63ms)
+    ✓ should always move an npc as an integer
 
   getSpritable
     ✓ should take loaded tile data and return something we can make into a sprite
@@ -84,5 +84,5 @@
     ✓ should transform choordinates from relative to abs
 
 
-  43 passing (149ms)
+  43 passing (35ms)
 
