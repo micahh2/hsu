@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { Sprite } from './sprite.js';
 
-
 // fake canvas provider for unit testing
 const canvasProvider = () => ({
   width: 100,

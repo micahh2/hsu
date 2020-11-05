@@ -59,8 +59,8 @@ export class Camera {
     const centery = Math.round((player.y + player.height / 2) / height) * height;
 
     // Constantly updating vieport
-    //const centerx = Math.round((player.x + player.width / 2));
-    //const centery = Math.round((player.y + player.height / 2));
+    // const centerx = Math.round((player.x + player.width / 2));
+    // const centery = Math.round((player.y + player.height / 2));
 
     const viewport = {
       x: Math.min(Math.max(0, Math.round(centerx - viewportWidth / 2)), width - viewportWidth),
@@ -100,15 +100,14 @@ export class Camera {
     viewport,
     oldViewport,
     layoutContext,
-    drawActorToContext
+    drawActorToContext,
   }) {
     if (oldViewport !== viewport) {
       // layoutContext.clearRect(0, 0, width, height);
       const layoutData = sprites.background[width * viewport.scale];
       const layoutPart = layoutData.parts[0];
       layoutContext.drawImage(layoutData.canvas,
-        -viewport.x * viewport.scale, -viewport.y * viewport.scale, layoutPart.width, layoutPart.height,
-      );
+        -viewport.x * viewport.scale, -viewport.y * viewport.scale, layoutPart.width, layoutPart.height);
     }
 
     // Remove old

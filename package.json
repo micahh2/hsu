@@ -8,7 +8,7 @@
     "test-report": "mocha --require esm src/**/*.spec.js > test-report.txt 2>&1",
     "start": "http-server -c-1 src",
     "lint": "eslint src",
-    "lint-fix": "eslint --fix src",
+    "fix-lint": "eslint --fix src",
     "serve-docs": "npx documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
     "build-docs": "npx documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs"
   },
