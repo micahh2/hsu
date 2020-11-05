@@ -21,13 +21,11 @@ export class Physics {
       pixels, player,
       characters, width, height,
       locMap, updateStats,
-      moveNPC, movePlayer, getGameState,
+      moveNPC, movePlayer,
+      paused, attack, up, down, left, right
     } = state;
 
     // Get the move the player wants to make
-    const {
-      paused, attack, up, down, left, right,
-    } = getGameState();
     let newPlayer = movePlayer({
       player, width, height, up, down, left, right,
     });

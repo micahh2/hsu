@@ -16,13 +16,15 @@
         </style>
     </head>
     <body>
-        <img id="layout" src="../assets/layout_export.svg">
         <input type="file" id="file">
         <div id="logo">
             <img id="icon" src="../assets/hochschule_icon.svg">
             <h1>HSU Editor</h1>
         </div>
-        <canvas id="canvas"></canvas>
+        <div id="stage">
+            <canvas id="objects-layer"></canvas>
+            <canvas id="layout-layer"></canvas>
+        </div>
         <a href="#" id="download" download="gameData.json">Download</a>
     </body>
     <script type="module" src="./editor.js"></script>

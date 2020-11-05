@@ -7,77 +7,61 @@ The official HSU game. Play it in a modern browser!
 Download and install [nodejs](https://nodejs.org/)
 
 Download the repository (git clone)
-> git clone https://github.com/micahh2/hsu
+    git clone https://github.com/micahh2/hsu
 
 Change your current directory
-> cd hsu
+    cd hsu
 
 Install dependancies
 
-> npm i
+    npm i
 
 Start local http server
 
-> npm start
+    npm start
 
 Open your browser to http://localhost:8080
 
 ## Development
 
-Open your browser to http://localhost:8080
 Edit one of the files, save it, and reload your browser.
+
 
 ## Testing
 
-Run
-> npm test
+To start the test runner:
 
-## Git - The Basics
+    npm test
 
-Git clone (will create dir "hsu"), you only need to do this once!
-> git clone https://github.com/micahh2/hsu
+To generate a test report (test-report.txt)
 
-**Git status** - show the overview of what's going on 
-> git status
+    npm run test-report
 
-**Show un-added changes** (j/k -> up/down, q -> quit)
-> git diff
+## Documentation
 
-**Add (stage) changes as ready to be committed** (don't forget tab can be used to autocomplete)
-> git add file1.txt file2.txt
+Documentation can be found on the demo website [here](https://micah.dvyld.com/hsu/docs).
 
-**Commit**
-> git commit -m 'Commit message here'
+Building documentation
 
-**Show log of commits** (j/k -> up/down, q -> quit) 
-> git log
+    npm run build-docs
 
-**Get remote changes / updates**
-> git pull
+Starting local server for documentation
 
-### If you have conflicts after pulling
-View what files are conflicting
-> git status
+    npm run serve-docs
 
-**Actually open the files, and fix the merge conflicts!!**
+## Linting
 
-> git add someconflictingfile1.txt someconflictingfile2.txt
+The project uses Airbnb's eslint style guide.
+To run the linter and show errors:
 
-> git merge --continue
+    npm run lint
 
-## Git - Sending Changes
+To run the linter and auto-fix simple mistakes:
 
-#### Create changeset
-> git format-patch --stdout > changenames.patch
+    npm run fix-lint
 
-Then email them to: ~electric/hsu@lists.sr.ht
-
-#### Or, if you're using [git send-email](https://git-send-email.io)
-
-> git send-email --to="~electric/hsu@lists.sr.ht" origin/master
-
-#### Finaly, if you feel so inclined, create a fork or branch, push to it, and create a pull request within Github
-
+While you do not need to do this before making a commit, it is encouraged.
+There are also a number of [editor plugins](https://eslint.org/docs/user-guide/integrations#editors) that can show you linter errors and make it easier to write complient code.
 
 ## License
 

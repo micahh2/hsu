@@ -46,8 +46,6 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     zoomLevel: 1
   });
-  //layoutCanvasData.context.drawImage(layoutImage, 0, 0,
-  //  canvasWidth, Math.round(canvasWidth * layoutImage.height / layoutImage.width));
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
   // Default layer context
@@ -100,13 +98,15 @@ window.addEventListener('load', async () => {
     updateStats,
     moveNPC: Characters.moveNPC,
     movePlayer,
-    getGameState,
   };
   /**
    * physicsLoop.
    */
   const physicsLoop = () => {
-    physicsState = Physics.updatePhysicsState(physicsState);
+    physicsState = Physics.updatePhysicsState({
+      ...physicsState,
+      up, down, left, right, paused: pause, attack // game state
+    });
     if (storyChanges) {
       physicsState = Story.applyChanges(physicsState, storyChanges);
       storyChanges = null;
@@ -169,16 +169,6 @@ window.addEventListener('load', async () => {
     clearStats();
   }, 1000);
 });
-
-/**
- * getGameState.
- * @deprecated
- */
-function getGameState() {
-  return {
-    paused: pause, attack, up, down, left, right,
-  };
-}
 
 //
 /**
