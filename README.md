@@ -7,9 +7,11 @@ The official HSU game. Play it in a modern browser!
 Download and install [nodejs](https://nodejs.org/)
 
 Download the repository (git clone)
+
     git clone https://github.com/micahh2/hsu
 
 Change your current directory
+
     cd hsu
 
 Install dependancies

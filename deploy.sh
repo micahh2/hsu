@@ -1,4 +1,10 @@
-echo "Syncing $1 to $2"
+#!/bin/bash
+
+fromSrc="$1/src/"
+fromDocs="$1/docs"
+
+echo "Syncing $fromSrc to $2"
+
 rsync -r --exclude='.git' \
       --exclude='.gitignore' \
       --exclude='.*' \
@@ -7,4 +13,8 @@ rsync -r --exclude='.git' \
       --exclude='*.lock' \
       --exclude='*.spec.*' \
       --exclude='*.sh' \
-      $1 $2
+      $fromSrc $2
+
+echo "Copying $fromDocs to $2"
+
+cp -r $fromDocs $2

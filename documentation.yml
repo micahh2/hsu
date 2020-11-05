@@ -22,3 +22,5 @@ toc:
         - Sprite
         - Story
         - Util
+  - name: Tests
+    file: test-report.txt
