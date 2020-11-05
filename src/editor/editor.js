@@ -1,21 +1,47 @@
 import { Util } from '../util.js';
 import { Physics } from '../physics.js';
 import { Story } from '../story.js';
+import { Camera } from '../camera.js';
+import { Map }  from '../map.js';
 
-window.addEventListener('load', () => {
+const fetchTilesetData = new Promise((res, rej) => {
+  fetch('../tileset.json')
+    .then((response) => res(response.json()));
+});
+
+window.addEventListener('load', async () => {
+  const tilemap = await fetchTilesetData;
+  const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap, prepend: '../' }));
   // Load element from DOM (look in index.html)
-  const canvas = document.getElementById('canvas');
-  const image = document.getElementById('layout');
+  const objectCanvas = document.getElementById('objects-layer');
+  const layoutCanvas = document.getElementById('layout-layer');
 
-  const { context, canvasWidth, canvasHeight } = Physics.getGameContextPixels({ canvas, image });
+  const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
+  const { canvasWidth, canvasHeight } = layoutCanvasData;
+
+  Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+
+  const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
+  Map.drawTileMapToContext({ 
+    context: layoutCanvasData.context,
+    tilemap,
+    sprites: tileSprites,
+    zoomLevel: 1
+  });
+
+  const pixels = Camera.getContextPixels(layoutCanvasData);
+
   const width = canvasWidth;
   const height = canvasHeight;
+  const canvas = objectCanvas;
+  const context = objectCanvas.getContext('2d');
 
   let areas = [];
   let gameData = {};
 
   const args = {
-    context, image, width, height, areas,
+    context, width, height, areas,
   };
   let selected;
   let stat;
@@ -60,11 +86,7 @@ window.addEventListener('load', () => {
       areas = updatedAreas.concat(selected);
     }
   });
-  /**
-   * done.
-   *
-   * @param {} e
-   */
+
   function done(e) {
     // Something selected and we're doing something
     if (selected && stat != null) {
@@ -110,22 +132,11 @@ window.addEventListener('load', () => {
   });
 });
 
-/**
- * importFile.
- *
- * @param {}
- */
 async function importFile({ file, width, height }) {
   const text = await file.text();
   return Story.loadGameState({ gameData: JSON.parse(text), width, height });
 }
 
-/**
- * absToRelXYWidthHeight.
- *
- * @param {} abs
- * @param {} w
- */
 function absToRelXYWidthHeight(abs, w) {
   return {
     ...abs,
@@ -136,21 +147,10 @@ function absToRelXYWidthHeight(abs, w) {
   };
 }
 
-/**
- * absToRel.
- *
- * @param {} abs
- * @param {} max
- */
 function absToRel(abs, max) {
   return Math.round(abs / max * 10000) / 10000;
 }
 
-/**
- * exportFile.
- *
- * @param {}
- */
 function exportFile({ gameData, width }) {
   const exportData = {
     ...gameData,
@@ -178,20 +178,10 @@ function exportFile({ gameData, width }) {
   return `data:text/json;base64,${btoa(JSON.stringify(exportData, null, 2))}`;
 }
 
-/**
- * newName.
- *
- * @param {} id
- */
 function newName(id) {
   return `name${id}`;
 }
 
-/**
- * inArea.
- *
- * @param {}
- */
 function inArea({ areas, x, y }) {
   for (let i = areas.length - 1; i >= 0; i--) {
     const diffx = x - areas[i].x;
@@ -201,11 +191,7 @@ function inArea({ areas, x, y }) {
     }
   }
 }
-/**
- * inHandle.
- *
- * @param {}
- */
+
 function inHandle({ areas, x, y }) {
   for (let i = areas.length - 1; i >= 0; i--) {
     const diffx = Math.abs(x - (areas[i].x + areas[i].width));
@@ -216,14 +202,7 @@ function inHandle({ areas, x, y }) {
   }
 }
 
-/**
- * draw.
- *
- * @param {}
- */
-function draw({
-  context, areas, image, width, height, selected,
-}) {
+function draw({ context, areas, width, height, selected }) {
   window.requestAnimationFrame(() => {
     context.clearRect(0, 0, width, height);
 
@@ -234,11 +213,6 @@ function draw({
   });
 }
 
-/**
- * drawArea.
- *
- * @param {}
- */
 function drawArea({ context, area, active }) {
   context.fillStyle = area.color;
   context.fillRect(area.x, area.y, area.width, area.height);
@@ -253,9 +227,10 @@ function drawArea({ context, area, active }) {
   context.fill();
 }
 
-/**
- * getShade.
- */
 function getShade() {
   return `rgba(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},0.5)`;
+}
+
+function canvasProvider() {
+  return document.createElement('canvas');
 }
