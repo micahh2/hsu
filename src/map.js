@@ -1,22 +1,20 @@
 import { Sprite } from './sprite.js';
 
 export const FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-export const FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-export const FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+export const FLIPPED_VERTICALLY_FLAG = 0x40000000;
+export const FLIPPED_DIAGONALLY_FLAG = 0x20000000;
 
 /**
  * Map.
  */
 export class Map {
-
-
   /**
    * convertBlob.
    *
    * @param {} blob
    */
   static async convertBlob(blob) {
-    let imageData = new Image();
+    const imageData = new Image();
     imageData.src = URL.createObjectURL(blob);
     return new Promise((res, rej) => {
       imageData.addEventListener('load', () => { res(imageData); });
@@ -36,20 +34,20 @@ export class Map {
    *
    * @param {}
    */
-  static loadImages({ fetch, mapJson, convertBlob, prepend }) {
+  static loadImages({
+    fetch, mapJson, convertBlob, prepend,
+  }) {
     fetch = fetch || self.fetch;
     prepend = prepend || '';
     convertBlob = convertBlob || Map.convertBlob;
 
-    const tilesets = mapJson.tilesets;
-    return tilesets.map(t => 
-      new Promise((res, rej) => {
-        fetch(prepend + t.image).then(async (response) => {
-          const blob = await response.blob();
-          res({ ...t, imageData: await convertBlob(blob) });
-        })
-      })
-    );
+    const { tilesets } = mapJson;
+    return tilesets.map((t) => new Promise((res, rej) => {
+      fetch(prepend + t.image).then(async (response) => {
+        const blob = await response.blob();
+        res({ ...t, imageData: await convertBlob(blob) });
+      });
+    }));
   }
 
   // image, rows, columns, padding, canvasProvider, scales, alpha,
@@ -64,8 +62,8 @@ export class Map {
       image: l.imageData,
       rows: Math.ceil(l.tilecount / l.columns),
       columns: l.columns,
-      scales: scales.map(t => l.tilewidth*t),
-      padding: l.spacing
+      scales: scales.map((t) => l.tilewidth * t),
+      padding: l.spacing,
     };
   }
 
@@ -76,7 +74,7 @@ export class Map {
    */
   static loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels }) {
     const sprites = {};
-    for (let set of loadedTilesets) {
+    for (const set of loadedTilesets) {
       sprites[set.firstgid] = Map.getSpriteable(set, zoomLevels);
     }
     return Sprite.loadSprites(sprites, canvasProvider);
@@ -89,8 +87,8 @@ export class Map {
    */
   static getTileMapDim(tilemap) {
     return {
-      width: tilemap.width*tilemap.tilewidth,
-      height: tilemap.height*tilemap.tileheight,
+      width: tilemap.width * tilemap.tilewidth,
+      height: tilemap.height * tilemap.tileheight,
     };
   }
 
@@ -99,25 +97,29 @@ export class Map {
    *
    * @param {}
    */
-  static loadTileMapAsSpriteData({ 
-    tilemap, loadedTilesets, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider
+  static loadTileMapAsSpriteData({
+    tilemap, loadedTilesets, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider,
   }) {
     const dim = Map.getTileMapDim(tilemap);
     const ratio = canvasWidth / dim.width;
 
     const spriteData = {};
 
-    for (let z of zoomLevels) {
+    for (const z of zoomLevels) {
       const canvas = canvasProvider();
       const width = z * canvasWidth;
       const height = Math.round(z * dim.height * ratio);
       setCanvasResolution(canvas, width, height);
-      const context =canvas.getContext('2d', { alpha: false });
+      const context = canvas.getContext('2d', { alpha: false });
       context.imageSmoothingEnabled = false;
-      Map.drawTileMapToContext({ tilemap, context, canvasProvider, loadedTilesets, sprites, zoomLevel: z });
+      Map.drawTileMapToContext({
+        tilemap, context, canvasProvider, loadedTilesets, sprites, zoomLevel: z,
+      });
       spriteData[width] = {
         canvas,
-        parts: [{ x: 0, y: 0, width, height }]
+        parts: [{
+          x: 0, y: 0, width, height,
+        }],
       };
     }
     return spriteData;
@@ -131,12 +133,16 @@ export class Map {
    *
    * @param {}
    */
-  static drawTileMapToContext({ tilemap, context, loadedTilesets, sprites, zoomLevel, only }) {	
-   // const ignore = tilemap.tilesets.reduce((a,b) => b.tiles ? a.concat(b.tiles) : a, []).map(t => t.id);
-    for (let layer of tilemap.layers.sort((a,b) => Math.sign(b.id-a.id))) {
-      if (layer.type !== "tilelayer") { continue; }
+  static drawTileMapToContext({
+    tilemap, context, loadedTilesets, sprites, zoomLevel, only,
+  }) {
+    // const ignore = tilemap.tilesets.reduce((a,b) => b.tiles ? a.concat(b.tiles) : a, []).map(t => t.id);
+    for (const layer of tilemap.layers.sort((a, b) => Math.sign(b.id - a.id))) {
+      if (layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
-      Map.drawTileLayerToContext({ layer, context, sprites, scale: zoomLevel*tilemap.tilewidth });
+      Map.drawTileLayerToContext({
+        layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,
+      });
     }
   }
 
@@ -151,10 +157,16 @@ export class Map {
    * @param {number} args.centery - centery to translate to (must be moved back after)
    * @returns {Object} translation with the keys a,b,c,d,e,f
    */
-  static getTransformFromFlip({ horizontally, vertically, diagonally, centerx, centery }) {
-    let transform = {
-      a: 1, c: 0, e: centerx,
-      b: 0, d: 1, f: centery
+  static getTransformFromFlip({
+    horizontally, vertically, diagonally, centerx, centery,
+  }) {
+    const transform = {
+      a: 1,
+      c: 0,
+      e: centerx,
+      b: 0,
+      d: 1,
+      f: centery,
     };
     // [x, y] * [1, 0, 0, 1] = (x + 0y), (0x + 0y)
     if (horizontally) {
@@ -164,8 +176,8 @@ export class Map {
       transform.a *= -1;
     }
     if (diagonally) {
-      let olda = transform.a;
-      let oldc = transform.c;
+      const olda = transform.a;
+      const oldc = transform.c;
       transform.a = transform.b;
       transform.c = transform.d;
       transform.b = olda;
@@ -182,8 +194,10 @@ export class Map {
    *
    * @param {}
    */
-  static drawTileLayerToContext({ layer, context, sprites, scale }) {
-    for(let i = 0; i < layer.data.length; i++) {
+  static drawTileLayerToContext({
+    layer, context, sprites, scale,
+  }) {
+    for (let i = 0; i < layer.data.length; i++) {
       let spriteIndex = layer.data[i];
       if (spriteIndex <= 0) { continue; }
 
@@ -203,26 +217,28 @@ export class Map {
 
       // If we can't find a tile, mark it
       if (!spritePart) {
-        const x = (i % layer.height)*scale;
-        const y = Math.floor(i / layer.height)*scale;
+        const x = (i % layer.height) * scale;
+        const y = Math.floor(i / layer.height) * scale;
         context.fillStyle = 'hotpink';
         context.fillRect(x, y, scale, scale);
         console.log('SpriteIndex', spriteIndex, spriteDataKey);
         continue;
       }
 
-      const x = (i % layer.height)*scale-1;
-      const y = Math.floor(i / layer.height)*scale-1;
-      const width = scale+2;
-      const height = scale+2;
+      const x = (i % layer.height) * scale - 1;
+      const y = Math.floor(i / layer.height) * scale - 1;
+      const width = scale + 2;
+      const height = scale + 2;
       if (hasFlip) {
         const centerx = (x + width / 2);
         const centery = (y + height / 2);
-        //context.translate(centerx, centery);
-        const trans = Map.getTransformFromFlip({ horizontally, vertically, diagonally, centerx, centery })
+        // context.translate(centerx, centery);
+        const trans = Map.getTransformFromFlip({
+          horizontally, vertically, diagonally, centerx, centery,
+        });
         context.setTransform(trans.a, trans.b, trans.c, trans.d, trans.e, trans.f);
         context.translate(-centerx, -centery);
-        //context.setTransform(1, 0, 1, 0, 1, 1);
+        // context.setTransform(1, 0, 1, 0, 1, 1);
       }
       context.drawImage(spriteData.canvas,
         spritePart.x, spritePart.y, spritePart.width, spritePart.height,
@@ -239,8 +255,8 @@ export class Map {
    */
   static findDescNumericKey(obj, fun) {
     const key = Object.keys(obj)
-      .map(t => parseInt(t))
-      .sort((a,b) => Math.sign(b-a))
+      .map((t) => parseInt(t))
+      .sort((a, b) => Math.sign(b - a))
       .find(fun);
     return key;
   }

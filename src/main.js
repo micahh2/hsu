@@ -29,8 +29,8 @@ window.addEventListener('load', async () => {
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
 
-  //const layoutImage = document.getElementById('layout');
-  //const backgroundImage = document.getElementById('background');
+  // const layoutImage = document.getElementById('layout');
+  // const backgroundImage = document.getElementById('background');
 
   // Get bounds pixels and context
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -39,12 +39,12 @@ window.addEventListener('load', async () => {
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
-  Map.drawTileMapToContext({ 
+  Map.drawTileMapToContext({
     context: layoutCanvasData.context,
     tilemap,
-    only: ["Buildings"],
+    only: ['Buildings'],
     sprites: tileSprites,
-    zoomLevel: 1
+    zoomLevel: 1,
   });
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
@@ -76,7 +76,7 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     canvasWidth,
     zoomLevels: [1, 2],
-    canvasProvider
+    canvasProvider,
   });
 
   // Add some random characters
@@ -108,7 +108,12 @@ window.addEventListener('load', async () => {
   const physicsLoop = () => {
     physicsState = Physics.updatePhysicsState({
       ...physicsState,
-      up, down, left, right, paused: pause, attack // game state
+      up,
+      down,
+      left,
+      right,
+      paused: pause,
+      attack, // game state
     });
     if (storyChanges) {
       physicsState = Story.applyChanges(physicsState, storyChanges);
@@ -131,7 +136,7 @@ window.addEventListener('load', async () => {
       layoutContext: layoutCanvasData.context,
       oldViewport,
       viewport,
-      drawActorToContext: Sprite.drawActorToContext
+      drawActorToContext: Sprite.drawActorToContext,
     });
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);

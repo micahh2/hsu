@@ -22,7 +22,7 @@ export class Physics {
       characters, width, height,
       locMap, updateStats,
       moveNPC, movePlayer,
-      paused, attack, up, down, left, right
+      paused, attack, up, down, left, right,
     } = state;
 
     // Get the move the player wants to make

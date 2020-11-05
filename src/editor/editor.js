@@ -2,7 +2,7 @@ import { Util } from '../util.js';
 import { Physics } from '../physics.js';
 import { Story } from '../story.js';
 import { Camera } from '../camera.js';
-import { Map }  from '../map.js';
+import { Map } from '../map.js';
 
 const fetchTilesetData = new Promise((res, rej) => {
   fetch('../tileset.json')
@@ -23,11 +23,11 @@ window.addEventListener('load', async () => {
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
   const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
-  Map.drawTileMapToContext({ 
+  Map.drawTileMapToContext({
     context: layoutCanvasData.context,
     tilemap,
     sprites: tileSprites,
-    zoomLevel: 1
+    zoomLevel: 1,
   });
 
   const pixels = Camera.getContextPixels(layoutCanvasData);
@@ -202,7 +202,9 @@ function inHandle({ areas, x, y }) {
   }
 }
 
-function draw({ context, areas, width, height, selected }) {
+function draw({
+  context, areas, width, height, selected,
+}) {
   window.requestAnimationFrame(() => {
     context.clearRect(0, 0, width, height);
 

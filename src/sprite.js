@@ -34,8 +34,8 @@ export class Sprite {
       const ratio = scales[i] / cellWidth;
 
       const canvas = canvasProvider();
-      const canvasWidth = Math.round(columns*scales[i]);
-      const canvasHeight = Math.round(rows*cellHeight*ratio);
+      const canvasWidth = Math.round(columns * scales[i]);
+      const canvasHeight = Math.round(rows * cellHeight * ratio);
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
       canvas.style.width = canvasWidth;
