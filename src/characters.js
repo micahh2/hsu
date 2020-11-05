@@ -27,7 +27,7 @@ export class Characters {
       newNPC = {
         ...newNPC,
         destination: Characters.newDestination({
-          width, height, attack, player,
+          width, height, attack, player, npc: newNPC,
         }),
       };
     }
@@ -44,28 +44,13 @@ export class Characters {
       if (ymove < 0) { prefix = 'up'; } else if (ymove > 0) { prefix = 'down'; }
       if (xmove < 0) { facing = `${prefix}left`; } else if (xmove > 0) { facing = `${prefix}right`; } else if (prefix) { facing = prefix; }
 
-      // console.log(width + ": " + height);
-      if (newNPC.type === 'vip' && !attack && (
-          newNPC.x >= width*newNPC.maxRight ||
-          newNPC.y <= width*newNPC.maxLeft ||
-          newNPC.y >= height*newNPC.maxDown ||
-          newNPC.y <= height*newNPC.maxUp)){
-        newNPC = {
-          ...newNPC,
-          facing,
-          x: Math.min(Math.max(newNPC.x-xmove, 0), width-1),
-          y: Math.min(Math.max(newNPC.y-ymove, 0), height-1),
-          hasCollision: true
-        };
-      } else {
-        newNPC = {
-          ...newNPC,
-          facing,
-          x: Math.min(Math.max(newNPC.x + xmove, 0), width - 1),
-          y: Math.min(Math.max(newNPC.y + ymove, 0), height - 1),
-          hasCollision: false
-        };
-      }
+      newNPC = {
+        ...newNPC,
+        facing,
+        x: Math.min(Math.max(newNPC.x + xmove, 0), width - 1),
+        y: Math.min(Math.max(newNPC.y + ymove, 0), height - 1),
+        hasCollision: false,
+      };
     }
 
     return newNPC;
@@ -73,14 +58,28 @@ export class Characters {
 
   // This is what NPCs use right now to find a new place to go
   static newDestination({
-    width, height, player, attack,
+    width, height, player, attack, npc,
   }) {
+    // TODO: This should be linked to from the list of areas
+    let area = {
+      x: 0, y: 0, width, height,
+    };
+
     if (player && attack) {
       return { x: player.x, y: player.y };
     }
+
+    if (npc.type === 'vip') {
+      area = {
+        x: npc.maxLeft * width,
+        y: npc.maxUp * width,
+        width: npc.maxRight * width,
+        height: npc.maxDown * width,
+      };
+    }
     return {
-      x: Math.floor(Math.random() * width),
-      y: Math.floor(Math.random() * height),
+      x: Math.floor(Math.random() * area.width) + area.x,
+      y: Math.floor(Math.random() * area.height) + area.y,
     };
   }
 }

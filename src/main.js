@@ -82,12 +82,11 @@ window.addEventListener('load', async () => {
   // Add some random characters
   const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
     let spriteIndex = 8;
-    while(spriteIndex === 8) { spriteIndex = Math.floor(Math.random()*13); }
-    return { ...t, id:i+gameState.characters.length+1, spriteIndex, type:'' }; //other NPCs' IDs follow the 'vip' NPCs'
+    while (spriteIndex === 8) { spriteIndex = Math.floor(Math.random() * 13); }
+    return {
+      ...t, id: i + gameState.characters.length + 1, spriteIndex, type: '',
+    }; // other NPCs' IDs follow the 'vip' NPCs'
   });
-
-  console.log(newCharacters);
-  console.log(gameState);
 
   let storyChanges;
   let oldViewport;
