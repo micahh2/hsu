@@ -1,0 +1,39 @@
+{
+  "name": "hsu",
+  "version": "0.0.1",
+  "description": "Hochschule Ulm, The Game",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha --require esm -w src/**/*.spec.js",
+    "test-report": "mocha --require esm src/**/*.spec.js > test-report.txt 2>&1",
+    "start": "http-server -c-1 src",
+    "lint": "eslint src",
+    "fix-lint": "eslint --fix src",
+    "serve-docs": "npx documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
+    "build-docs": "npx documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs",
+    "prep-release": "npm run test-report && npm run build-docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micahh2/hsu.git"
+  },
+  "author": "",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/micahh2/hsu/issues"
+  },
+  "homepage": "https://github.com/micahh2/hsu#readme",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "documentation": "^13.1.0",
+    "eslint-plugin-mocha": "^8.0.0",
+    "esm": "^3.2.25",
+    "http-server": "^0.12.3",
+    "mocha": "^8.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}

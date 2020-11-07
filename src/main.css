@@ -1,0 +1,76 @@
+* {
+    font-family: sans-serif;
+}
+body {
+    color: white;
+    height: 100%;
+    width: 100%;
+    display: inline;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: rgb(100, 100, 100);
+}
+
+#logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+#logo h1 {
+    margin: 0;
+    margin-left: 1em;
+    line-height: 2em;
+    letter-spacing: .2em;
+}
+
+#stage canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#object-layer {
+  z-index: -1;
+}
+#layout-layer {
+  z-index: -2;
+}
+
+#images img {
+    display:none;
+}
+
+#fps {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+#conversation {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 20%;
+    background: grey;
+    padding: 30px;
+    box-sizing: border-box;
+    display: none;
+}
+
+#icon {
+    width: 4em;
+    height: 4em;
+    animation: spin 128s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform:rotate(-360deg);
+    }
+}

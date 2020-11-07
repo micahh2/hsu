@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <meta name="description" content="Graduate with your life">
+        <title>HSU Editor</title>
+        <link href="../main.css" rel="stylesheet" /> 
+        <style>
+            input, a {
+                position: relative;
+                z-index: 100;
+            }
+            a {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="file" id="file">
+        <div id="logo">
+            <img id="icon" src="../assets/hochschule_icon.svg">
+            <h1>HSU Editor</h1>
+        </div>
+        <div id="stage">
+            <canvas id="objects-layer"></canvas>
+            <canvas id="layout-layer"></canvas>
+        </div>
+        <a href="#" id="download" download="gameData.json">Download</a>
+    </body>
+    <script type="module" src="./editor.js"></script>
+</html>
+

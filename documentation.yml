@@ -1,0 +1,26 @@
+toc:
+  - name: README
+    file: README.md
+  - name: index.html
+    file: extra/index-html.md
+  - name: main.js
+    file: extra/main-js.md
+    children:
+        - physicsLoop
+        - movePlayer
+        - clearStats
+        - updateStats
+        - updateDiagnostDisp
+        - renderConversation
+        - canvasProvider
+  - name: Modules
+    children:
+        - Camera
+        - Characters
+        - Map
+        - Physics
+        - Sprite
+        - Story
+        - Util
+  - name: Tests
+    file: test-report.txt
