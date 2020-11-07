@@ -32,9 +32,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    max-width: calc(197vh);
     height: 100%;
-    max-height: calc(51vw);
 }
 #object-layer {
   z-index: -1;

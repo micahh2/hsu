@@ -101,21 +101,20 @@ export class Map {
     tilemap, loadedTilesets, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider,
   }) {
     const dim = Map.getTileMapDim(tilemap);
-    const ratio = canvasWidth / dim.width;
 
     const spriteData = {};
 
     for (const z of zoomLevels) {
       const canvas = canvasProvider();
-      const width = z * canvasWidth;
-      const height = Math.round(z * dim.height * ratio);
+      const width = z * dim.width;
+      const height = Math.round(z * dim.height);
       setCanvasResolution(canvas, width, height);
       const context = canvas.getContext('2d', { alpha: false });
       context.imageSmoothingEnabled = false;
       Map.drawTileMapToContext({
         tilemap, context, canvasProvider, loadedTilesets, sprites, zoomLevel: z,
       });
-      spriteData[width] = {
+      spriteData[z * canvasWidth] = {
         canvas,
         parts: [{
           x: 0, y: 0, width, height,

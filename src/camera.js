@@ -44,27 +44,26 @@ export class Camera {
    * @param {Object} arguments
    * @param {Viewport=} arguments.oldViewport - old viewport which will be returned if there
    *                                    is no difference between the new and the old viewport
-   * @param {number} arguments.width - absolute width of the screen
-   * @param {number} arguments.height - absolute height of the screen
+   * @param {number} arguments.canvasWidth - absolute width of the canvas/screen
+   * @param {number} arguments.canvasHeight - absolute height of the canvas/screen
+   * @param {number} arguments.mapWidth - absolute width of the map
+   * @param {number} arguments.mapHeight - absolute height of the map
    * @param {number} arguments.scale - an integer, 1 => no scaling
    */
   static updateViewport({
-    oldViewport, player, width, height, scale,
+    oldViewport, player, mapWidth, mapHeight, scale, canvasWidth, canvasHeight,
   }) {
-    const viewportWidth = width / scale;
-    const viewportHeight = height / scale;
+    const viewportWidth = canvasWidth / scale;
+    const viewportHeight = canvasHeight / scale;
 
-    // Viewport broken into screens
-    const centerx = Math.round((player.x + player.width / 2) / width) * width;
-    const centery = Math.round((player.y + player.height / 2) / height) * height;
 
-    // Constantly updating vieport
-    // const centerx = Math.round((player.x + player.width / 2));
-    // const centery = Math.round((player.y + player.height / 2));
+    // Constantly updating viewport
+    const centerx = Math.round((player.x + player.width / 2));
+    const centery = Math.round((player.y + player.height / 2));
 
     const viewport = {
-      x: Math.min(Math.max(0, Math.round(centerx - viewportWidth / 2)), width - viewportWidth),
-      y: Math.min(Math.max(0, Math.round(centery - viewportHeight / 2)), height - viewportHeight),
+      x: Math.min(Math.max(0, Math.round(centerx - viewportWidth / 2)), mapWidth - viewportWidth),
+      y: Math.min(Math.max(0, Math.round(centery - viewportHeight / 2)), mapHeight - viewportHeight),
       width: Math.round(viewportWidth),
       height: Math.round(viewportHeight),
       scale,
