@@ -28,7 +28,7 @@ export class Characters {
         ...newNPC,
         destination: Characters.newDestination({
           width, height, attack, player, npc: newNPC,
-        }),
+        })
       };
     }
 

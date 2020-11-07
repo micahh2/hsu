@@ -22,6 +22,7 @@ window.addEventListener('load', async () => {
     fetchTilesetData,
   ]);
 
+  const mapDim = Map.getTileMapDim(tilemap);
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
   const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
 
@@ -33,11 +34,12 @@ window.addEventListener('load', async () => {
   // const backgroundImage = document.getElementById('background');
 
   // Get bounds pixels and context
-  const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
+  let layoutCanvasData = Camera.getCanvasData(layoutCanvas);
   const { canvasWidth, canvasHeight } = layoutCanvasData;
 
+  // mapDim.width, mapDim.height
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
-  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(layoutCanvas, mapDim.width, mapDim.height);
 
   Map.drawTileMapToContext({
     context: layoutCanvasData.context,
@@ -47,7 +49,11 @@ window.addEventListener('load', async () => {
     zoomLevel: 1,
   });
 
+  layoutCanvasData = Camera.getCanvasData(layoutCanvas);
   const pixels = Camera.getContextPixels(layoutCanvasData);
+
+  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+
   // Default layer context
   const context = objectCanvas.getContext('2d');
   context.imageSmoothingEnabled = false;
@@ -94,8 +100,8 @@ window.addEventListener('load', async () => {
     pixels,
     player: gameState.player,
     characters: gameState.characters.concat(newCharacters),
-    width: canvasWidth,
-    height: canvasHeight,
+    width: mapDim.width,
+    height: mapDim.height,
     locMap: {},
     updateStats,
     moveNPC: Characters.moveNPC,
@@ -121,8 +127,10 @@ window.addEventListener('load', async () => {
     const viewport = Camera.updateViewport({
       oldViewport,
       player: physicsState.player,
-      width: physicsState.width,
-      height: physicsState.height,
+      mapWidth: physicsState.width,
+      mapHeight: physicsState.height,
+      canvasWidth,
+      canvasHeight, 
       scale: zoom ? 2 : 1,
     });
     Camera.drawScene({
