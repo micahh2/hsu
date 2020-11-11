@@ -9,6 +9,7 @@ test-report.*
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.idea
 
 # Floo shit
 .floo
