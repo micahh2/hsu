@@ -13,9 +13,10 @@
     },
     "plugins": [
         "mocha"
-    ],
-    "rules": {
-        "mocha/no-skipped-tests": "error",
-        "mocha/no-exclusive-tests": "error"
-    }
+    ]
+    /*,*/
+//   "rules": {
+//        "mocha/no-skipped-tests": "error",
+//        "mocha/no-exclusive-tests": "error"
+//    }
 }

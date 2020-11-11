@@ -1,88 +1,71 @@
 
 
-  updateViewport
-    ✓ should provide a full view
-    ✓ should provide a zoomed view
-
-  moveNPC
-    ✓ should always move an npc as an integer
-
-  getSpritable
-    ✓ should take loaded tile data and return something we can make into a sprite
-
-  loadImages
-    ✓ should fetch images
-
-  getUseableMove
-    ✓ should move a player left if left is requested
-    ✓ should let a player move down if down-right is requested, and right is not allowed
-    ✓ should let a player move left if down-left is requested, and down is not allowed
-
-  loadSpriteData
-    ✓ should set the internal canvas size according to different scales
-    ✓ should load sprite data into parts
-    ✓ should load sprite data with different scales
-
-  getChanges
-    ✓ should show the diff between two single level objects
-    ✓ should show the diff between two double level objects
-    ✓ should show the diff between two arrays
-
-  applyChanges
-    ✓ should apply some changes to a flat object
-    ✓ should should be able to process multi-level changes
-    ✓ should should be able to update arrays
-
-  newId
-    ✓ should return the highest id+1
-
-  setDestination
-    ✓ should return updated destinations
-
-  createSelector
-    ✓ should create a selector
-
-  startConversation
-    ✓ should return the dialog of a character
-
-  isRecurrentEvent
-    ✓ should be recurrent when it is of type interval
-
-  isTime
-    ✓ should be time when it's happening exactly now
-    ✓ should be time when it's happened in the past
-    ✓ should not be time when it has not happened yet
-
-  isWithinInterval
-    ✓ should be within the interval when it's happening exactly now
-    ✓ should be within the interval when it's happening exactly now + start
-    ✓ should be within the interval when it's happening now-ish (<threshold)
-    ✓ should be within the interval when it's happening now-ish for the third time
-    ✓ should not be within the interval when triggered more than the threshold ago
-    ✓ should not be within the interval when now is later than end
-
-  isWithinDistance
-    ✓ should be within distance when near
-    ✓ should not be within distance when far
-
-  isWithinArea
-    ✓ should be when actor is in area
-    ✓ should not be when actor is above the area
-    ✓ should not be when actor is beyond the area
-
-  isTriggered
-    ✓ should should trigger on time
-    ✓ should trigger on interval
-    ✓ should trigger when in area
-    ✓ should trigger on distance
-
-  updateGameState
-    ✓ should update conversation on distance
-    ✓ should set destination on time
-
-  loadGameState
-    ✓ should transform choordinates from relative to abs
+  star
+    1) should find a valid path
+    √ should generate an optimal path
+    2) should generate a diagonal path
 
 
-  43 passing (34ms)
+  1 passing (13ms)
+  2 failing
+
+  1) star
+       should find a valid path:
+
+      AssertionError: expected [] to deeply equal [ Array(7) ]
+      + expected - actual
+
+      -[]
+      +[
+      +  {
+      +    "x": 3
+      +    "y": 4
+      +  }
+      +  {
+      +    "x": 4
+      +    "y": 3
+      +  }
+      +  {
+      +    "x": 3
+      +    "y": 2
+      +  }
+      +  {
+      +    "x": 1
+      +    "y": 2
+      +  }
+      +  {
+      +    "x": 0
+      +    "y": 1
+      +  }
+      +  {
+      +    "x": 1
+      +    "y": 0
+      +  }
+      +  {
+      +    "x": 4
+      +    "y": 0
+      +  }
+      +]
+      
+      at Context.<anonymous> (src\path-finding.spec.js:20:21)
+      at processImmediate (internal/timers.js:461:21)
+
+  2) star
+       should generate a diagonal path:
+
+      AssertionError: expected [] to deeply equal [ { x: 4, y: 0 } ]
+      + expected - actual
+
+      -[]
+      +[
+      +  {
+      +    "x": 4
+      +    "y": 0
+      +  }
+      +]
+      
+      at Context.<anonymous> (src\path-finding.spec.js:59:21)
+      at processImmediate (internal/timers.js:461:21)
+
+
 
