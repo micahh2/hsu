@@ -1,7 +1,7 @@
 import { Util } from './util.js';
 
 /** A class containing methods for dealing with characters  */
-export class Characters {
+export const Characters = {
   /**
    * This function determines the next move for a given NPC
    * @param {Object} state
@@ -10,7 +10,7 @@ export class Characters {
    * @param {number} state.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
-  static moveNPC({ npc, width, height, player, attack }) {
+  moveNPC({ npc, width, height, player, attack }) {
     let newNPC = npc;
 
     // Allow for spawn points
@@ -52,10 +52,10 @@ export class Characters {
     }
 
     return newNPC;
-  }
+  },
 
   // This is what NPCs use right now to find a new place to go
-  static newDestination({
+  newDestination({
     width, height, player, attack, npc,
   }) {
     // TODO: This should be linked to from the list of areas
@@ -79,5 +79,5 @@ export class Characters {
       x: Math.floor(Math.random() * area.width) + area.x,
       y: Math.floor(Math.random() * area.height) + area.y,
     };
-  }
-}
+  },
+};

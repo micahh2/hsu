@@ -1,27 +1,27 @@
 /**
  * Sprite.
  */
-export class Sprite {
+export const Sprite = {
   /**
    * loadSprites.
    *
    * @param {} args
    * @param {} canvasProvider
    */
-  static loadSprites(args, canvasProvider) {
+  loadSprites(args, canvasProvider) {
     const spriteNames = Object.keys(args);
     return spriteNames.reduce((a, b) => ({
       ...a,
       [b]: Sprite.loadSpriteData({ ...args[b], canvasProvider }),
     }), {});
-  }
+  },
 
   /**
    * loadSpriteData.
    *
    * @param {Object} args
    */
-  static loadSpriteData({
+  loadSpriteData({
     image, rows, columns, padding, canvasProvider, scales, alpha = true,
   }) {
     const scaleData = {};
@@ -58,14 +58,14 @@ export class Sprite {
     }
 
     return scaleData;
-  }
+  },
 
   /**
    * drawActorToContext.
    *
    * @param {}
    */
-  static drawActorToContext({
+  drawActorToContext({
     context, actor, sprites, offset = { x: 0, y: 0 }, scale,
   }) {
     const x = actor.x - offset.x;
@@ -83,14 +83,14 @@ export class Sprite {
       spritePart.x, spritePart.y, spritePart.width, spritePart.height,
       x, y, actor.width, actor.height);
     context.setTransform(1, 0, 0, 1, 0, 0);
-  }
+  },
 
   /**
    * getRotationFromFacing.
    *
    * @param {} facing
    */
-  static getRotationFromFacing(facing) {
+  getRotationFromFacing(facing) {
     switch (facing) {
       case 'left':
         return (-90 * Math.PI) / 180;
@@ -109,5 +109,5 @@ export class Sprite {
       default:
         return 0;
     }
-  }
-}
+  },
+};

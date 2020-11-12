@@ -4,7 +4,7 @@ import { Util } from './util.js';
  * Physics.
  * Methods for dealing with physics
  */
-export class Physics {
+export const Physics = {
   /**
    * This function provides a 1 tick update to the physics state
    * @param {Object} state physics state
@@ -18,7 +18,7 @@ export class Physics {
    * @param {function} state.getGameState Function to get game state
    * @returns {Object} changes
    */
-  static updatePhysicsState(state) {
+  updatePhysicsState(state) {
     const {
       pixels, player,
       characters, width, height,
@@ -75,19 +75,19 @@ export class Physics {
       player: newPlayer,
       characters: newOthers,
     };
-  }
+  },
 
   // get a key for the location map
-  static mapKey(x, y, offsetx = 0, offsety = 0) {
+  mapKey(x, y, offsetx = 0, offsety = 0) {
     // This means that we can have no items LARGER than 30
     const keyx = Math.max(Math.floor(x / 30) + offsetx, 0);
     const keyy = Math.max(Math.floor(y / 30) + offsety, 0);
     // Note: this breaks down if we have more than 10000 cells in our grid
     return 10000 * keyx + keyy;
-  }
+  },
 
   // For performance reasons, this function is not pure! it modified the map passed in
-  static updateLocationMap(map, { actor, oldActor, updateStats }) {
+  updateLocationMap(map, { actor, oldActor, updateStats }) {
     /* eslint-disable no-param-reassign */
     const start = new Date(); // All new dates are initialized to "now"
     const key = Physics.mapKey(actor.x, actor.y);
@@ -101,10 +101,10 @@ export class Physics {
     /* eslint-enable no-param-reassign */
     // Subtracting one date from another gives you the difference in milliseconds
     updateStats('mapMakingTime', (new Date()) - start);
-  }
+  },
 
   // Returns a "moved" actor that has no collision
-  static getUseableMove({
+  getUseableMove({
     oldActor, actor, width, height, pixels, locMap, updateStats, useHandycap,
   }) {
     if (oldActor === actor) { return actor; }
@@ -149,10 +149,10 @@ export class Physics {
       }
     }
     return { ...oldActor, hasCollision: true };
-  }
+  },
 
   // Returns true if a player has a collision
-  static collision({
+  collision({
     actor, locMap, pixels, oldActor, updateStats,
   }) {
     const start = new Date(); // Gets the curent time
@@ -204,5 +204,5 @@ export class Physics {
     }
     updateStats('collisionTime', (new Date()) - start);
     return false; // No collision!
-  }
-}
+  },
+};

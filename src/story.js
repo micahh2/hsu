@@ -3,14 +3,14 @@ import { Util } from './util.js';
 /**
  * Story.
  */
-export class Story {
+export const Story = {
   /**
    * getChanges.
    *
    * @param {} oldState
    * @param {} state
    */
-  static getChanges(oldState, state) {
+  getChanges(oldState, state) {
     const changes = {};
     const stateKeys = Object.keys(state);
     for (const i of stateKeys) {
@@ -24,7 +24,7 @@ export class Story {
       changes[i] = state[i];
     }
     return changes;
-  }
+  },
 
   /**
    * applyChanges.
@@ -32,7 +32,7 @@ export class Story {
    * @param {} state
    * @param {} changes
    */
-  static applyChanges(state, changes) {
+  applyChanges(state, changes) {
     if (state == null) { return changes; }
     if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
     const changeKeys = Object.keys(changes);
@@ -48,14 +48,14 @@ export class Story {
       newState[i] = Story.applyChanges(newState[i], changes[i]);
     }
     return newState;
-  }
+  },
 
   /**
    * relativeToAbsolute.
    *
    * @param {}
    */
-  static relativeToAbsolute({ relative, width }) {
+  relativeToAbsolute({ relative, width }) {
     if (!relative) { return relative; }
     const abs = { ...relative };
     for (const i of ['x', 'y', 'height', 'width', 'speed', 'distance']) {
@@ -63,14 +63,14 @@ export class Story {
       abs[i] = Math.round(abs[i] * width);
     }
     return abs;
-  }
+  },
 
   /**
    * loadGameState.
    *
    * @param {}
    */
-  static loadGameState({ gameData, width, height }) {
+  loadGameState({ gameData, width, height }) {
     return {
       ...gameData,
       areas: (gameData.areas || []).map((t) => Story.relativeToAbsolute({ relative: t, width })),
@@ -85,55 +85,55 @@ export class Story {
         destination: Story.relativeToAbsolute({ relative: t.destination, width, height }),
       })),
     };
-  }
+  },
 
   /**
    * isTime.
    *
    * @param {}
    */
-  static isTime({ time, now }) {
+  isTime({ time, now }) {
     return time <= now;
-  }
+  },
 
   /**
    * isWithinInterval.
    *
    * @param {}
    */
-  static isWithinInterval({
+  isWithinInterval({
     interval, now, start = 0, end, threshold,
   }) {
     if (now < start || (end != null && now > end)) { return false; }
     return (now - start) % interval <= threshold;
-  }
+  },
 
   /**
    * isWithinDistance.
    *
    * @param {}
    */
-  static isWithinDistance({ distance, a, b }) {
+  isWithinDistance({ distance, a, b }) {
     return Util.dist(a, b) <= distance;
-  }
+  },
 
   /**
    * isWithinArea.
    *
    * @param {}
    */
-  static isWithinArea({ area, actor }) {
+  isWithinArea({ area, actor }) {
     const diffx = actor.x - area.x;
     const diffy = actor.y - area.y;
     return diffx >= 0 && diffx <= area.width && diffy >= 0 && diffy <= area.height;
-  }
+  },
 
   /**
    * isTriggered.
    *
    * @param {}
    */
-  static isTriggered({
+  isTriggered({
     player, characters, areas, trigger, now, timeSinceLast,
   }) {
     switch (trigger.type) {
@@ -155,7 +155,7 @@ export class Story {
       default:
         throw Error(`Unexpected Trigger: ${trigger.type}`);
     }
-  }
+  },
 
   /**
    * isRecurrentEvent.
@@ -163,16 +163,16 @@ export class Story {
    * @param {} e
    * @param {} now
    */
-  static isRecurrentEvent(e, now) {
+  isRecurrentEvent(e, now) {
     return e.trigger.type === 'interval' && (e.trigger.end == null || now < e.trigger.end);
-  }
+  },
 
   /**
    * updateGameState.
    *
    * @param {}
    */
-  static updateGameState({ gameState, now, timeSinceLast }) {
+  updateGameState({ gameState, now, timeSinceLast }) {
     const { player, areas } = gameState;
     let { conversation, characters, events } = gameState;
     let expired = [];
@@ -213,63 +213,63 @@ export class Story {
       conversation,
       characters,
     };
-  }
+  },
 
   /**
    * startConversation.
    *
    * @param {}
    */
-  static startConversation({ characters, selector }) {
+  startConversation({ characters, selector }) {
     const character = characters.find(selector);
     return {
       character,
       currentDialog: character.dialog,
       selectedOption: 0,
     };
-  }
+  },
 
   /**
    * createSelector.
    *
    * @param {} sel
    */
-  static createSelector(sel) {
+  createSelector(sel) {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }
     throw Error(`Unknown selector type: ${JSON.stringify(sel)}`);
-  }
+  },
 
   /**
    * setDestination.
    *
    * @param {}
    */
-  static setDestination({ characters, destination, selector }) {
+  setDestination({ characters, destination, selector }) {
     return characters.map((actor) => {
       if (selector(actor)) {
         return { ...actor, destination };
       }
       return actor;
     });
-  }
+  },
 
   /**
    * updateDialog.
    *
    * @param {}
    */
-  static updateDialog(/* { dialog, _action } */) {
+  updateDialog(/* { dialog, _action } */) {
     // Todo
-  }
+  },
 
   /**
    * newId.
    *
    * @param {} collection
    */
-  static newId(collection) {
+  newId(collection) {
     return collection.reduce((a, b) => Math.max(a, b.id), -1) + 1;
-  }
-}
+  },
+};

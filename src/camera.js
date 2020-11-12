@@ -1,6 +1,6 @@
 /** A class for dealing with perspective and rendering */
-export class Camera {
-  static setCanvasResolution(canvas, canvasWidth, canvasHeight) {
+export const Camera = {
+  setCanvasResolution(canvas, canvasWidth, canvasHeight) {
     /* eslint-disable no-param-reassign */
     // Set the new rounded size
     canvas.style.width = canvasWidth;
@@ -9,10 +9,10 @@ export class Camera {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     /* eslint-enable no-param-reassign */
-  }
+  },
 
   // This is used when initializing the game world and should only be called once
-  static getCanvasData(canvas) {
+  getCanvasData(canvas) {
     const bounds = canvas.getBoundingClientRect();
     const ratio = bounds.width / bounds.height;
     const canvasWidth = Math.round(bounds.width);
@@ -22,9 +22,9 @@ export class Camera {
     return {
       context, bounds, ratio, canvasWidth, canvasHeight,
     };
-  }
+  },
 
-  static getContextPixels({ context, canvasWidth, canvasHeight }) {
+  getContextPixels({ context, canvasWidth, canvasHeight }) {
     const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight);
     const allAlpha = imageData.data
       .filter((_, index) => (index + 1) % 4 === 0);
@@ -38,7 +38,7 @@ export class Camera {
       pixels[i] = Uint8Array.from(allAlpha.slice(start, start + imageData.width));
     }
     return pixels;
-  }
+  },
 
   /**
    * updateViewport
@@ -52,7 +52,7 @@ export class Camera {
    * @param {number} arguments.mapHeight - absolute height of the map
    * @param {number} arguments.scale - an integer, 1 => no scaling
    */
-  static updateViewport({
+  updateViewport({
     oldViewport, player, mapWidth, mapHeight, scale, canvasWidth, canvasHeight,
   }) {
     const viewportWidth = canvasWidth / scale;
@@ -84,7 +84,7 @@ export class Camera {
       return oldViewport;
     }
     return viewport;
-  }
+  },
 
   /**
    * updateViewport
@@ -96,7 +96,7 @@ export class Camera {
    * @param {Viewport} arguments.viewport The current viewport
    * @param {Viewport} arguments.[oldViewport] The viewport from last time
    */
-  static drawScene({
+  drawScene({
     player,
     characters,
     context,
@@ -142,5 +142,5 @@ export class Camera {
         context, sprites, actor, offset: viewport, scale: viewport.scale,
       });
     }
-  }
-}
+  },
+};
