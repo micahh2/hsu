@@ -15,7 +15,21 @@
         "mocha"
     ],
     "rules": {
+        "object-curly-newline": "off",
+        "no-plusplus": "off",
+        "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+        "import/extensions": ["warn", "ignorePackages"],
+        "import/prefer-default-export": "off",
+        "no-continue": "off",
         "mocha/no-skipped-tests": "error",
         "mocha/no-exclusive-tests": "error"
-    }
+    },
+    "overrides": [
+        {
+            "files": ["*.test.js", "*.spec.js"],
+            "rules": {
+                "no-unused-expressions": "off"
+            }
+        }
+    ]
 }

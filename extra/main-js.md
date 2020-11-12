@@ -8,6 +8,10 @@ main.js has two main parts, an event listener that is called when the page is lo
 
 When index.html hands of execution of the game to main.js, much of the page is still being loaded. The first thing that main.js does is register an event listener using [`window.addEventListener()`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener). This event listener waits for everything in index.html to be loaded, and then calls the given anonymous function.
 
+    window.addEventListener('load', async () => {
+        // Do something when the page loads
+    });
+
 [`window`](https://developer.mozilla.org/en-US/docs/Web/API/Window) is a global variable available to *most* javascript in the browser. We avoid references to global variables outside of main.js because they don't work in NodeJS (where we execute our unit tests), and because it is important to have an organizational method of how and where the browser can be interacted with.
 
 In essence, the 'load' event listener main.js has three responsibilities:

@@ -62,7 +62,7 @@ describe('setDestination', () => {
     const selector = () => true;
     const newCharacters = Story.setDestination({ characters, destination, selector });
     expect(
-      newCharacters.map((t) => destination),
+      newCharacters.map(() => destination),
     ).to.eql(
       Array(3).fill().map(() => destination),
     );
@@ -237,10 +237,9 @@ describe('isTriggered', () => {
   });
 });
 
-const gameState = Story.loadGameState({ gameData, width: 1000, height: 1000 });
-
 describe('updateGameState', () => {
   it('should update conversation on distance', () => {
+    const gameState = Story.loadGameState({ gameData, width: 1000, height: 1000 });
     const character = gameData.characters[0];
     const gs = {
       ...gameState,
@@ -275,7 +274,9 @@ describe('loadGameState', () => {
     const c = gameData.characters[0];
     const gameState = Story.loadGameState({ gameData, width: 100, height: 100 });
     expect(gameState.events[0].destination).to.eql({ x: d.x * 100, y: d.y * 100 });
-    expect(gameState.events[2].trigger.distance).to.eql(Math.round(gameData.events[2].trigger.distance * 100));
+    expect(gameState.events[2].trigger.distance).to.eql(
+      Math.round(gameData.events[2].trigger.distance * 100),
+    );
     expect(gameState.characters[0].x).to.eql(Math.round(c.x * 100));
     expect(gameState.characters[0].y).to.eql(Math.round(c.y * 100));
     expect(gameState.characters[0].width).to.eql(Math.round(c.width * 100));

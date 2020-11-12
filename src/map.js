@@ -5,100 +5,126 @@ export const FLIPPED_VERTICALLY_FLAG = 0x40000000;
 export const FLIPPED_DIAGONALLY_FLAG = 0x20000000;
 
 /**
- * Map.
+ * Map Module.
+ * Handles the loading and information gathering for tilemap.
+ * More information about the format imported can be found here:
+ * https://doc.mapeditor.org/en/stable/reference/json-map-format/
+ * @example
+ * const mapDim = Map.getTileMapDim(tilemap);
+ * @example
  */
-export class Map {
+export const Map = {
   /**
    * convertBlob.
+   * Converts a blob to an Image.
+   * We need a *loaded* image to be able to draw it to a sprite.
+   * When loading images dynamically, we only get them as Blobs,
+   * this converts them. (unfortunately not testable in NodeJS)
+   * https://developer.mozilla.org/en-US/docs/Web/API/Blob
    *
-   * @param {} blob
+   * @param {Blob} blob
+   * @returns {Promise<Image>}
+   * @example
+   * const blob = await response.blob();
+   * await convertBlob(blob);
    */
-  static async convertBlob(blob) {
+  async convertBlob(blob) {
     const imageData = new Image();
     imageData.src = URL.createObjectURL(blob);
-    return new Promise((res, rej) => {
+    return new Promise((res) => {
       imageData.addEventListener('load', () => { res(imageData); });
     });
-  }
+  },
 
   /**
    * loads images
-   * @param {function} [fetch] - to request files
-   * @param {function} [convertBlob] - to convert to image
-   * @param {string} [prepend] - string to prepend to image urls
-   * @param {function} mapJson - map information
-   * returns {Promise[]} Tilesets with image data
+   * @param {Object} args
+   * @param {function} [args.fetch] - to request files from an url
+   * @param {function} [args.convertBlob] - to convert a blob to image
+   * @param {string} [args.prepend] - string to prepend to image urls (use this to set local folder)
+   * @param {function} args.mapJson - map information
+   * @returns {Promise[]} Tilesets with image data
+   * @example
+   *    const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
    */
-  /**
-   * loadImages.
-   *
-   * @param {}
-   */
-  static loadImages({
-    fetch, mapJson, convertBlob, prepend,
+  loadImages({
+    fetch = window.fetch,
+    mapJson,
+    convertBlob = Map.convertBlob,
+    prepend = '',
   }) {
-    fetch = fetch || self.fetch;
-    prepend = prepend || '';
-    convertBlob = convertBlob || Map.convertBlob;
-
     const { tilesets } = mapJson;
-    return tilesets.map((t) => new Promise((res, rej) => {
+    return tilesets.map((t) => new Promise((res) => {
       fetch(prepend + t.image).then(async (response) => {
         const blob = await response.blob();
         res({ ...t, imageData: await convertBlob(blob) });
       });
     }));
-  }
+  },
 
-  // image, rows, columns, padding, canvasProvider, scales, alpha,
   /**
    * getSpriteable.
-   *
-   * @param {} l
-   * @param {} scales
+   * Convert a loaded map layer into an object that can be converted into a sprite
+   * @param {LoadedTileSet} l - loaded tileset, tileset with the image attached
+   * @param {number[]} zoomLevels - multipliers of the size individual tiles to load
+   * @returns {Spriteable}
+   * @example
+   * cosnt spriteable = Map.getSpriteable(loadedTileset, [1, 2]);
+   * const sprite = Sprite.loadSprite(spriteable, canvasProvider);
    */
-  static getSpriteable(l, scales) {
+  getSpriteable(l, zoomLevels) {
     return {
       image: l.imageData,
       rows: Math.ceil(l.tilecount / l.columns),
       columns: l.columns,
-      scales: scales.map((t) => l.tilewidth * t),
+      scales: zoomLevels.map((t) => l.tilewidth * t),
       padding: l.spacing,
     };
-  }
+  },
 
   /**
    * loadTileMapSprites.
    *
-   * @param {}
+   * @param {Object} args
+   * @param {LoadedTileSet[]} args.loadedTilesets - Loaded tilesets with the image attatched
+   * @param {function} args.canvasProvider - function that returns a new Canvas when called
+   * @param {number[]} args.zoomLevels - multipliers of each spriteset to load
+   * @returns {Object} an object with the keys set as the first guid of the respective tileset,
+   *    and the value set to be the coresponding sprite
+   * @example
+   * const tileSprites = Map.loadTileMapSprites({
+   *                        loadedTilesets,
+   *                        canvasProvider,
+   *                        zoomLevels: [1, 2]
+   *                     });
    */
-  static loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels }) {
+  loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels }) {
     const sprites = {};
     for (const set of loadedTilesets) {
       sprites[set.firstgid] = Map.getSpriteable(set, zoomLevels);
     }
     return Sprite.loadSprites(sprites, canvasProvider);
-  }
+  },
 
   /**
    * getTileMapDim.
    *
-   * @param {} tilemap
+   * @param {TileMap} tilemap
    */
-  static getTileMapDim(tilemap) {
+  getTileMapDim(tilemap) {
     return {
       width: tilemap.width * tilemap.tilewidth,
       height: tilemap.height * tilemap.tileheight,
     };
-  }
+  },
 
   /**
    * loadTileMapAsSpriteData.
    *
    * @param {}
    */
-  static loadTileMapAsSpriteData({
-    tilemap, loadedTilesets, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider,
+  loadTileMapAsSpriteData({
+    tilemap, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider,
   }) {
     const dim = Map.getTileMapDim(tilemap);
 
@@ -112,7 +138,7 @@ export class Map {
       const context = canvas.getContext('2d', { alpha: false });
       context.imageSmoothingEnabled = false;
       Map.drawTileMapToContext({
-        tilemap, context, canvasProvider, loadedTilesets, sprites, zoomLevel: z,
+        tilemap, context, canvasProvider, sprites, zoomLevel: z,
       });
       spriteData[z * canvasWidth] = {
         canvas,
@@ -122,7 +148,7 @@ export class Map {
       };
     }
     return spriteData;
-  }
+  },
 
   /**
    * draws a map to context
@@ -132,10 +158,7 @@ export class Map {
    *
    * @param {}
    */
-  static drawTileMapToContext({
-    tilemap, context, loadedTilesets, sprites, zoomLevel, only,
-  }) {
-    // const ignore = tilemap.tilesets.reduce((a,b) => b.tiles ? a.concat(b.tiles) : a, []).map(t => t.id);
+  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only }) {
     for (const layer of tilemap.layers.sort((a, b) => Math.sign(b.id - a.id))) {
       if (layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
@@ -143,7 +166,7 @@ export class Map {
         layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,
       });
     }
-  }
+  },
 
   /**
    * getTransformFromFlip.
@@ -156,7 +179,7 @@ export class Map {
    * @param {number} args.centery - centery to translate to (must be moved back after)
    * @returns {Object} translation with the keys a,b,c,d,e,f
    */
-  static getTransformFromFlip({
+  getTransformFromFlip({
     horizontally, vertically, diagonally, centerx, centery,
   }) {
     const transform = {
@@ -183,7 +206,7 @@ export class Map {
       transform.d = oldc;
     }
     return transform;
-  }
+  },
 
   /**
    * draws a layer to a context
@@ -193,7 +216,7 @@ export class Map {
    *
    * @param {}
    */
-  static drawTileLayerToContext({
+  drawTileLayerToContext({
     layer, context, sprites, scale,
   }) {
     for (let i = 0; i < layer.data.length; i++) {
@@ -201,12 +224,18 @@ export class Map {
       if (spriteIndex <= 0) { continue; }
 
       // Rotation!
+      /* eslint-disable no-bitwise */
       const horizontally = !!(spriteIndex & FLIPPED_HORIZONTALLY_FLAG);
       const vertically = !!(spriteIndex & FLIPPED_VERTICALLY_FLAG);
       const diagonally = !!(spriteIndex & FLIPPED_DIAGONALLY_FLAG);
       const hasFlip = horizontally || vertically || diagonally;
       // Bitwise operators to remove the flags
-      spriteIndex &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG);
+      spriteIndex &= ~(
+        FLIPPED_HORIZONTALLY_FLAG
+        | FLIPPED_VERTICALLY_FLAG
+        | FLIPPED_DIAGONALLY_FLAG
+      );
+      /* eslint-enable no-bitwise */
 
       const spriteDataKey = Map.findDescNumericKey(sprites, (t) => t <= spriteIndex);
 
@@ -220,7 +249,6 @@ export class Map {
         const y = Math.floor(i / layer.height) * scale;
         context.fillStyle = 'hotpink';
         context.fillRect(x, y, scale, scale);
-        console.log('SpriteIndex', spriteIndex, spriteDataKey);
         continue;
       }
 
@@ -244,19 +272,19 @@ export class Map {
         x, y, width, height);
       context.setTransform(1, 0, 0, 1, 0, 0);
     }
-  }
+  },
 
   /**
    * findDescNumericKey.
    *
-   * @param {} obj
-   * @param {} fun
+   * @param {Object} obj
+   * @param {function} fun
    */
-  static findDescNumericKey(obj, fun) {
+  findDescNumericKey(obj, fun) {
     const key = Object.keys(obj)
-      .map((t) => parseInt(t))
+      .map((t) => parseInt(t, 10))
       .sort((a, b) => Math.sign(b - a))
       .find(fun);
     return key;
-  }
-}
+  },
+};

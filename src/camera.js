@@ -1,12 +1,14 @@
 /** A class for dealing with perspective and rendering */
 export class Camera {
   static setCanvasResolution(canvas, canvasWidth, canvasHeight) {
+    /* eslint-disable no-param-reassign */
     // Set the new rounded size
     canvas.style.width = canvasWidth;
     canvas.style.height = canvasHeight;
     // Set the resolution
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
+    /* eslint-enable no-param-reassign */
   }
 
   // This is used when initializing the game world and should only be called once
@@ -56,14 +58,19 @@ export class Camera {
     const viewportWidth = canvasWidth / scale;
     const viewportHeight = canvasHeight / scale;
 
-
     // Constantly updating viewport
     const centerx = Math.round((player.x + player.width / 2));
     const centery = Math.round((player.y + player.height / 2));
 
     const viewport = {
-      x: Math.min(Math.max(0, Math.round(centerx - viewportWidth / 2)), mapWidth - viewportWidth),
-      y: Math.min(Math.max(0, Math.round(centery - viewportHeight / 2)), mapHeight - viewportHeight),
+      x: Math.min(
+        Math.max(0, Math.round(centerx - viewportWidth / 2)),
+        mapWidth - viewportWidth,
+      ),
+      y: Math.min(
+        Math.max(0, Math.round(centery - viewportHeight / 2)),
+        mapHeight - viewportHeight,
+      ),
       width: Math.round(viewportWidth),
       height: Math.round(viewportHeight),
       scale,
@@ -105,8 +112,13 @@ export class Camera {
       // layoutContext.clearRect(0, 0, width, height);
       const layoutData = sprites.background[width * viewport.scale];
       const layoutPart = layoutData.parts[0];
-      layoutContext.drawImage(layoutData.canvas,
-        -viewport.x * viewport.scale, -viewport.y * viewport.scale, layoutPart.width, layoutPart.height);
+      layoutContext.drawImage(
+        layoutData.canvas,
+        -viewport.x * viewport.scale,
+        -viewport.y * viewport.scale,
+        layoutPart.width,
+        layoutPart.height,
+      );
     }
 
     // Remove old
@@ -119,8 +131,12 @@ export class Camera {
 
     for (let i = 0; i < characters.length; i++) {
       const actor = characters[i];
-      if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) { continue; }
-      if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) { continue; }
+      if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
+        continue;
+      }
+      if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) {
+        continue;
+      }
       // Draw new position
       drawActorToContext({
         context, sprites, actor, offset: viewport, scale: viewport.scale,

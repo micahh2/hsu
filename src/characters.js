@@ -10,9 +10,7 @@ export class Characters {
    * @param {number} state.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
-  static moveNPC({
-    npc, width, height, player, attack, updateStats,
-  }) {
+  static moveNPC({ npc, width, height, player, attack }) {
     let newNPC = npc;
 
     // Allow for spawn points
@@ -28,7 +26,7 @@ export class Characters {
         ...newNPC,
         destination: Characters.newDestination({
           width, height, attack, player, npc: newNPC,
-        })
+        }),
       };
     }
 

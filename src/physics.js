@@ -1,7 +1,9 @@
 import { Util } from './util.js';
-import { Camera } from './camera.js';
 
-/** A class containing methods for dealing with physics  */
+/**
+ * Physics.
+ * Methods for dealing with physics
+ */
 export class Physics {
   /**
    * This function provides a 1 tick update to the physics state
@@ -76,17 +78,17 @@ export class Physics {
   }
 
   // get a key for the location map
-  static mapKey(x, y, offsetx, offsety) {
-    offsetx = offsetx || 0; // Default to 0
-    offsety = offsety || 0; // Default to 0
-    const keyx = Math.max(Math.floor(x / 30) + offsetx, 0); // This means that we can have no items LARGER than 30
+  static mapKey(x, y, offsetx = 0, offsety = 0) {
+    // This means that we can have no items LARGER than 30
+    const keyx = Math.max(Math.floor(x / 30) + offsetx, 0);
     const keyy = Math.max(Math.floor(y / 30) + offsety, 0);
-    // Note this breaks down if we have more than 10000 objects
+    // Note: this breaks down if we have more than 10000 cells in our grid
     return 10000 * keyx + keyy;
   }
 
   // For performance reasons, this function is not pure! it modified the map passed in
   static updateLocationMap(map, { actor, oldActor, updateStats }) {
+    /* eslint-disable no-param-reassign */
     const start = new Date(); // All new dates are initialized to "now"
     const key = Physics.mapKey(actor.x, actor.y);
     if (oldActor) {
@@ -96,7 +98,9 @@ export class Physics {
       }
     }
     map[key] = (map[key] || []).concat(actor);
-    updateStats('mapMakingTime', (new Date()) - start); // Subtracting one date from another gives you the difference in milliseconds
+    /* eslint-enable no-param-reassign */
+    // Subtracting one date from another gives you the difference in milliseconds
+    updateStats('mapMakingTime', (new Date()) - start);
   }
 
   // Returns a "moved" actor that has no collision
@@ -128,8 +132,14 @@ export class Physics {
       for (let handycap = 0; handycap < actor.speed; handycap++) {
         const signx = Math.sign(oldActor.x - actor.x);
         const signy = Math.sign(oldActor.y - actor.y);
-        const handycappedx = Math.max(Math.min(actor.x + handycap * signx, width - actor.width), 0);
-        const handycappedy = Math.max(Math.min(actor.y + handycap * signy, height - actor.height), 0);
+        const handycappedx = Math.max(
+          Math.min(actor.x + handycap * signx, width - actor.width),
+          0,
+        );
+        const handycappedy = Math.max(
+          Math.min(actor.y + handycap * signy, height - actor.height),
+          0,
+        );
         const handycapped = { ...actor, x: handycappedx, y: handycappedy };
         if (!Physics.collision({
           actor: handycapped, pixels, locMap, oldActor, updateStats,
@@ -159,11 +169,14 @@ export class Physics {
       Physics.mapKey(actor.x, actor.y, 1, 1),
     ].filter((t, i, self) => self.indexOf(t) === i);
     // These are the people that you might have a collision with
-    const possibleCollisions = nineSquares.map((t) => locMap[t]).reduce((a, b) => (b ? a.concat(b) : a), []);
+    const possibleCollisions = nineSquares
+      .map((t) => locMap[t])
+      .reduce((a, b) => (b ? a.concat(b) : a), []);
 
     updateStats('collisionChecks', possibleCollisions.length);
     updateStats('collisionCalls', 1);
-    // It just takes one to have a collision (we might need to change this to return who you colided with later)
+    // It just takes one to have a collision
+    //    (we *might* need to change this to return who you colided with later)
     const hasCollision = possibleCollisions.some((t) => {
       // We measure from the top right corner
       const firstWidth = t.x > actor.x ? actor.width : t.width;
@@ -179,7 +192,8 @@ export class Physics {
     }
     // Bounds check - iterate through the alpha channel
     for (let j = actor.y; j < actor.y + actor.height; j++) {
-      // As a shortcut some empty lines are null, if they're empty then there can't be a collision there!
+      // As a shortcut some empty lines are null,
+      //    if they're empty then there can't be a collision there!
       if (pixels[j] == null) { continue; }
       for (let i = actor.x; i < actor.x + actor.width; i++) {
         // IMPORTANT! Pixels are stored in rows first, then columns

@@ -3,7 +3,8 @@
  */
 export class Util {
   /**
-   * Get the distance between a and b assuming a: { x, y, width, height } and b: { x, y, width, height }
+   * Get the distance between a and b,
+   * assuming a: { x, y, width, height } and b: { x, y, width, height }
    *
    * @param {} a
    * @param {} b
@@ -13,7 +14,7 @@ export class Util {
     const ay = a.y + (a.height || 0) / 2;
     const bx = b.x + (b.width || 0) / 2;
     const by = b.y + (b.height || 0) / 2;
-    return Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+    return Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
   }
 
   /**
@@ -24,6 +25,9 @@ export class Util {
    * @depreciated
    */
   static eq(a, b) {
-    return a.x === b.x && a.y === b.y && a.size === b.size && a.speed === b.speed;
+    return a.x === b.x
+      && a.y === b.y
+      && a.size === b.size
+      && a.speed === b.speed;
   }
 }

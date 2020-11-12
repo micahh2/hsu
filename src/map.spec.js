@@ -9,7 +9,7 @@ describe('getSpritable', () => {
     const tileset = {
       columns: 37,
       firstgid: 1,
-      image: 'assets\/city_tileset_extruded.png',
+      image: 'assets/city_tileset_extruded.png',
       imageheight: 475,
       imagewidth: 628,
       margin: 0,
@@ -34,7 +34,7 @@ describe('getSpritable', () => {
 describe('loadImages', () => {
   it('should fetch images', () => {
     const image = {};
-    const fakeFetch = () => new Promise((res, rej) => {
+    const fakeFetch = () => new Promise((res) => {
       res({ blob() { return image; } });
     });
     const convertBlob = (t) => t;

@@ -1,5 +1,3 @@
-import { Camera } from './camera.js';
-
 /**
  * Sprite.
  */
@@ -24,9 +22,8 @@ export class Sprite {
    * @param {Object} args
    */
   static loadSpriteData({
-    image, rows, columns, padding, canvasProvider, scales, alpha,
+    image, rows, columns, padding, canvasProvider, scales, alpha = true,
   }) {
-    alpha = alpha == null ? true : !!alpha;
     const scaleData = {};
     for (let i = 0; i < scales.length; i++) {
       const cellWidth = image.width / columns;
@@ -44,11 +41,11 @@ export class Sprite {
       context.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
       const parts = [];
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < columns; j++) {
-          parts[i * columns + j] = {
-            x: Math.round((cellWidth * j + padding) * ratio),
-            y: Math.round((cellHeight * i + padding) * ratio),
+      for (let j = 0; j < rows; j++) {
+        for (let k = 0; k < columns; k++) {
+          parts[j * columns + k] = {
+            x: Math.round((cellWidth * k + padding) * ratio),
+            y: Math.round((cellHeight * j + padding) * ratio),
             width: Math.round((cellWidth - (padding * 2)) * ratio),
             height: Math.round((cellHeight - (padding * 2)) * ratio),
           };
@@ -69,9 +66,8 @@ export class Sprite {
    * @param {}
    */
   static drawActorToContext({
-    context, actor, sprites, offset, scale,
+    context, actor, sprites, offset = { x: 0, y: 0 }, scale,
   }) {
-    offset = offset || { x: 0, y: 0 };
     const x = actor.x - offset.x;
     const y = actor.y - offset.y;
     const centerx = (x + actor.width / 2);
@@ -97,20 +93,21 @@ export class Sprite {
   static getRotationFromFacing(facing) {
     switch (facing) {
       case 'left':
-        return -90 * Math.PI / 180;
+        return (-90 * Math.PI) / 180;
       case 'right':
-        return 90 * Math.PI / 180;
+        return (90 * Math.PI) / 180;
       case 'down':
         return Math.PI;
       case 'upleft':
-        return -45 * Math.PI / 180;
+        return (-45 * Math.PI) / 180;
       case 'upright':
-        return 45 * Math.PI / 180;
+        return (45 * Math.PI) / 180;
       case 'downright':
-        return 135 * Math.PI / 180;
+        return (135 * Math.PI) / 180;
       case 'downleft':
-        return 225 * Math.PI / 180;
+        return (225 * Math.PI) / 180;
+      default:
+        return 0;
     }
-    return 0; // Facing forward
   }
 }

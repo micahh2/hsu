@@ -1,10 +1,9 @@
-import { Util } from '../util.js';
-import { Physics } from '../physics.js';
+/* eslint-disable no-use-before-define */
 import { Story } from '../story.js';
 import { Camera } from '../camera.js';
 import { Map } from '../map.js';
 
-const fetchTilesetData = new Promise((res, rej) => {
+const fetchTilesetData = new Promise((res) => {
   fetch('../tileset.json')
     .then((response) => res(response.json()));
 });
@@ -22,15 +21,17 @@ window.addEventListener('load', async () => {
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
-  const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
+  const tileSprites = Map.loadTileMapSprites({
+    loadedTilesets,
+    canvasProvider,
+    zoomLevels: [1, 2],
+  });
   Map.drawTileMapToContext({
     context: layoutCanvasData.context,
     tilemap,
     sprites: tileSprites,
     zoomLevel: 1,
   });
-
-  const pixels = Camera.getContextPixels(layoutCanvasData);
 
   const width = canvasWidth;
   const height = canvasHeight;
@@ -87,7 +88,7 @@ window.addEventListener('load', async () => {
     }
   });
 
-  function done(e) {
+  function done() {
     // Something selected and we're doing something
     if (selected && stat != null) {
       const updatedAreas = areas.filter((t) => t !== selected);
@@ -116,13 +117,13 @@ window.addEventListener('load', async () => {
   setInterval(() => { draw({ ...args, areas, selected }); }, 20);
 
   const filePicker = document.getElementById('file');
-  filePicker.addEventListener('change', async (e) => {
+  filePicker.addEventListener('change', async () => {
     const file = filePicker.files[0];
     gameData = await importFile({ file, width, height });
     areas = gameData.areas;
   });
   const download = document.getElementById('download');
-  download.addEventListener('click', (e) => {
+  download.addEventListener('click', () => {
     const dataURI = exportFile({
       gameData: { ...gameData, areas },
       width,
@@ -148,7 +149,7 @@ function absToRelXYWidthHeight(abs, w) {
 }
 
 function absToRel(abs, max) {
-  return Math.round(abs / max * 10000) / 10000;
+  return Math.round((abs * 10000) / max) / 10000;
 }
 
 function exportFile({ gameData, width }) {
@@ -190,6 +191,7 @@ function inArea({ areas, x, y }) {
       return areas[i];
     }
   }
+  return null;
 }
 
 function inHandle({ areas, x, y }) {
@@ -200,6 +202,7 @@ function inHandle({ areas, x, y }) {
       return areas[i];
     }
   }
+  return null;
 }
 
 function draw({
@@ -236,3 +239,4 @@ function getShade() {
 function canvasProvider() {
   return document.createElement('canvas');
 }
+/* eslint-enable no-use-before-define */

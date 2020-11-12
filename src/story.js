@@ -51,13 +51,6 @@ export class Story {
   }
 
   /**
-   * areaObjectMap.
-   *
-   * @param {}
-   */
-  static areaObjectMap({ objects, areas }) { }
-
-  /**
    * relativeToAbsolute.
    *
    * @param {}
@@ -82,7 +75,8 @@ export class Story {
       ...gameData,
       areas: (gameData.areas || []).map((t) => Story.relativeToAbsolute({ relative: t, width })),
       player: Story.relativeToAbsolute({ relative: gameData.player, width }),
-      characters: (gameData || []).characters.map((t) => Story.relativeToAbsolute({ relative: t, width, height })),
+      characters: (gameData || []).characters
+        .map((t) => Story.relativeToAbsolute({ relative: t, width, height })),
       events: (gameData.events || []).map((t) => ({
         ...t,
         trigger: t.trigger.distance != null
@@ -108,9 +102,8 @@ export class Story {
    * @param {}
    */
   static isWithinInterval({
-    interval, now, start, end, threshold,
+    interval, now, start = 0, end, threshold,
   }) {
-    start = start || 0;
     if (now < start || (end != null && now > end)) { return false; }
     return (now - start) % interval <= threshold;
   }
@@ -149,13 +142,19 @@ export class Story {
       case 'interval':
         return Story.isWithinInterval({ ...trigger, now, threshold: timeSinceLast });
       case 'distance':
-        const character = characters.find((t) => t.id === trigger.characterId);
-        return Story.isWithinDistance({ distance: trigger.distance, a: player, b: character });
+        return Story.isWithinDistance({
+          distance: trigger.distance,
+          a: player,
+          b: characters.find((t) => t.id === trigger.characterId),
+        });
       case 'area':
-        const area = areas.find((t) => t.id === trigger.areaId);
-        return Story.isWithinArea({ area, actor: player });
+        return Story.isWithinArea({
+          area: areas.find((t) => t.id === trigger.areaId),
+          actor: player,
+        });
+      default:
+        throw Error(`Unexpected Trigger: ${trigger.type}`);
     }
-    throw Error(`Unexpected Trigger: ${trigger.type}`);
   }
 
   /**
@@ -173,12 +172,9 @@ export class Story {
    *
    * @param {}
    */
-  static updateGameState({
-    gameState, now, locMap, collisions, timeSinceLast,
-  }) {
-    let {
-      player, areas, conversation, inventory, mail, characters, events,
-    } = gameState;
+  static updateGameState({ gameState, now, timeSinceLast }) {
+    const { player, areas } = gameState;
+    let { conversation, characters, events } = gameState;
     let expired = [];
 
     for (let i = 0; i < events.length; i++) {
@@ -192,10 +188,16 @@ export class Story {
       switch (events[i].type) {
         case 'set-destination':
           // Set destination
-          characters = Story.setDestination({ characters, selector, destination: events[i].destination });
+          characters = Story.setDestination({
+            characters,
+            selector,
+            destination: events[i].destination,
+          });
           break;
         case 'start-conversation':
           conversation = Story.startConversation({ characters, selector });
+          break;
+        default:
           break;
       }
       // Tag expired events for removal
@@ -258,7 +260,7 @@ export class Story {
    *
    * @param {}
    */
-  static updateDialog({ dialog, action }) {
+  static updateDialog(/* { dialog, _action } */) {
     // Todo
   }
 

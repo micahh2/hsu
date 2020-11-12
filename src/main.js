@@ -1,16 +1,15 @@
 import { Story } from './story.js';
-import { Util } from './util.js';
 import { Physics } from './physics.js';
 import { Sprite } from './sprite.js';
 import { Characters } from './characters.js';
 import { Camera } from './camera.js';
 import { Map } from './map.js';
 
-const fetchGameData = new Promise((res, rej) => {
+const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
     .then((response) => res(response.json()));
 });
-const fetchTilesetData = new Promise((res, rej) => {
+const fetchTilesetData = new Promise((res) => {
   fetch('./tileset.json')
     .then((response) => res(response.json()));
 });
@@ -24,7 +23,11 @@ window.addEventListener('load', async () => {
 
   const mapDim = Map.getTileMapDim(tilemap);
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
-  const tileSprites = Map.loadTileMapSprites({ loadedTilesets, canvasProvider, zoomLevels: [1, 2] });
+  const tileSprites = Map.loadTileMapSprites({
+    loadedTilesets,
+    canvasProvider, // eslint-disable-line no-use-before-define
+    zoomLevels: [1, 2],
+  });
 
   // Load elements from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
@@ -73,7 +76,7 @@ window.addEventListener('load', async () => {
       // How big should the cached tile versions be - we just have two sizes
       scales: [gameState.player.width, gameState.player.width * 2],
     },
-  }, canvasProvider);
+  }, canvasProvider); // eslint-disable-line no-use-before-define
   // set background
   sprites.background = Map.loadTileMapAsSpriteData({
     tilemap,
@@ -82,7 +85,7 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     canvasWidth,
     zoomLevels: [1, 2],
-    canvasProvider,
+    canvasProvider, // eslint-disable-line no-use-before-define
   });
 
   // Add some random characters
@@ -103,14 +106,24 @@ window.addEventListener('load', async () => {
     width: mapDim.width,
     height: mapDim.height,
     locMap: {},
-    updateStats,
+    updateStats, // eslint-disable-line no-use-before-define
     moveNPC: Characters.moveNPC,
-    movePlayer,
+    movePlayer, // eslint-disable-line no-use-before-define
   };
+
   /**
    * physicsLoop.
+   * Updates the physics state.
+   * Called once, then calls itself recursively
+   * @example
+   *    // Externally - once!
+   *    physicsLoop();
+   * @example
+   *    // Internally
+   *    window.requestAnimationFrame(physicsLoop);
    */
   const physicsLoop = () => {
+    /* eslint-disable no-use-before-define */
     physicsState = Physics.updatePhysicsState({
       ...physicsState,
       up,
@@ -120,6 +133,7 @@ window.addEventListener('load', async () => {
       paused: pause,
       attack, // game state
     });
+    /* eslint-enable no-use-before-define */
     if (storyChanges) {
       physicsState = Story.applyChanges(physicsState, storyChanges);
       storyChanges = null;
@@ -130,8 +144,8 @@ window.addEventListener('load', async () => {
       mapWidth: physicsState.width,
       mapHeight: physicsState.height,
       canvasWidth,
-      canvasHeight, 
-      scale: zoom ? 2 : 1,
+      canvasHeight,
+      scale: zoom ? 2 : 1, // eslint-disable-line no-use-before-define
     });
     Camera.drawScene({
       player: physicsState.player,
@@ -172,28 +186,148 @@ window.addEventListener('load', async () => {
     }
 
     if (gameState.conversation !== newGameState.conversation) {
-      renderConversation(newGameState.conversation);
+      renderConversation(newGameState.conversation); // eslint-disable-line no-use-before-define
     }
   }, 100);
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {
+    /* eslint-disable no-use-before-define */
     updateDiagnostDisp({
       fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls,
     });
     clearStats();
+    /* eslint-enable no-use-before-define */
   }, 1000);
 });
 
-//
+// Modified by the eventListener
+let up = false;
+let down = false;
+let left = false;
+let right = false;
+let attack = false;
+let pause = false;
+let zoom = false;
+window.addEventListener('keydown', (e) => {
+  // Do nothing if event already handled
+  if (e.defaultPrevented) { return; }
+
+  switch (e.code) {
+    case 'KeyS':
+    case 'ArrowDown':
+      // Handle "back"
+      down = true;
+      break;
+    case 'KeyW':
+    case 'ArrowUp':
+      // Handle "forward"
+      up = true;
+      break;
+    case 'KeyA':
+    case 'ArrowLeft':
+      // Handle "turn left"
+      left = true;
+      break;
+    case 'KeyD':
+    case 'ArrowRight':
+      // Handle "turn right"
+      right = true;
+      break;
+    default:
+      break;
+  }
+});
+window.addEventListener('keyup', (e) => {
+  // Do nothing if event already handled
+  if (e.defaultPrevented) { return; }
+
+  switch (e.code) {
+    case 'KeyS':
+    case 'ArrowDown':
+      down = false;
+      break;
+    case 'KeyW':
+    case 'ArrowUp':
+      up = false;
+      break;
+    case 'KeyA':
+    case 'ArrowLeft':
+      left = false;
+      break;
+    case 'KeyD':
+    case 'ArrowRight':
+      right = false;
+      break;
+    case 'Space':
+      attack = !attack;
+      break;
+    case 'KeyP':
+      pause = !pause;
+      break;
+    case 'KeyZ':
+      zoom = !zoom;
+      break;
+    default:
+      console.log(e.code); // eslint-disable-line no-console
+      break;
+  }
+});
+
+/**
+ * canvasProvider.
+ * wraps document.createElement, allowing for easy replacement when testing
+ * @example
+ *    const canvas = canvasProvider();
+ */
+function canvasProvider() {
+  return document.createElement('canvas');
+}
+
+/**
+ * renderConversation.
+ *
+ * @param {Object} conversation
+ * @param {Character} conversation.character
+ * @param {currentDialog} conversation.currentDialog
+ * @example
+      renderConversation(gameState.conversation);
+ */
+function renderConversation(conversation) {
+  const el = document.getElementById('conversation');
+  if (!conversation) {
+    el.style.display = 'none';
+    return;
+  }
+  const { character, currentDialog } = conversation;
+  el.style.display = 'block';
+  const html = `<p>
+    <b>${character.name}:</b>
+    ${currentDialog.response}
+  </p>`;
+  el.innerHTML = html;
+}
+
+/* eslint-disable no-shadow */
 /**
  * Take all the input requests give an updated player
  *
- * @param {}
+ * @param {Object} args
+ * @param {Actor} args.player - Player
+ * @param {number} args.width - Map width
+ * @param {number} args.height - Map height
+ * @param {boolean} args.up - Is the up key pressed?
+ * @param {boolean} args.down - Is the down key pressed?
+ * @param {boolean} args.left - Is the left key pressed?
+ * @param {boolean} args.right - Is the right key pressed?
+ * @returns {Actor} an updated actor
+ * @example
+ *    movePlayer({ player, width, height, up, down, left, right });
  */
 function movePlayer({
   player, width, height, up, down, left, right,
 }) {
+/* eslint-enable no-shadow */
   let newPlayer = player;
   let prefix = '';
   if (up && !down) {
@@ -229,77 +363,6 @@ function movePlayer({
   return newPlayer;
 }
 
-// Modified by the eventListener
-let up = false;
-let down = false;
-let left = false;
-let right = false;
-let attack = false;
-let pause = false;
-let zoom = false;
-window.addEventListener('keydown', (e) => {
-  // Do nothing if event already handled
-  if (event.defaultPrevented) { return; }
-
-  switch (event.code) {
-    case 'KeyS':
-    case 'ArrowDown':
-      // Handle "back"
-      down = true;
-      break;
-    case 'KeyW':
-    case 'ArrowUp':
-      // Handle "forward"
-      up = true;
-      break;
-    case 'KeyA':
-    case 'ArrowLeft':
-      // Handle "turn left"
-      left = true;
-      break;
-    case 'KeyD':
-    case 'ArrowRight':
-      // Handle "turn right"
-      right = true;
-      break;
-  }
-});
-window.addEventListener('keyup', (e) => {
-  // Do nothing if event already handled
-  if (event.defaultPrevented) { return; }
-
-  switch (event.code) {
-    case 'KeyS':
-    case 'ArrowDown':
-      down = false;
-      break;
-    case 'KeyW':
-    case 'ArrowUp':
-      up = false;
-      break;
-    case 'KeyA':
-    case 'ArrowLeft':
-      left = false;
-      break;
-    case 'KeyD':
-    case 'ArrowRight':
-      right = false;
-      break;
-    case 'Space':
-      attack = !attack;
-      break;
-    case 'KeyP':
-      pause = !pause;
-      break;
-    case 'KeyZ':
-      zoom = !zoom;
-      break;
-    default:
-      console.log(event.code);
-      break;
-  }
-});
-
 // These are modified by updateStats and clearStats
 let frames = 0;
 let mapMakingTime = 0;
@@ -309,6 +372,10 @@ let collisionCalls = 0;
 
 /**
  * clearStats.
+ * This clears all of the statistics/metrics that we've been keeping track of,
+ * at somepoint it will be rewritten to be more flexible
+ * @example
+    clearStats();
  */
 function clearStats() {
   frames = 0;
@@ -320,9 +387,10 @@ function clearStats() {
 
 /**
  * updateStats.
- *
- * @param {} key
- * @param {} value
+ * Used to keep track of statistics/metrics (fps, collision checking time, ect..),
+ * at somepoint it will be rewritten to be more flexible
+ * @param {'frames'|'mapMakingTime'|'collisionCalls'|'collisionChecks'} key
+ * @param {number} value
  */
 function updateStats(key, value) {
   switch (key) {
@@ -340,17 +408,29 @@ function updateStats(key, value) {
       return;
     case 'collisionCalls':
       collisionCalls += value;
+      break;
+    default:
+      break;
   }
 }
 
+/* eslint-disable no-shadow */
 /**
  * updateDiagnostDisp.
+ * Used to update the metrics on screen,
+ * at somepoint it will be rewritten to be more flexible
  *
- * @param {}
+ * @param {Object} args
+ * @param {number} args.fps
+ * @param {number} args.collisionTime
+ * @param {number} args.mapMakingTime
+ * @param {number} args.collisionChecks
+ * @param {number} args.collisionCalls
  */
 function updateDiagnostDisp({
   fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls,
 }) {
+  /* eslint-enable no-shadow */
   const el = document.getElementById('fps');
   el.innerHTML = `<ul>
     <li>${fps} FPS</li>
@@ -358,31 +438,4 @@ function updateDiagnostDisp({
     <li>${mapMakingTime} Map. ms </li>
     <li>${Math.round(collisionChecks / collisionCalls)} Ave. Col. Checks </li>
   </ul>`;
-}
-
-/**
- * renderConversation.
- *
- * @param {} conversation
- */
-function renderConversation(conversation) {
-  const el = document.getElementById('conversation');
-  if (!conversation) {
-    el.style.display = 'none';
-    return;
-  }
-  const { character, currentDialog } = conversation;
-  el.style.display = 'block';
-  const html = `<p>
-    <b>${character.name}:</b>
-    ${currentDialog.response}
-  </p>`;
-  el.innerHTML = html;
-}
-
-/**
- * canvasProvider.
- */
-function canvasProvider() {
-  return document.createElement('canvas');
 }
