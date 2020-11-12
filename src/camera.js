@@ -1,4 +1,4 @@
-/** A class for dealing with perspective and rendering */
+/** A module for dealing with perspective and rendering */
 export const Camera = {
   setCanvasResolution(canvas, canvasWidth, canvasHeight) {
     /* eslint-disable no-param-reassign */
