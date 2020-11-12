@@ -1,29 +1,96 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width">
-        <meta name="description" content="Graduate with your life">
-        <title>Hochschule Ulm</title>
-        <link href="main.css" rel="stylesheet" /> 
-    </head>
-    <body>
-        <div id="images">
-            <img id="layout" src="assets/layout_export.svg">
-            <img id="background" src="assets/background.svg">
-            <img id="character-sprite" src="assets/charBatch1_sprite.png">
-        </div>
-        <div id="logo">
-            <img id="icon" src="assets/hochschule_icon.svg">
-            <h1>Hochschule Ulm</h1>
-        </div>
-        <div id="fps"></div>
-        <div id="stage">
-            <canvas id="objects-layer"></canvas>
-            <canvas id="layout-layer"></canvas>
-        </div>
-        <div id="conversation"></div>
-        <div id="instructions">Z: Toggle Zoom | [Space]: Toggle attack | P: Toggle Pause</div>
-    </body>
-    <script type="module" src="main.js"></script>
-</html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Graduate with your life">
+    <title>Hochschule Ulm</title>
+    <link href="main.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="images">
+        <img id="layout" src="assets/layout_export.svg">
+        <img id="background" src="assets/background.svg">
+        <img id="character-sprite" src="assets/charBatch1_sprite.png">
+    </div>
+    <div id="logo">
+        <img id="icon" src="assets/hochschule_icon.svg">
+        <h1>Hochschule Ulm</h1>
+    </div>
+    <div id="fps"></div>
+    <div id="stage">
+        <canvas id="objects-layer"></canvas>
+        <canvas id="layout-layer"></canvas>
+    </div>
+    <div id="conversation"></div>
+    <div id="instructions">Z: Toggle Zoom | [Space]: Toggle attack | P: Toggle Pause</div>
 
+    <div id="ui-icons">
+        <button class="ui-icon" id="inventory">
+            <img
+            src="assets/Backpack_Closed.png"
+            onMouseOver="src='assets/Backpack_Opened.png'"
+            onMouseOut="src='assets/Backpack_Closed.png'"
+            >
+        </button>
+        <button class="ui-icon" id="email">
+            <img
+            src="assets/Email_Closed.png"
+            onMouseOver="src='assets/Email_Opened.png'"
+            onMouseOut="src='assets/Email_Closed.png'"
+            >
+        </button>
+    </br>
+    <button class="ui-icon" id="task">
+        <img
+        src="assets/PhoneV2_Off.png"
+        onMouseOver="src='assets/Phone_On.png'"
+        onMouseOut="src='assets/PhoneV2_Off.png'"
+        >
+    </button>
+</div>
+
+<div id="overlay" class="overlay">
+    <div class="content">
+        <div class="inventory">
+            <div id="0" class="slot">
+                <div class="item" id="wood">
+                    <img src="assets/Email_Closed.png" />
+                </div>
+            </div>
+            <div id="1" class="slot">
+                <div class="item" id="wood">
+                    <img src="assets/Phone_On.png" />
+                </div>
+            </div>
+            <div id="2" class="slot">
+                <div class="item" id="wood">
+                    <img src="assets/Backpack_Closed.png" />
+                </div>
+            </div>
+            <div id="3" class="slot">
+                <div class="item" id="wood">
+                    <img src="assets/PhoneV2_Off.png" />
+                </div>
+            </div>
+
+            <div id="4" class="slot"></div>
+            <div id="5" class="slot"></div>
+            <div id="6" class="slot"></div>
+            <div id="7" class="slot"></div>
+
+            <div id="8" class="slot"></div>
+            <div id="9" class="slot"></div>
+            <div id="10" class="slot"></div>
+            <div id="11" class="slot"></div>
+
+
+            <div id="12" class="slot"></div>
+            <div id="13" class="slot"></div>
+            <div id="14" class="slot"></div>
+            <div id="15" class="slot"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="module" src="main.js"></script>
+</html>

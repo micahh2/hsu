@@ -199,6 +199,15 @@ window.addEventListener('load', async () => {
     clearStats();
     /* eslint-enable no-use-before-define */
   }, 1000);
+
+  /* eslint-disable no-use-before-define */
+  inventoryIcon = document.getElementById('inventory');
+  overlay = document.getElementById('overlay');
+  inventory = document.querySelector('.inventory');
+  overlay.addEventListener('click', toggleInventoryOverlay);
+  inventoryIcon.addEventListener('click', toggleInventoryOverlay);
+  inventory.addEventListener('click', (e) => { e.preventDefault(); });
+  /* eslint-enable no-use-before-define */
 });
 
 // Modified by the eventListener
@@ -267,6 +276,9 @@ window.addEventListener('keyup', (e) => {
       break;
     case 'KeyZ':
       zoom = !zoom;
+      break;
+    case 'KeyI':
+      toggleInventoryOverlay(e); // eslint-disable-line no-use-before-define
       break;
     default:
       console.log(e.code); // eslint-disable-line no-console
@@ -438,4 +450,19 @@ function updateDiagnostDisp({
     <li>${mapMakingTime} Map. ms </li>
     <li>${Math.round(collisionChecks / collisionCalls)} Ave. Col. Checks </li>
   </ul>`;
+}
+
+let overlayOpen = false;
+let inventoryIcon;
+let overlay;
+let inventory;
+function toggleInventoryOverlay(e) {
+  if (e.defaultPrevented) { return; }
+  if (!overlayOpen) {
+    overlay.style.display = 'block';
+    overlayOpen = true;
+  } else {
+    overlay.style.display = 'none';
+    overlayOpen = false;
+  }
 }
