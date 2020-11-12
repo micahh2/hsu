@@ -159,7 +159,7 @@ export const Map = {
    * @param {}
    */
   drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only }) {
-    for (const layer of tilemap.layers.sort((a, b) => Math.sign(b.id - a.id))) {
+    for (const layer of tilemap.layers) {
       if (layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
       Map.drawTileLayerToContext({
