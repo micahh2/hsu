@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding';
 
-describe.only('star', () => {
+describe('star', () => {
   const x = 0;
   const s = 0;
   const f = 0;
@@ -16,7 +16,7 @@ describe.only('star', () => {
   it('should find a valid path', () => {
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const path = PathFinding.star({ graph: graph, start: start, finish: finish });
+    const path = PathFinding.aStar({ graph, start, finish });
     expect(path).to.eql([
       { x: 3, y: 4 },
       { x: 4, y: 3 },
@@ -24,13 +24,18 @@ describe.only('star', () => {
       { x: 1, y: 2 },
       { x: 0, y: 1 },
       { x: 1, y: 0 },
-      { x: 4, y: 0 },
+      finish
     ]);
   });
 
+  // path a - It was taking
+  const a = 0;
+  // path b - It should take
+  const b = 0;
+  const ab = 0;
   const graph2 = [
-    [x, 0, 0, 0, f],
-    [0, 1, 1, 1, 1],
+    [0, x, 0, 0, f],
+    [x, 1, 1, 1, 1],
     [0, 0, 0, 0, 0],
     [0, 0, 0, 1, 0],
     [s, 0, 0, 0, 0],
@@ -39,7 +44,7 @@ describe.only('star', () => {
   it('should generate an optimal path', () => {
     const start = { x: 0, y: 4 };
     const destination = { x: 4, y: 0 };
-    const path = PathFinding.star({ graph: graph2, start: start, finish: destination });
+    const path = PathFinding.aStar({ graph: graph2, start: start, finish: destination });
     expect(path).not.null;
     expect(path).to.eql([
       { x: 0, y: 1 },
@@ -57,7 +62,7 @@ describe.only('star', () => {
   it('should generate a diagonal path', () => {
     const start = { x: 0, y: 4 };
     const destination = { x: 4, y: 0 };
-    const path = PathFinding.star({ graph: graph3, start: start, finish: destination });
+    const path = PathFinding.aStar({ graph: graph3, start: start, finish: destination });
     expect(path).not.null;
     expect(path).to.eql([
       destination,
