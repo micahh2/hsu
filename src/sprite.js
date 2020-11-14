@@ -109,6 +109,5 @@ export const Sprite = {
       default:
         return 0;
     }
-<<<<<<< HEAD
   },
 };

@@ -7,7 +7,7 @@ export const PathFinding = {
    * aStar.
    * A* Path Finding
    */
-  aStar({graph, start, finish}) {
+  aStar({ graph, start, finish }) {
     const nextPlaces = [];
     let place = start;
     while (place && (place.x !== finish.x || place.y !== finish.y)) {
@@ -25,7 +25,7 @@ export const PathFinding = {
 
         if (newY >= graph.length || newX >= graph[newY].length) continue;
         // Don't go in a cycle/loop
-        if (nextPlaces.some((place) => place.x === newX && place.y === newY)) continue;
+        if (nextPlaces.some((p) => p.x === newX && p.y === newY)) continue;
 
         if (graph[newY][newX] > 0) continue;
 
@@ -35,8 +35,8 @@ export const PathFinding = {
           from: place,
         };
         newPlace.cost = (place.cost || 0)
-          + PathFinding.distanceCost(place, newPlace);
-        // +PathFinding.distanceCost(newPlace, finish); // TODO check weather we need to remove this line
+          + PathFinding.moveCost(place, newPlace)
+          + PathFinding.distanceCost(newPlace, finish);
 
         nextPlaces.push(newPlace);
       }
@@ -46,14 +46,14 @@ export const PathFinding = {
       place = nextPlaces.shift();
     }
     // "place" is now the destination (and it has a "from" property), or undefined
-    let lastDirection = undefined;
+    let lastDirection;
     const path = [];
     // Go backwards through the path using the "from"s that setup before:
     while (place && place.from) {
       const newDirection = PathFinding.getDirection(place, place.from);
       if (lastDirection !== newDirection) {
         lastDirection = newDirection;
-        path.push({x: place.x, y: place.y});
+        path.push({ x: place.x, y: place.y });
       }
       place = place.from;
     }
@@ -67,22 +67,33 @@ export const PathFinding = {
    * A* Path Finding
    * @returns {string} something like: '0:0', '-1:0', '1:1', 'origin'
    */
-  getDirection: function (start, finish) {
+  getDirection(start, finish) {
     if (finish) {
       return `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}`;
-    } else {
-      return 'origin';
     }
+    return 'origin';
   },
 
   /**
    * distanceCost.
+   *
    * @param start
    * @param finish
    * @returns {number} - distance between start a finish
    */
   distanceCost(start, finish) {
-    return Math.abs(start.x - finish.x)
-      + Math.abs(start.y - finish.y);
-  }
+    // This is discounted by half to allow move cost to be more important...
+    // if we're okay with unecessary diagonal moves we can remove this
+    return (Math.sqrt((finish.x - start.x) ** 2) + ((finish.y - start.y) ** 2)) / 2;
+  },
+
+  /**
+   * moveCost.
+   * Diagonal moves should be aschewed in favor of straight lines
+   * @param {} start
+   * @param {} finish
+   */
+  moveCost(start, finish) {
+    return Math.abs(start.x - finish.x) + Math.abs(start.y - finish.y);
+  },
 };

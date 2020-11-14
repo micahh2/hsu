@@ -1,7 +1,7 @@
-import {expect} from 'chai';
-import {PathFinding} from './path-finding';
+import { expect } from 'chai';
+import { PathFinding } from './path-finding.js';
 
-describe('star', () => {
+describe('aStar', () => {
   const x = 0;
   const s = 0;
   const f = 0;
@@ -14,25 +14,20 @@ describe('star', () => {
   ];
 
   it('should find a valid path', () => {
-    const start = {x: 0, y: 4};
-    const finish = {x: 4, y: 0};
-    const path = PathFinding.aStar({graph, start, finish});
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 0 };
+    const path = PathFinding.aStar({ graph, start, finish });
     expect(path).to.eql([
-      {x: 3, y: 4},
-      {x: 4, y: 3},
-      {x: 3, y: 2},
-      {x: 1, y: 2},
-      {x: 0, y: 1},
-      {x: 1, y: 0},
-      finish
+      { x: 3, y: 4 },
+      { x: 4, y: 3 },
+      { x: 3, y: 2 },
+      { x: 1, y: 2 },
+      { x: 0, y: 1 },
+      { x: 1, y: 0 },
+      finish,
     ]);
   });
 
-  // path a - It was taking
-  const a = 0;
-  // path b - It should take
-  const b = 0;
-  const ab = 0;
   const graph2 = [
     [0, x, 0, 0, f],
     [x, 1, 1, 1, 1],
@@ -42,13 +37,13 @@ describe('star', () => {
   ];
 
   it('should generate an optimal path', () => {
-    const start = {x: 0, y: 4};
-    const destination = {x: 4, y: 0};
-    const path = PathFinding.aStar({graph: graph2, start: start, finish: destination});
+    const start = { x: 0, y: 4 };
+    const destination = { x: 4, y: 0 };
+    const path = PathFinding.aStar({ graph: graph2, start, finish: destination });
     expect(path).not.null;
     expect(path).to.eql([
-      {x: 0, y: 1},
-      {x: 1, y: 0},
+      { x: 0, y: 1 },
+      { x: 1, y: 0 },
       destination,
     ]);
   });
@@ -61,9 +56,9 @@ describe('star', () => {
   ];
 
   it('should generate a diagonal path', () => {
-    const start = {x: 0, y: 4};
-    const destination = {x: 4, y: 0};
-    const path = PathFinding.aStar({graph: graph3, start: start, finish: destination});
+    const start = { x: 0, y: 4 };
+    const destination = { x: 4, y: 0 };
+    const path = PathFinding.aStar({ graph: graph3, start, finish: destination });
     expect(path).not.null;
     expect(path).to.eql([
       destination,
