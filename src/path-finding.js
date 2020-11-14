@@ -1,12 +1,12 @@
 /**
-* PathFinding.
-* Module for path finding function
-*/
+ * PathFinding.
+ * Module for path finding function
+ */
 export const PathFinding = {
   /**
-  * aStar.
-  * A* Path Finding
-  */
+   * aStar.
+   * A* Path Finding
+   */
   aStar({graph, start, finish}) {
     const nextPlaces = [];
     let place = start;
@@ -36,7 +36,7 @@ export const PathFinding = {
         };
         newPlace.cost = (place.cost || 0)
           + PathFinding.distanceCost(place, newPlace);
-          + PathFinding.distanceCost(newPlace, finish);
+        // +PathFinding.distanceCost(newPlace, finish); // TODO check weather we need to remove this line
 
         nextPlaces.push(newPlace);
       }
@@ -63,10 +63,10 @@ export const PathFinding = {
   },
 
   /**
-  * getDirection.
-  * A* Path Finding
-  * @returns {string} something like: '0:0', '-1:0', '1:1', 'origin'
-  */
+   * getDirection.
+   * A* Path Finding
+   * @returns {string} something like: '0:0', '-1:0', '1:1', 'origin'
+   */
   getDirection: function (start, finish) {
     if (finish) {
       return `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}`;
