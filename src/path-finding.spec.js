@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { PathFinding } from './path-finding';
+import {expect} from 'chai';
+import {PathFinding} from './path-finding';
 
 describe('star', () => {
   const x = 0;
@@ -12,18 +12,18 @@ describe('star', () => {
     [1, 1, 1, 1, x],
     [s, 0, 0, x, 0],
   ];
-  // TODO test this
+
   it('should find a valid path', () => {
-    const start = { x: 0, y: 4 };
-    const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const start = {x: 0, y: 4};
+    const finish = {x: 4, y: 0};
+    const path = PathFinding.aStar({graph, start, finish});
     expect(path).to.eql([
-      { x: 3, y: 4 },
-      { x: 4, y: 3 },
-      { x: 3, y: 2 },
-      { x: 1, y: 2 },
-      { x: 0, y: 1 },
-      { x: 1, y: 0 },
+      {x: 3, y: 4},
+      {x: 4, y: 3},
+      {x: 3, y: 2},
+      {x: 1, y: 2},
+      {x: 0, y: 1},
+      {x: 1, y: 0},
       finish
     ]);
   });
@@ -40,15 +40,15 @@ describe('star', () => {
     [0, 0, 0, 1, 0],
     [s, 0, 0, 0, 0],
   ];
-    // TODO test this
+
   it('should generate an optimal path', () => {
-    const start = { x: 0, y: 4 };
-    const destination = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph: graph2, start: start, finish: destination });
+    const start = {x: 0, y: 4};
+    const destination = {x: 4, y: 0};
+    const path = PathFinding.aStar({graph: graph2, start: start, finish: destination});
     expect(path).not.null;
     expect(path).to.eql([
-      { x: 0, y: 1 },
-      { x: 1, y: 0 },
+      {x: 0, y: 1},
+      {x: 1, y: 0},
       destination,
     ]);
   });
@@ -59,10 +59,11 @@ describe('star', () => {
     [0, 0, 0, 1, 0],
     [s, 0, 0, 0, 0],
   ];
+
   it('should generate a diagonal path', () => {
-    const start = { x: 0, y: 4 };
-    const destination = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph: graph3, start: start, finish: destination });
+    const start = {x: 0, y: 4};
+    const destination = {x: 4, y: 0};
+    const path = PathFinding.aStar({graph: graph3, start: start, finish: destination});
     expect(path).not.null;
     expect(path).to.eql([
       destination,
