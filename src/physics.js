@@ -70,6 +70,8 @@ export const Physics = {
     // Increment Frames
     updateStats('frames', 1);
 
+    console.log(newPlayer);
+
     return {
       ...state,
       player: newPlayer,

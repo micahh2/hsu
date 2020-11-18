@@ -178,10 +178,12 @@ window.addEventListener('load', async () => {
       characters: physicsState.characters,
     };
     const now = new Date() - start;
+    let conversationTriggered = false;
     const newGameState = Story.updateGameState({
       gameState,
       now,
       timeSinceLast,
+      conversationTriggered
     });
     last = new Date();
     if (newGameState !== gameState) {
@@ -330,6 +332,10 @@ function renderConversation(conversation) {
     ${currentDialog.response}
   </p>`;
   el.innerHTML = html;
+
+  if (!conversation.conversationTriggered) {
+    el.style.display = 'none';
+  }
 }
 
 /**

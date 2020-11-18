@@ -8,13 +8,13 @@
       "destination": { "x": 70, "y": 30 },
       "selector": { "characterId": 1 }
     },
-    { 
+    {
       "type": "set-destination",
       "trigger": { "type": "interval", "start": 5000, "interval": 10000 },
       "destination": { "x": 1000, "y": 1000 },
       "selector": { "characterId": 1 }
     },
-    { 
+    {
       "type": "start-conversation",
       "trigger": { "type": "distance", "characterId": 1, "distance": 15 },
       "selector": { "characterId": 1 }
