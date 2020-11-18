@@ -174,15 +174,15 @@ export const Story = {
    */
   updateGameState({ gameState, now, timeSinceLast }) {
     const { player, areas } = gameState;
-    let { conversation, characters, events } = gameState;
+    let { conversation, characters, events, conversationTriggered } = gameState;
     let expired = [];
 
     for (let i = 0; i < events.length; i++) {
-      if (!Story.isTriggered({
-        areas, player, characters, trigger: events[i].trigger, now, timeSinceLast,
-      })) {
-        continue;
-      }
+      // if (!Story.isTriggered({
+      //   areas, player, characters, trigger: events[i].trigger, now, timeSinceLast,
+      // })) {
+      //   continue;
+      // }
 
       const selector = events[i].selector && Story.createSelector(events[i].selector);
       switch (events[i].type) {
@@ -195,7 +195,8 @@ export const Story = {
           });
           break;
         case 'start-conversation':
-          conversation = Story.startConversation({ characters, selector });
+          // conversation = Story.startConversation({ characters, selector });
+          conversation = Story.conversationTriggered(gameState, player, characters, events, conversationTriggered);
           break;
         default:
           break;
@@ -272,4 +273,34 @@ export const Story = {
   newId(collection) {
     return collection.reduce((a, b) => Math.max(a, b.id), -1) + 1;
   },
+
+  /**
+   * to detect if conversation is triggered
+   *
+   * @param gameState
+   * @param player
+   * @param characters
+   * @param events
+   * @param conversationTriggered
+   * @returns {boolean|{conversationTriggered: boolean, character: *, currentDialog: *, selectedOption: number}}
+   */
+  conversationTriggered(gameState, player, characters, events, conversationTriggered){
+    for (let i = 0; i < characters.length; i++){
+      let character = characters[i];
+      if (character.type === 'vip' && Story.isWithinDistance({ distance: events[2].trigger.distance, a: player, b: character })){
+        character.speed = 0; // when triggered, stop moving
+        conversationTriggered = true;
+
+        return {
+          character,
+          currentDialog: character.dialog,
+          selectedOption: 0,
+          conversationTriggered
+        };
+      }
+      character.speed = 2; //TODO need to be not hardcoded
+    }
+    conversationTriggered = false;
+    return conversationTriggered;
+  }
 };

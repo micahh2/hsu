@@ -6,30 +6,30 @@
       "type": "set-destination",
       "trigger": { "type": "time", "time": 100000 },
       "destination": { "x": 0.7, "y": 0.3 },
-      "selector": { "characterId": 1 }
+      "selector": { "characterId": 0 }
     },
-    { 
+    {
       "type": "set-destination",
       "trigger": { "type": "interval", "start": 5000, "interval": 10000 },
       "destination": { "x": 1, "y": 1 },
-      "selector": { "characterId": 1 }
+      "selector": { "characterId": 0 }
     },
-    { 
+    {
       "type": "start-conversation",
       "trigger": { "type": "distance", "characterId": 1, "distance": 0.02 },
-      "selector": { "characterId": 1 }
+      "selector": { "characterId": 0 }
     }
   ],
   "characters": [{
     "id": 1,
     "name": "Frau Kold",
     "type": "vip",
-    "x": 0.03,
-    "y": 0.07,
+    "x": 0.221,
+    "y": 0.126,
     "maxLeft": 0,
-    "maxRight": 0.036,
+    "maxRight": 0.5,
     "maxUp": 0,
-    "maxDown": 0.159,
+    "maxDown": 0.219,
     "speed": 0.001,
     "width": 0.01,
     "height": 0.01,
@@ -60,12 +60,12 @@
     "id": 2,
     "name": "Kratzer",
     "type": "vip",
-    "x": 0.5,
-    "y": 0.07,
+    "x": 0.221,
+    "y": 0.126,
     "maxLeft": 0,
-    "maxRight": 0.533,
+    "maxRight": 0.5,
     "maxUp": 0,
-    "maxDown": 0.256,
+    "maxDown": 0.219,
     "speed": 0.001,
     "width": 0.01,
     "height": 0.01,
