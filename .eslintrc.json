@@ -15,6 +15,7 @@
         "mocha"
     ],
     "rules": {
+        "curly": "error",
         "object-curly-newline": "off",
         "no-plusplus": "off",
         "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
