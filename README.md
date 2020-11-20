@@ -2,6 +2,20 @@
 
 The official HSU game. Play it in a modern browser!
 
+## Gameplay and Features
+
+<img alt="overview" src="./extra/overview.png" style="width: 500px" />
+
+The game is played by using the arrow keys or WASD to move your character around the map. 
+You can zoom in or out by pressing "z"
+
+<img alt="zoom" src="./extra/zoomed.png" style="width: 500px" />
+
+There are icons that are part of the Heads Up Display (HUD).
+You can bring up your current inventory by clicking on the backpack.
+
+<img alt="inventory" src="./extra/inventory.png" style="width: 500px" />
+
 ## Starting the game locally
 
 Download and install [nodejs](https://nodejs.org/)
