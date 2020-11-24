@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import gameData from './gameData.spec.json';
+import gameData from '../gameData/gameData.spec.json';
 import { Story } from './story.js';
 
 describe('getChanges', () => {

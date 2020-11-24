@@ -1,9 +1,9 @@
-import { Story } from './story.js';
-import { Physics } from './physics.js';
-import { Sprite } from './sprite.js';
-import { Characters } from './characters.js';
-import { Camera } from './camera.js';
-import { Map } from './map.js';
+import { Story } from '../story/story.js';
+import { Physics } from '../physics/physics.js';
+import { Sprite } from '../sprite/sprite.js';
+import { Characters } from '../characters/characters.js';
+import { Camera } from '../camera/camera.js';
+import { Map } from '../map/map.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')

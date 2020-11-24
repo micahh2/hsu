@@ -9,8 +9,8 @@
     "start": "http-server -c-1 src",
     "lint": "eslint src",
     "fix-lint": "eslint --fix src",
-    "serve-docs": "npx documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
-    "build-docs": "npx documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r extra docs/",
+    "serve-docs": "npx documentation serve --config documentation.yml --watch src/main/main.js src/editor/editor.js extra README.md documentation.yml",
+    "build-docs": "npx documentation build --config documentation.yml src/main/main.js src/editor/editor.js -f html -o docs && cp -r extra docs/",
     "prep-release": "npm run lint && npm run test-report && npm run build-docs"
   },
   "repository": {

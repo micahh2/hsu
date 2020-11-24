@@ -1,4 +1,4 @@
-import { Util } from './util.js';
+import { Util } from '../util.js';
 
 /** A class containing methods for dealing with characters  */
 export const Characters = {

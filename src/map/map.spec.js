@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { Map } from './map.js';
-import tilesetData from './tileset.json';
+import tilesetData from '../tileset.json';
 
 describe('getSpritable', () => {
   it('should take loaded tile data and return something we can make into a sprite', () => {
