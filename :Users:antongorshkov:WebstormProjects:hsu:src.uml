@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JavaScript-modules-diagram</ID>
+  <OriginalElement>/Users/antongorshkov/WebstormProjects/hsu/src</OriginalElement>
+  <nodes>
+    <node x="0.0" y="705.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/Backpack_Closed.png</node>
+    <node x="313.0" y="854.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/Email_Closed.png</node>
+    <node x="276.0" y="700.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/PhoneV2_Off.png</node>
+    <node x="142.0" y="296.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/Phone_On.png</node>
+    <node x="501.0" y="783.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/background.svg</node>
+    <node x="1042.0" y="300.0">/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.js#Camera#72;</node>
+    <node x="1351.0" y="300.0">/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#Camera#40;/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#expect#9;</node>
+    <node x="318.0" y="189.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/charBatch1_sprite.png</node>
+    <node x="861.0" y="76.0">/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Characters#112;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Util#9;</node>
+    <node x="1181.0" y="418.0">/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#Characters#40;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#expect#9;</node>
+    <node x="661.0" y="261.0">/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Camera#94;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Map#140;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Story#51;</node>
+    <node x="1248.6955445544554" y="55.95297029702971">/Users/antongorshkov/WebstormProjects/hsu/src/gameData/gameData.spec.json</node>
+    <node x="506.0" y="618.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/hochschule_icon.svg</node>
+    <node x="1343.0" y="565.0">/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;</node>
+    <node x="455.0" y="322.0">/Users/antongorshkov/WebstormProjects/hsu/src/editor/index.html</node>
+    <node x="344.0" y="540.0">/Users/antongorshkov/WebstormProjects/hsu/src/index.html</node>
+    <node x="55.0" y="497.0">/Users/antongorshkov/WebstormProjects/hsu/src/assets/layout_export.svg</node>
+    <node x="274.0" y="367.0">/Users/antongorshkov/WebstormProjects/hsu/src/main/main.css</node>
+    <node x="728.0" y="413.0">/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;</node>
+    <node x="895.0" y="600.0">/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Map#502;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Sprite#9;</node>
+    <node x="1098.0" y="671.0">/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#Map#40;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#tilesetData#70;</node>
+    <node x="1784.0" y="670.0">/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.js#PathFinding#73;</node>
+    <node x="1453.0" y="667.0">/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#PathFinding#40;/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#expect#9;</node>
+    <node x="967.0" y="437.0">/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Physics#105;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Util#9;</node>
+    <node x="1090.0" y="554.0">/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#Physics#40;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#expect#9;</node>
+    <node x="804.0" y="771.0">/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.js#Sprite#32;</node>
+    <node x="1016.0" y="844.0">/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#Sprite#40;/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#expect#9;</node>
+    <node x="859.0" y="295.0">/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Story#67;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Util#9;</node>
+    <node x="1245.0" y="161.0">/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#Story#95;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#gameData#38;</node>
+    <node x="1253.0" y="894.0">/Users/antongorshkov/WebstormProjects/hsu/src/tileset.json</node>
+    <node x="1022.0" y="193.0">/Users/antongorshkov/WebstormProjects/hsu/src/util.js#Util#30;</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.js#Sprite#32;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Map#502;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Sprite#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.js#Sprite#32;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Story#67;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Util#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/util.js#Util#30;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#Sprite#40;/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#expect#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.js#Sprite#32;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Characters#112;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Physics#105;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Util#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/util.js#Util#30;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Camera#94;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Map#140;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Story#51;" target="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Map#502;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Sprite#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Camera#94;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Map#140;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Story#51;" target="/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.js#Camera#72;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/layout_export.svg">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/PhoneV2_Off.png">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#Story#95;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#gameData#38;" target="/Users/antongorshkov/WebstormProjects/hsu/src/gameData/gameData.spec.json">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#Characters#40;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#expect#9;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/Backpack_Closed.png">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#Camera#40;/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#expect#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.js#Camera#72;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#Camera#40;/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.spec.js#expect#9;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/hochschule_icon.svg">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#PathFinding#40;/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#expect#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.js#PathFinding#73;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Map#502;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Sprite#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.css">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#Characters#40;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.spec.js#expect#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Characters#112;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/hochschule_icon.svg">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/background.svg">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.css">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#Physics#40;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#expect#9;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#Map#40;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#tilesetData#70;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#Map#40;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#tilesetData#70;" target="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Map#502;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.js#Sprite#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#PathFinding#40;/Users/antongorshkov/WebstormProjects/hsu/src/path-finding/path-finding.spec.js#expect#9;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#Map#40;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/map/map.spec.js#tilesetData#70;" target="/Users/antongorshkov/WebstormProjects/hsu/src/tileset.json">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Camera#94;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Map#140;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Story#51;" target="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Story#67;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/charBatch1_sprite.png">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/Email_Closed.png">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#Physics#40;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.spec.js#expect#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Physics#105;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/assets/Phone_On.png">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/camera/camera.js#Camera#72;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#Story#95;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#gameData#38;" target="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Story#67;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/editor/index.html" target="/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Camera#94;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Map#140;/Users/antongorshkov/WebstormProjects/hsu/src/editor/editor.js#Story#51;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Characters#112;/Users/antongorshkov/WebstormProjects/hsu/src/characters/characters.js#Util#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/util.js#Util#30;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#Sprite#40;/Users/antongorshkov/WebstormProjects/hsu/src/sprite/sprite.spec.js#expect#9;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Physics#105;/Users/antongorshkov/WebstormProjects/hsu/src/physics/physics.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Camera#205;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Characters#147;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Map#251;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Physics#52;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Sprite#101;/Users/antongorshkov/WebstormProjects/hsu/src/main/main.js#Story#9;" target="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Story#67;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.js#Util#9;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#Story#95;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#expect#9;/Users/antongorshkov/WebstormProjects/hsu/src/story/story.spec.js#gameData#38;" target="/Users/antongorshkov/Library/Caches/JetBrains/WebStorm2020.2/javascript/typings/chai/4.2.0/node_modules/@types/chai/index.d.ts#expect#3941;">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Orthogonal" zoom="0.5897810218978102" x="1017.5" y="462.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>All</Category>
+  </Categories>
+  <VISIBILITY>Details</VISIBILITY>
+</Diagram>
+

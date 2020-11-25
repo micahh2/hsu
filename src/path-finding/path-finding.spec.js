@@ -1,8 +1,11 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding.js';
+//
+// const { expect } = require('chai');
+// const { PathFinding } = require('./path-finding.js');
 
 describe('aStar', () => {
-  const o = 0; // intermediate points without when no turn (the trace)
+  const o = 0; // intermediate points when going forwards (the trace)
   const u = 0; // turning points
   const s = 0;
   const f = 0;
