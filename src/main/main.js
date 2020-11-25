@@ -63,7 +63,11 @@ window.addEventListener('load', async () => {
   layoutCanvasData.context.imageSmoothingEnabled = false;
 
   // Load the initial story
-  let gameState = Story.loadGameState({ gameData, width: canvasWidth, height: canvasHeight });
+  let gameState = Story.loadGameState({
+    gameData,
+    width: canvasWidth,
+    height: canvasHeight
+  });
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
@@ -89,13 +93,19 @@ window.addEventListener('load', async () => {
   });
 
   // Add some random characters
-  const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
-    let spriteIndex = 8;
-    while (spriteIndex === 8) { spriteIndex = Math.floor(Math.random() * 13); }
-    return {
-      ...t, id: i + gameState.characters.length + 1, spriteIndex, type: '',
-    }; // other NPCs' IDs follow the 'vip' NPCs'
-  });
+  const newCharacters = new Array(4).fill(gameState.characters[0])
+    .map((t, i) => {
+      let spriteIndex = 8;
+      while (spriteIndex === 8) {
+        spriteIndex = Math.floor(Math.random() * 13);
+      }
+      return {
+        ...t,
+        id: i + gameState.characters.length + 1,
+        spriteIndex,
+        type: '',
+      }; // other NPCs' IDs follow the 'vip' NPCs'
+    });
 
   let storyChanges;
   let oldViewport;
@@ -194,7 +204,11 @@ window.addEventListener('load', async () => {
   setInterval(() => {
     /* eslint-disable no-use-before-define */
     updateDiagnostDisp({
-      fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls,
+      fps: frames,
+      mapMakingTime,
+      collisionTime,
+      collisionChecks,
+      collisionCalls,
     });
     clearStats();
     /* eslint-enable no-use-before-define */
@@ -206,7 +220,9 @@ window.addEventListener('load', async () => {
   inventory = document.querySelector('.inventory');
   overlay.addEventListener('click', toggleInventoryOverlay);
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
-  inventory.addEventListener('click', (e) => { e.preventDefault(); });
+  inventory.addEventListener('click', (e) => {
+    e.preventDefault();
+  });
   /* eslint-enable no-use-before-define */
 });
 
@@ -220,7 +236,9 @@ let pause = false;
 let zoom = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
 
   switch (e.code) {
     case 'KeyS':
@@ -249,7 +267,9 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => {
   // Do nothing if event already handled
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
 
   switch (e.code) {
     case 'KeyS':
@@ -303,7 +323,7 @@ function canvasProvider() {
  * @param {Character} conversation.character
  * @param {currentDialog} conversation.currentDialog
  * @example
-      renderConversation(gameState.conversation);
+ renderConversation(gameState.conversation);
  */
 function renderConversation(conversation) {
   const el = document.getElementById('conversation');
@@ -339,7 +359,7 @@ function renderConversation(conversation) {
 function movePlayer({
   player, width, height, up, down, left, right,
 }) {
-/* eslint-enable no-shadow */
+  /* eslint-enable no-shadow */
   let newPlayer = player;
   let prefix = '';
   if (up && !down) {
@@ -387,7 +407,7 @@ let collisionCalls = 0;
  * This clears all of the statistics/metrics that we've been keeping track of,
  * at somepoint it will be rewritten to be more flexible
  * @example
-    clearStats();
+ clearStats();
  */
 function clearStats() {
   frames = 0;
@@ -456,8 +476,11 @@ let overlayOpen = false;
 let inventoryIcon;
 let overlay;
 let inventory;
+
 function toggleInventoryOverlay(e) {
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
   if (!overlayOpen) {
     overlay.style.display = 'block';
     overlayOpen = true;
