@@ -37,25 +37,28 @@ window.addEventListener('load', async () => {
   // const backgroundImage = document.getElementById('background');
 
   // Get bounds pixels and context
-  let layoutCanvasData = Camera.getCanvasData(layoutCanvas);
+  const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
   const { canvasWidth, canvasHeight } = layoutCanvasData;
 
   // mapDim.width, mapDim.height
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
-  Camera.setCanvasResolution(layoutCanvas, mapDim.width, mapDim.height);
+  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
+  const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
+  Camera.setCanvasResolution(virtualCanvas, canvasWidth, canvasHeight);
   Map.drawTileMapToContext({
-    context: layoutCanvasData.context,
+    context: virtualCanvas.getContext('2d'),
     tilemap,
     only: ['Buildings'],
     sprites: tileSprites,
     zoomLevel: 1,
   });
 
-  layoutCanvasData = Camera.getCanvasData(layoutCanvas);
-  const pixels = Camera.getContextPixels(layoutCanvasData);
-
-  Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+  const pixels = Camera.getContextPixels({
+    context: virtualCanvas.getContext('2d'),
+    canvasWidth,
+    canvasHeight,
+  });
 
   // Default layer context
   const context = objectCanvas.getContext('2d');
