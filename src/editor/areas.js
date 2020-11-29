@@ -1,0 +1,2 @@
+function addEventListeners(canvas, updateArea) {
+}

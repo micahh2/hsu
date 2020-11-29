@@ -5,6 +5,7 @@
         <meta name="description" content="Graduate with your life">
         <title>HSU Editor</title>
         <link href="../main.css" rel="stylesheet" /> 
+        <link href="./editor.css" rel="stylesheet" /> 
         <style>
             input, a {
                 position: relative;
@@ -16,16 +17,25 @@
         </style>
     </head>
     <body>
+        <div id="images">
+          <img id="character-sprite" src="../assets/charBatch1_sprite.png">
+        </div>
         <input type="file" id="file">
         <div id="logo">
             <img id="icon" src="../assets/hochschule_icon.svg">
             <h1>HSU Editor</h1>
         </div>
-        <div id="stage">
-            <canvas id="objects-layer"></canvas>
-            <canvas id="layout-layer"></canvas>
-        </div>
         <a href="#" id="download" download="gameData.json">Download</a>
+        <div class="main">
+          <div id="stage">
+              <canvas id="areas-layer"></canvas>
+              <canvas id="objects-layer"></canvas>
+              <canvas id="layout-layer"></canvas>
+          </div>
+          <div id="side-panel">
+            Side panel
+          </div>
+        </div>
     </body>
     <script type="module" src="./editor.js"></script>
 </html>

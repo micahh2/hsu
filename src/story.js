@@ -51,40 +51,13 @@ export const Story = {
   },
 
   /**
-   * relativeToAbsolute.
-   *
-   * @param {}
-   */
-  relativeToAbsolute({ relative, width }) {
-    if (!relative) { return relative; }
-    const abs = { ...relative };
-    for (const i of ['x', 'y', 'height', 'width', 'speed', 'distance']) {
-      if (abs[i] == null) { continue; }
-      abs[i] = Math.round(abs[i] * width);
-    }
-    return abs;
-  },
-
-  /**
    * loadGameState.
    *
    * @param {}
    */
-  loadGameState({ gameData, width, height }) {
-    return {
-      ...gameData,
-      areas: (gameData.areas || []).map((t) => Story.relativeToAbsolute({ relative: t, width })),
-      player: Story.relativeToAbsolute({ relative: gameData.player, width }),
-      characters: (gameData || []).characters
-        .map((t) => Story.relativeToAbsolute({ relative: t, width, height })),
-      events: (gameData.events || []).map((t) => ({
-        ...t,
-        trigger: t.trigger.distance != null
-          ? Story.relativeToAbsolute({ relative: t.trigger, width })
-          : t.trigger,
-        destination: Story.relativeToAbsolute({ relative: t.destination, width, height }),
-      })),
-    };
+  loadGameState(gameData) {
+    // Extension point for adding dynamic things
+    return gameData;
   },
 
   /**

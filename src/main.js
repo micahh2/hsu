@@ -66,7 +66,7 @@ window.addEventListener('load', async () => {
   layoutCanvasData.context.imageSmoothingEnabled = false;
 
   // Load the initial story
-  let gameState = Story.loadGameState({ gameData, width: canvasWidth, height: canvasHeight });
+  let gameState = Story.loadGameState(gameData);
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');

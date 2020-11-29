@@ -2,6 +2,7 @@
 import { Story } from '../story.js';
 import { Camera } from '../camera.js';
 import { Map } from '../map.js';
+import { Sprite } from '../sprite.js';
 
 const fetchTilesetData = new Promise((res) => {
   fetch('../tileset.json')
@@ -13,37 +14,84 @@ window.addEventListener('load', async () => {
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap, prepend: '../' }));
   // Load element from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
+  const areasCanvas = document.getElementById('areas-layer');
   const layoutCanvas = document.getElementById('layout-layer');
 
+  const mapDim = Map.getTileMapDim(tilemap);
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
   const { canvasWidth, canvasHeight } = layoutCanvasData;
+  let gameData = {
+    player: {
+      x: 100,
+      y: 100,
+      width: 20,
+      height: 20,
+      spriteIndex: 8,
+      speed: 1,
+    },
+    characters: [],
+    areas: [],
+  };
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(areasCanvas, canvasWidth, canvasHeight);
 
   const tileSprites = Map.loadTileMapSprites({
     loadedTilesets,
     canvasProvider,
     zoomLevels: [1, 2],
   });
-  Map.drawTileMapToContext({
-    context: layoutCanvasData.context,
+
+  // Load sprites
+  const characterSprite = document.getElementById('character-sprite');
+  const sprites = Sprite.loadSprites({
+    characterSprite: {
+      image: characterSprite, // Actual image data
+      columns: 3, // How many columns
+      rows: 5, // How many rows
+      padding: 60, // How much whitespace to ignore
+      // How big should the cached tile versions be - we just have two sizes
+      scales: [gameData.player.width, gameData.player.width * 2],
+    },
+  }, canvasProvider); // eslint-disable-line no-use-before-define
+  // set background
+  sprites.background = Map.loadTileMapAsSpriteData({
     tilemap,
+    loadedTilesets,
+    setCanvasResolution: Camera.setCanvasResolution,
     sprites: tileSprites,
-    zoomLevel: 1,
+    canvasWidth,
+    zoomLevels: [1, 2],
+    canvasProvider, // eslint-disable-line no-use-before-define
   });
 
-  const width = canvasWidth;
-  const height = canvasHeight;
-  const canvas = objectCanvas;
-  const context = objectCanvas.getContext('2d');
+  const zoom = false;
+  let viewport = Camera.updateViewport({
+    oldViewport: null,
+    player: gameData.player,
+    mapWidth: mapDim.width,
+    mapHeight: mapDim.height,
+    canvasWidth,
+    canvasHeight,
+    scale: zoom ? 2 : 1,
+  });
+  Camera.drawScene({
+    player: gameData.player,
+    characters: gameData.characters,
+    context: objectCanvas.getContext('2d'),
+    width: canvasWidth,
+    height: canvasHeight,
+    sprites,
+    layoutContext: layoutCanvas.getContext('2d'),
+    oldViewport: null,
+    viewport,
+    drawActorToContext: Sprite.drawActorToContext,
+  });
+
 
   let areas = [];
-  let gameData = {};
 
-  const args = {
-    context, width, height, areas,
-  };
   let selected;
   let stat;
   canvas.addEventListener('mousedown', (e) => {
@@ -85,6 +133,46 @@ window.addEventListener('load', async () => {
         };
       }
       areas = updatedAreas.concat(selected);
+    } else {
+      const player = gameData.player;
+      let diffx = 0;
+      let diffy = 0;
+      if (e.offsetX > canvasWidth*.9) {
+        diffx = e.offsetX - canvasWidth*.9;
+      } else if (e.offsetX < canvasWidth*.1) {
+        diffx = e.offsetX - canvasWidth*.1;
+      }
+      if (e.offsetY > canvasHeight*.9) {
+        diffy = e.offsetY - canvasHeight*.9;
+      } else if (e.offsetY < canvasHeight*.1) {
+        diffy = e.offsetY - canvasHeight*.1 ;
+      }
+      viewport = Camera.updateViewport({
+        oldViewport: null,
+        player: {
+          x: Math.floor(viewport.x + canvasWidth/2 - 5 + diffx),
+          y: Math.floor(viewport.y + canvasHeight/2 - 5 + diffy),
+          width: 10,
+          height: 10
+        },
+        mapWidth: mapDim.width,
+        mapHeight: mapDim.height,
+        canvasWidth,
+        canvasHeight,
+        scale: zoom ? 2 : 1,
+      });
+      Camera.drawScene({
+        player: gameData.player,
+        characters: gameData.characters,
+        context: objectCanvas.getContext('2d'),
+        width: canvasWidth,
+        height: canvasHeight,
+        sprites,
+        layoutContext: layoutCanvas.getContext('2d'),
+        oldViewport: null,
+        viewport,
+        drawActorToContext: Sprite.drawActorToContext,
+      });
     }
   });
 
@@ -114,7 +202,14 @@ window.addEventListener('load', async () => {
   canvas.addEventListener('mouseup', done);
   canvas.addEventListener('mouseout', done);
 
-  setInterval(() => { draw({ ...args, areas, selected }); }, 20);
+  const args = {
+    width: canvasWidth,
+    height: canvasHeight,
+    canvas: objectCanvas,
+    context: areasCanvas.getContext('2d'),
+  };
+
+  setInterval(() => { drawAreas({ ...args, areas, selected }); }, 20);
 
   const filePicker = document.getElementById('file');
   filePicker.addEventListener('change', async () => {
@@ -124,11 +219,7 @@ window.addEventListener('load', async () => {
   });
   const download = document.getElementById('download');
   download.addEventListener('click', () => {
-    const dataURI = exportFile({
-      gameData: { ...gameData, areas },
-      width,
-      height,
-    });
+    const dataURI = exportFile({ ...gameData, areas });
     download.href = dataURI;
   });
 });
@@ -138,45 +229,8 @@ async function importFile({ file, width, height }) {
   return Story.loadGameState({ gameData: JSON.parse(text), width, height });
 }
 
-function absToRelXYWidthHeight(abs, w) {
-  return {
-    ...abs,
-    x: absToRel(abs.x, w),
-    y: absToRel(abs.y, w),
-    width: absToRel(abs.width, w),
-    height: absToRel(abs.height, w),
-  };
-}
-
-function absToRel(abs, max) {
-  return Math.round((abs * 10000) / max) / 10000;
-}
-
-function exportFile({ gameData, width }) {
-  const exportData = {
-    ...gameData,
-    player: gameData.player != null ? {
-      ...absToRelXYWidthHeight(gameData.player, width),
-      speed: absToRel(gameData.player.speed, width),
-    } : gameData.player,
-    areas: (gameData.areas || []).map((t) => absToRelXYWidthHeight(t, width)),
-    characters: (gameData.characters || []).map((t) => ({
-      ...absToRelXYWidthHeight(t, width),
-      speed: absToRel(t.speed, width),
-    })),
-    events: (gameData.events || []).map((t) => ({
-      ...t,
-      trigger: t.trigger.distance != null ? {
-        ...t.trigger,
-        distance: absToRel(t.trigger.distance, width),
-      } : t.trigger,
-      destination: t.destination != null ? {
-        x: absToRel(t.destination.x, width),
-        y: absToRel(t.destination.y),
-      } : t.destination,
-    })),
-  };
-  return `data:text/json;base64,${btoa(JSON.stringify(exportData, null, 2))}`;
+function exportFile(gameData) {
+  return `data:text/json;base64,${btoa(JSON.stringify(gameData, null, 2))}`;
 }
 
 function newName(id) {
@@ -239,4 +293,5 @@ function getShade() {
 function canvasProvider() {
   return document.createElement('canvas');
 }
+
 /* eslint-enable no-use-before-define */
