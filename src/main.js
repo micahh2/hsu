@@ -45,7 +45,7 @@ window.addEventListener('load', async () => {
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
   const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
-  Camera.setCanvasResolution(virtualCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(virtualCanvas, mapDim.width, mapDim.width);
   Map.drawTileMapToContext({
     context: virtualCanvas.getContext('2d'),
     tilemap,
@@ -56,8 +56,8 @@ window.addEventListener('load', async () => {
 
   const pixels = Camera.getContextPixels({
     context: virtualCanvas.getContext('2d'),
-    canvasWidth,
-    canvasHeight,
+    canvasWidth: mapDim.width,
+    canvasHeight: mapDim.height,
   });
 
   // Default layer context
