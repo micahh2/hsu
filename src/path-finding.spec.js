@@ -1,6 +1,12 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding.js';
 
+function testPathAsExpected(start, finish, graph, expectedPath) {
+  const path = PathFinding.aStar({ graph, start, finish });
+  expect(path).not.null;
+  expect(path).to.eql(expectedPath);
+}
+
 describe('aStar', () => {
   const o = 0; // intermediate points when going without turn (the forward trace)
   const u = 0; // turning "u-points"
@@ -26,9 +32,7 @@ describe('aStar', () => {
       { x: 1, y: 0 },
       finish,
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql(expectedPath);
+    testPathAsExpected(start, finish, graph, expectedPath);
   });
 
   it('should generate an optimal path', () => {
@@ -64,9 +68,7 @@ describe('aStar', () => {
     const expectedPath = [
       finish,
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql(expectedPath);
+    testPathAsExpected(start, finish, graph, expectedPath);
   });
 
   it('should go straight over a wall, then diagonal to the right', () => {
@@ -84,9 +86,7 @@ describe('aStar', () => {
       { x: 1, y: 0 },
       finish,
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql(expectedPath);
+    testPathAsExpected(start, finish, graph, expectedPath);
   });
 
   it('should go straight up, diagonal over the wall, and straight down', () => {
@@ -103,9 +103,7 @@ describe('aStar', () => {
       { x: 2, y: 0 },
       finish,
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql(expectedPath);
+    testPathAsExpected(start, finish, graph, expectedPath);
   });
 
   it('should first go up-right (diagonal), then down a corridor', () => {
@@ -124,8 +122,6 @@ describe('aStar', () => {
       { x: 4, y: 1 },
       finish,
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql(expectedPath);
+    testPathAsExpected(start, finish, graph, expectedPath);
   });
 });
