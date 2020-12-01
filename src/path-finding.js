@@ -8,14 +8,14 @@ export const PathFinding = {
      * A* Path Finding
      */
   aStar({ graph, start, finish }) {
-    const movesNumberInPerDim = 3; // Generalized for the exact dimension
-    const dimensionsNumber = 2; // Generalized for the dimension number
+    const movesNumberPerDim = 3; // Generalized for the exact dimension (-1, 0, 1)
+    const dimensionNumber = 2; // Generalized for the dimension number
     const nextPlaces = [];
     let place = start;
     while (place && (place.x !== finish.x || place.y !== finish.y)) {
-      for (let i = 0; i < movesNumberInPerDim ** dimensionsNumber; i++) {
-        const offsetX = 1 - (i % movesNumberInPerDim); // -1, 0, 1,-1, 0, 1,-1, 0, 1
-        const offsetY = 1 - Math.floor(i / movesNumberInPerDim); // -1,-1,-1, 0, 0, 0, 1, 1, 1
+      for (let i = 0; i < movesNumberPerDim ** dimensionNumber; i++) {
+        const offsetX = 1 - (i % movesNumberPerDim); // -1, 0, 1,-1, 0, 1,-1, 0, 1
+        const offsetY = 1 - Math.floor(i / movesNumberPerDim); // -1,-1,-1, 0, 0, 0, 1, 1, 1
         const newX = place.x + offsetX;
         const newY = place.y + offsetY;
 
