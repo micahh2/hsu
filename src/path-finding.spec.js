@@ -8,6 +8,8 @@ describe('aStar', () => {
   const f = 0; // finish point
 
   it('should find a valid path', () => {
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 0 };
     const graph = [
       [0, u, o, o, f],
       [u, 1, 1, 1, 1],
@@ -15,10 +17,7 @@ describe('aStar', () => {
       [1, 1, 1, 1, u],
       [s, o, o, u, 0],
     ];
-    const start = { x: 0, y: 4 };
-    const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).to.eql([
+    const expectedPath = [
       { x: 3, y: 4 },
       { x: 4, y: 3 },
       { x: 3, y: 2 },
@@ -26,7 +25,10 @@ describe('aStar', () => {
       { x: 0, y: 1 },
       { x: 1, y: 0 },
       finish,
-    ]);
+    ];
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql(expectedPath);
   });
 
   it('should generate an optimal path', () => {
@@ -39,16 +41,19 @@ describe('aStar', () => {
       [0, 1, 0, 0, 0],
       [s, 1, 0, 0, 0],
     ];
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql([
+    const expectedPath = [
       { x: 0, y: 1 },
       { x: 1, y: 0 },
       finish,
-    ]);
+    ];
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql(expectedPath);
   });
 
   it('should generate a diagonal path', () => {
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 0 };
     const graph = [
       [0, 0, 1, 1, f],
       [0, 1, 1, o, 1],
@@ -56,16 +61,17 @@ describe('aStar', () => {
       [1, o, 1, 1, 0],
       [s, 1, 1, 0, 0],
     ];
-    const start = { x: 0, y: 4 };
-    const finish = { x: 4, y: 0 };
+    const expectedPath = [
+      finish,
+    ];
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([
-      finish,
-    ]);
+    expect(path).to.eql(expectedPath);
   });
 
   it('should go straight over a wall, then diagonal to the right', () => {
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 3 };
     const graph = [
       [0, u, 0, 0, 0],
       [u, 1, o, 0, 0],
@@ -73,18 +79,19 @@ describe('aStar', () => {
       [o, 1, 0, 0, f],
       [s, 1, 0, 0, 0],
     ];
-    const start = { x: 0, y: 4 };
-    const finish = { x: 4, y: 3 };
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql([
+    const expectedPath = [
       { x: 0, y: 1 },
       { x: 1, y: 0 },
       finish,
-    ]);
+    ];
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql(expectedPath);
   });
 
   it('should go straight up, diagonal over the wall, and straight down', () => {
+    const start = { x: 0, y: 2 };
+    const finish = { x: 4, y: 2 };
     const graph = [
       [0, 0, u, 0, 0],
       [0, o, 1, o, 0],
@@ -92,17 +99,18 @@ describe('aStar', () => {
       [0, 0, 1, 0, 0],
       [0, 0, 1, 0, 0],
     ];
-    const start = { x: 0, y: 2 };
-    const finish = { x: 4, y: 2 };
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).not.null;
-    expect(path).to.eql([
+    const expectedPath = [
       { x: 2, y: 0 },
       finish,
-    ]);
+    ];
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql(expectedPath);
   });
 
   it('should first go up-right (diagonal), then down a corridor', () => {
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 4 };
     const graph = [
       [0, 0, 0, u, 0],
       [0, 0, o, 1, u],
@@ -110,14 +118,14 @@ describe('aStar', () => {
       [u, 0, 0, 1, o],
       [s, 0, 0, 1, f],
     ];
-    const start = { x: 0, y: 4 };
-    const finish = { x: 4, y: 4 };
-    const path = PathFinding.aStar({ graph, start, finish });
-    expect(path).to.eql([
+    const expectedPath = [
       { x: 0, y: 3 },
       { x: 3, y: 0 },
       { x: 4, y: 1 },
       finish,
-    ]);
+    ];
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql(expectedPath);
   });
 });
