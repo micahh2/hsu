@@ -120,4 +120,18 @@ describe('aStar', () => {
       finish,
     ]);
   });
+
+  it('should receive a grid and return a graph', () => {
+    const grid = [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+    ];
+    const graph = PathFinding.gridToGraph({ grid, width: 5, height: 5, actorSize: 2, x: 0, y: 0 });
+    expect(graph).to.eql([
+      { x: 0, y: 0, width: 5, height: 5, neighbors: [] },
+    ]);
+  });
 });
