@@ -18,12 +18,11 @@ toc:
         - Camera
         - Characters
         - Map
-        - PathFinding
         - Physics
         - Sprite
         - Story
         - Util
   - name: Tests
-    file: test-report.txt
+    file: test-report.md
   - name: Roadmap
     file: extra/roadmap.md

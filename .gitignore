@@ -1,6 +1,7 @@
 node_modules
 docs
 test-report.*
+coverage
 
 # Editor shit
 .vscode/*

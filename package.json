@@ -5,13 +5,14 @@
   "main": "main.js",
   "scripts": {
     "test": "mocha --require esm -w src/**/*.spec.js",
-    "test-report": "mocha --require esm src/**/*.spec.js > test-report.txt 2>&1",
+    "test-report": "npm run test-coverage | tail -n +6 > test-report.md 2>&1 && echo '\n[View test code coverage](./coverage/index.html)\n' >> test-report.md",
     "start": "http-server -c-1 src",
     "lint": "eslint src",
     "fix-lint": "eslint --fix src",
-    "serve-docs": "npx documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
-    "build-docs": "npx documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r extra docs/",
-    "prep-release": "npm run lint && npm run test-report && npm run build-docs"
+    "serve-docs": "documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
+    "build-docs": "documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r extra docs/",
+    "prep-release": "npm run lint && npm run test-report && npm run build-docs",
+    "test-coverage": "c8 --reporter html --all --include src mocha --require esm src/**/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -24,12 +25,14 @@
   },
   "homepage": "https://github.com/micahh2/hsu#readme",
   "dependencies": {
+    "c8": "^7.3.5",
     "chai": "^4.2.0",
     "documentation": "^13.1.0",
     "eslint-plugin-mocha": "^8.0.0",
     "esm": "^3.2.25",
     "http-server": "^0.12.3",
-    "mocha": "^8.2.0"
+    "mocha": "^8.2.0",
+    "nyc": "^15.1.0"
   },
   "devDependencies": {
     "eslint": "^7.12.1",
