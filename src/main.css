@@ -75,6 +75,13 @@ body {
     }
 }
 
+.container{ /* stick the ui-icon and time together so no matter the window size both elements remain together */
+
+  position: absolute;
+  top: 0;
+  left: 50%;
+}
+
 .ui-icon {
     cursor: pointer;
     background-color: transparent;
@@ -87,9 +94,6 @@ body {
 }
 
 #ui-icons {
-  position: absolute;
-  top: 0;
-  left: 50%;
   margin-left: -106.5px;
   background-color: rgba(55, 55, 55, 0.5);
   border-radius: 0 0 5px 5px;
@@ -146,4 +150,20 @@ body {
 .item img {
     width: 100%;
     margin: 0 auto;
+}
+
+ #time{
+  margin-left: -36.5px;
+  width: 78px;
+  align-items: center;
+  background-color: rgba(55, 55, 55, 0.5);
+  border-radius: 0 0 5px 5px;
+  border: 2px solid black;
+  border-top: none;
+  padding: 5px;
+  color:#00dd3c;
+  font-family: 'Press Start 2P', cursive; /* from Google fonts */
+  font-size: 10px;
+
+
 }

@@ -323,6 +323,27 @@ function renderConversation(conversation) {
   el.innerHTML = html;
 }
 
+
+
+function tim(){
+// tim, because I wasted 30 odd minutes trying to figure out what's wrong and truns out I named it tim() as opposed to time()
+  var date = new Date();
+  let tHour = date.getHours();
+  let tMin = date.getMinutes();
+  let tSec = date.getSeconds();
+
+  if(tHour < 10 ) {tHour = "0" + tHour;}
+  if(tMin < 10 ) {tMin = "0" + tMin;}
+  if(tSec < 10 ) {tSec = "0" + tSec;}
+
+  let timo = setTimeout(tim, 500); // so tim can keep updating
+
+  document.getElementById("time").innerHTML = tHour + ":" + tMin + ":" + tSec;
+}
+
+window.onload = tim; // couldn't find any other way to load tim that worked
+
+
 /* eslint-disable no-shadow */
 /**
  * Take all the input requests give an updated player
