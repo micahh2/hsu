@@ -162,7 +162,7 @@ body {
   border-top: none;
   padding: 5px;
   color:#00dd3c;
-  font-family: 'Press Start 2P';
+  font-family: 'Press Start 2P', cursive;
   font-size: 10px;
 }
 
@@ -178,4 +178,4 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
-  }
+}

@@ -391,6 +391,7 @@ function renderConversation(conversation, updateConvo) {
  */
 function tim() {
   const date = new Date();
+
   let tHour = date.getHours();
   let tMin = date.getMinutes();
   let tSec = date.getSeconds();
