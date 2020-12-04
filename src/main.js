@@ -331,9 +331,9 @@ function renderConversation(conversation) {
 
 /**
  * tim, because I wasted 30 odd minutes trying to figure out
- * what's wrong and truns out I named it tim() as opposed to time().
- * Calls itself recursively and updates the time element in index.html, only ever call this once
- * @example tim()
+ * what's wrong and turns out I named it tim() as opposed to time().
+ * Calls itself recursively and updates the #time element in `index.html`.
+ * Only ever call this once.
  */
 function tim() {
   const date = new Date();

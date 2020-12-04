@@ -13,6 +13,7 @@ toc:
         - updateDiagnostDisp
         - renderConversation
         - canvasProvider
+        - tim
   - name: Modules
     children:
         - Camera

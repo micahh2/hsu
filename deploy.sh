@@ -2,8 +2,6 @@
 
 fromSrc="$1/src/"
 fromDocs="$1/docs"
-toCoverage="$2/docs/"
-fromCoverage="$1/coverage"
 
 echo "Syncing $fromSrc to $2"
 
@@ -20,7 +18,3 @@ rsync -r --exclude='.git' \
 echo "Copying $fromDocs to $2"
 
 cp -r $fromDocs $2
-
-echo "Copying $fromCoverage to $toCoverage"
-
-cp -r $fromCoverage $toCoverage

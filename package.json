@@ -10,9 +10,9 @@
     "lint": "eslint src",
     "fix-lint": "eslint --fix src",
     "serve-docs": "documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
-    "build-docs": "documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r extra docs/",
+    "build-docs": "documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r coverage extra docs/",
     "prep-release": "npm run lint && npm run test-report && npm run build-docs",
-    "test-coverage": "c8 --reporter html --all --include src mocha --require esm src/**/*.spec.js"
+    "test-coverage": "c8 --reporter html --all --include src --exclude src/**/*.spec.js mocha --require esm src/**/*.spec.js"
   },
   "repository": {
     "type": "git",
