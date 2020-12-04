@@ -77,7 +77,7 @@ To generate a test report (test-report.md)
 
 View the test status' [here](https://micah.dvyld.com/hsu/docs#tests)
 
-View the test code coverage [here](https://micah.dvyld.com/hsu/coverage/index.html)
+View the test code coverage [here](https://micah.dvyld.com/hsu/docs/coverage/index.html)
 
 ## Documentation
 
