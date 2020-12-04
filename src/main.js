@@ -204,12 +204,18 @@ window.addEventListener('load', async () => {
   }, 1000);
 
   /* eslint-disable no-use-before-define */
+
+  // Icons
   inventoryIcon = document.getElementById('inventory');
   overlay = document.getElementById('overlay');
   inventory = document.querySelector('.inventory');
   overlay.addEventListener('click', toggleInventoryOverlay);
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
   inventory.addEventListener('click', (e) => { e.preventDefault(); });
+
+  // Time
+  tim();
+
   /* eslint-enable no-use-before-define */
 });
 
@@ -323,26 +329,26 @@ function renderConversation(conversation) {
   el.innerHTML = html;
 }
 
-
-
-function tim(){
-// tim, because I wasted 30 odd minutes trying to figure out what's wrong and truns out I named it tim() as opposed to time()
-  var date = new Date();
+/**
+ * tim, because I wasted 30 odd minutes trying to figure out
+ * what's wrong and truns out I named it tim() as opposed to time().
+ * Calls itself recursively and updates the time element in index.html, only ever call this once
+ * @example tim()
+ */
+function tim() {
+  const date = new Date();
   let tHour = date.getHours();
   let tMin = date.getMinutes();
   let tSec = date.getSeconds();
 
-  if(tHour < 10 ) {tHour = "0" + tHour;}
-  if(tMin < 10 ) {tMin = "0" + tMin;}
-  if(tSec < 10 ) {tSec = "0" + tSec;}
+  if (tHour < 10) { tHour = `0${tHour}`; }
+  if (tMin < 10) { tMin = `0${tMin}`; }
+  if (tSec < 10) { tSec = `0${tSec}`; }
 
-  let timo = setTimeout(tim, 500); // so tim can keep updating
+  setTimeout(tim, 500); // so tim can keep updating
 
-  document.getElementById("time").innerHTML = tHour + ":" + tMin + ":" + tSec;
+  document.getElementById('time').innerHTML = `${tHour}:${tMin}:${tSec}`;
 }
-
-window.onload = tim; // couldn't find any other way to load tim that worked
-
 
 /* eslint-disable no-shadow */
 /**
