@@ -1,11 +1,10 @@
 import { Story } from '../story.js';
-
-const anonFunc = () => {};
+import { Render } from './render.js';
+import { Elements } from './elements.js';
 
 export const AreasLayer = {
-  initialize({
-    areasCanvas, areas = [], updateCallback = anonFunc, viewport, canvasWidth, canvasHeight,
-  }) {
+  initialize({ areasCanvas, areas = [], viewport, canvasWidth, canvasHeight, panel }) {
+    const areaPane = panel.querySelector('#area-pane');
     let selected;
     let stat;
     const args = {
@@ -15,11 +14,30 @@ export const AreasLayer = {
       context: areasCanvas.getContext('2d'),
     };
 
+    function changeAreas(change) {
+      switch (change.type) {
+        case 'update-area':
+          updateAreas(areas.map((t) => { // eslint-disable-line
+            if (t.id !== change.id) { return t; }
+            return { ...t, [change.prop]: change.value };
+          }));
+          break;
+        case 'delete-area':
+          updateAreas(areas.filter((t) => { // eslint-disable-line
+            if (t.id !== change.id) { return true; }
+            return false;
+          }));
+          break;
+        default:
+          throw Error('Unknown Change Type');
+      }
+    }
     function updateAreas(newAreas) {
       areas = newAreas; // eslint-disable-line
       AreasLayer.drawAll({ ...args, areas, selected, viewport });
-      updateCallback(areas);
+      AreasLayer.renderAreaPane({ areaPane, areas, changeAreas });
     }
+    AreasLayer.renderAreaPane({ areaPane, areas, changeAreas });
 
     areasCanvas.addEventListener('mousedown', (e) => {
       const x = e.offsetX + viewport.x;
@@ -54,14 +72,15 @@ export const AreasLayer = {
             width: x - selected.x,
             height: y - selected.y,
           };
+          updateAreas(updatedAreas.concat(selected));
         } else if (stat === 'move') {
           selected = {
             ...selected,
             x: selected.x + e.movementX,
             y: selected.y + e.movementY,
           };
+          updateAreas(updatedAreas.concat(selected));
         }
-        updateAreas(updatedAreas.concat(selected));
       }
     });
 
@@ -97,6 +116,7 @@ export const AreasLayer = {
         viewport = newViewport; // eslint-disable-line
         AreasLayer.drawAll({ ...args, areas, selected, viewport });
       },
+      getAreas() { return areas; }
     };
   },
 
@@ -156,5 +176,52 @@ export const AreasLayer = {
 
   newName(id) {
     return `name${id}`;
+  },
+  renderAreaPane({ areaPane, areas, changeAreas }) {
+    const ul = Elements.create('ul');
+    const content = [Elements.wrap('h2', 'Areas'), ul];
+    for (let i = 0; i < areas.length; i++) {
+      const a = areas[i];
+
+      const color = AreasLayer.convertRgbaToHex(a.color);
+      const colorEl = Elements.create('input', { type: 'color', value: color });
+      Render.registerEvent(colorEl, 'change', (e) => {
+        const newColor = AreasLayer.convertHextoRgba(e.target.value);
+        changeAreas({ type: 'update-area', id: a.id, prop: 'color', value: newColor });
+      });
+      const nameEl = Elements.create('input', { type: 'text', value: a.name });
+      Render.registerEvent(nameEl, 'change', (e) => {
+        changeAreas({ type: 'update-area', id: a.id, prop: 'name', value: e.target.value });
+      });
+      const del = Elements.create('input', { type: 'button', value: 'x' });
+      Render.registerEvent(del, 'click', () => { changeAreas({ type: 'delete-area', id: a.id }); });
+
+      const item = Elements.wrap('li', [Elements.wrap('div', `${a.id}`), colorEl, nameEl, del]);
+      ul.appendChild(item);
+    }
+    Render.renderToEl(areaPane, content);
+  },
+  convertRgbaToHex(rgba) {
+    const sub = rgba.slice(rgba.indexOf('(') + 1, rgba.indexOf(')'));
+    const [r, g, b] = sub
+      .split(',')
+      .map((t) => AreasLayer.pad(parseInt(t, 10).toString(16), 2, '0'));
+    return `#${r}${g}${b}`.toUpperCase();
+  },
+  convertHextoRgba(hex, alpha = 0.5) {
+    const [r, g, b] = [
+      hex.slice(1, 3),
+      hex.slice(3, 5),
+      hex.slice(5, 7),
+    ].map((t) => parseInt(t, 16));
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  },
+  pad(str, len, value) {
+    let newStr = str;
+    while (newStr.length < len) {
+      newStr = value + newStr;
+    }
+    return newStr;
   },
 };

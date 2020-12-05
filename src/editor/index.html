@@ -33,7 +33,18 @@
               <canvas id="layout-layer"></canvas>
           </div>
           <div id="side-panel">
-            Side panel
+            <div class="tabs">
+              <input id="area-tab" type="radio" class="tab" name="panel-tabs" checked />
+              <label for="area-tab" class="tab-label">Areas</label>
+              <input id="character-tab" type="radio" class="tab" name="panel-tabs" />
+              <label for="character-tab" class="tab-label">Characters</label>
+            </div>
+            <div id="area-pane" class="pane">
+              Areas
+            </div>
+            <div id="character-pane" class="pane">
+              Characters
+            </div>
           </div>
         </div>
     </body>

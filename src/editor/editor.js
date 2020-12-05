@@ -4,6 +4,7 @@ import { Camera } from '../camera.js';
 import { Map } from '../map.js';
 import { Sprite } from '../sprite.js';
 import { AreasLayer } from './areas-layer.js';
+import { Panel } from './panel.js';
 
 const fetchTilesetData = new Promise((res) => {
   fetch('../tileset.json')
@@ -17,6 +18,7 @@ window.addEventListener('load', async () => {
   const objectCanvas = document.getElementById('objects-layer');
   const areasCanvas = document.getElementById('areas-layer');
   const layoutCanvas = document.getElementById('layout-layer');
+  const canvases = [objectCanvas, areasCanvas, layoutCanvas]
 
   const mapDim = Map.getTileMapDim(tilemap);
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -82,10 +84,12 @@ window.addEventListener('load', async () => {
   }
 
   let viewport = updateViewport();
-
   let areas = [];
+
+  const panel = document.getElementById('side-panel');
+  Panel.initialize({ areas, areasCanvas, panel });
   const areasLayer = AreasLayer.initialize({
-    areasCanvas, canvasWidth, canvasHeight, areas, viewport
+    areasCanvas, canvasWidth, canvasHeight, areas, viewport, panel,
   });
 
   function drawScene(v) {
@@ -105,7 +109,7 @@ window.addEventListener('load', async () => {
   drawScene(viewport);
 
   window.addEventListener('mousemove', (e) => {
-    console.log('mousemove');
+    if (!canvases.includes(e.target)) { return; }
     let diffx = 0;
     let diffy = 0;
     if (e.offsetX > canvasWidth * 0.9) {
@@ -136,11 +140,11 @@ window.addEventListener('load', async () => {
   filePicker.addEventListener('change', async () => {
     const file = filePicker.files[0];
     gameData = await importFile({ file });
-    areas = gameData.areas;
+    areasLayer.updateAreas(gameData.areas);
   });
   const download = document.getElementById('download');
   download.addEventListener('click', () => {
-    const dataURI = exportFile({ ...gameData, areas });
+    const dataURI = exportFile({ ...gameData, areas: areasLayer.getAreas() });
     download.href = dataURI;
   });
 });
