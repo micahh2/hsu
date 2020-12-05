@@ -244,9 +244,7 @@ describe('updateGameState', () => {
     const gs = {
       ...gameState,
       conversation: null,
-      player: {
-        x: 0.5, y: 0.1009, width: 0.005, height: 0.005,
-      },
+      player: { x: 25, y: 60, width: 10, height: 10 },
       characters: [character],
       events: [gameData.events[2]], // Just one for now
     };
@@ -269,17 +267,15 @@ describe('updateGameState', () => {
 });
 
 describe('loadGameState', () => {
-  it('should transform choordinates from relative to abs', () => {
+  it('shouldn\'t transform choordinates from relative to abs (formerly we did)', () => {
     const d = gameData.events[0].destination;
     const c = gameData.characters[0];
-    const gameState = Story.loadGameState({ gameData, width: 100, height: 100 });
-    expect(gameState.events[0].destination).to.eql({ x: d.x * 100, y: d.y * 100 });
-    expect(gameState.events[2].trigger.distance).to.eql(
-      Math.round(gameData.events[2].trigger.distance * 100),
-    );
-    expect(gameState.characters[0].x).to.eql(Math.round(c.x * 100));
-    expect(gameState.characters[0].y).to.eql(Math.round(c.y * 100));
-    expect(gameState.characters[0].width).to.eql(Math.round(c.width * 100));
-    expect(gameState.characters[0].height).to.eql(Math.round(c.height * 100));
+    const gameState = Story.loadGameState(gameData);
+    expect(gameState.events[0].destination).to.eql(d);
+    expect(gameState.events[2].trigger.distance).to.eql(gameData.events[2].trigger.distance);
+    expect(gameState.characters[0].x).to.eql(c.x);
+    expect(gameState.characters[0].y).to.eql(c.y);
+    expect(gameState.characters[0].width).to.eql(c.width);
+    expect(gameState.characters[0].height).to.eql(c.height);
   });
 });

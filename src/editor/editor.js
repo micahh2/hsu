@@ -28,10 +28,10 @@ window.addEventListener('load', async () => {
     player: {
       x: 100,
       y: 100,
-      width: 20,
-      height: 20,
+      width: 15,
+      height: 15,
       spriteIndex: 8,
-      speed: 1,
+      speed: 3,
     },
     characters: [],
     areas: [],
