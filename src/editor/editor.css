@@ -78,3 +78,10 @@
   margin-right: 0;
 }
 
+.character-options .selected {
+  border: 1px solid black;
+}
+.character-options > * {
+  border: 1px solid transparent;
+}
+

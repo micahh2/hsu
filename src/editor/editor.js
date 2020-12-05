@@ -4,6 +4,7 @@ import { Camera } from '../camera.js';
 import { Map } from '../map.js';
 import { Sprite } from '../sprite.js';
 import { AreasLayer } from './areas-layer.js';
+import { CharactersLayer } from './characters-layer.js';
 import { Panel } from './panel.js';
 
 const fetchTilesetData = new Promise((res) => {
@@ -15,10 +16,10 @@ window.addEventListener('load', async () => {
   const tilemap = await fetchTilesetData;
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap, prepend: '../' }));
   // Load element from DOM (look in index.html)
-  const objectCanvas = document.getElementById('objects-layer');
+  const charactersCanvas = document.getElementById('characters-layer');
   const areasCanvas = document.getElementById('areas-layer');
   const layoutCanvas = document.getElementById('layout-layer');
-  const canvases = [objectCanvas, areasCanvas, layoutCanvas]
+  const canvases = [charactersCanvas, areasCanvas, layoutCanvas];
 
   const mapDim = Map.getTileMapDim(tilemap);
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
@@ -36,7 +37,7 @@ window.addEventListener('load', async () => {
     areas: [],
   };
 
-  Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(charactersCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(areasCanvas, canvasWidth, canvasHeight);
 
@@ -84,29 +85,37 @@ window.addEventListener('load', async () => {
   }
 
   let viewport = updateViewport();
-  let areas = [];
-
-  const panel = document.getElementById('side-panel');
-  Panel.initialize({ areas, areasCanvas, panel });
-  const areasLayer = AreasLayer.initialize({
-    areasCanvas, canvasWidth, canvasHeight, areas, viewport, panel,
-  });
 
   function drawScene(v) {
     Camera.drawScene({
       player: gameData.player,
-      characters: gameData.characters,
-      context: objectCanvas.getContext('2d'),
+      characters: [],
+      context: charactersCanvas.getContext('2d'), // Gets cleared - meh.
       width: canvasWidth,
       height: canvasHeight,
       sprites,
       layoutContext: layoutCanvas.getContext('2d'),
       oldViewport: null,
       viewport: v,
-      drawActorToContext: Sprite.drawActorToContext,
+      drawActorToContext: () => {}, // Don't actually do that
     });
   }
   drawScene(viewport);
+
+  const panel = document.getElementById('side-panel');
+  Panel.initialize({ areasCanvas, charactersCanvas, panel });
+  const areasLayer = AreasLayer.initialize({
+    areasCanvas, canvasWidth, canvasHeight, viewport, panel,
+  });
+  const charactersLayer = CharactersLayer.initialize({
+    charactersCanvas,
+    canvasWidth,
+    canvasHeight,
+    viewport,
+    panel,
+    player: gameData.player,
+    sprites,
+  });
 
   window.addEventListener('mousemove', (e) => {
     if (!canvases.includes(e.target)) { return; }
@@ -133,18 +142,24 @@ window.addEventListener('load', async () => {
       viewport = newViewport;
       drawScene(viewport);
       areasLayer.updateViewport(viewport);
+      charactersLayer.updateViewport(viewport);
     }
   });
 
   const filePicker = document.getElementById('file');
   filePicker.addEventListener('change', async () => {
     const file = filePicker.files[0];
-    gameData = await importFile({ file });
+    gameData = (await importFile({ file })).gameData;
     areasLayer.updateAreas(gameData.areas);
+    charactersLayer.updateCharacters(gameData.characters);
   });
   const download = document.getElementById('download');
   download.addEventListener('click', () => {
-    const dataURI = exportFile({ ...gameData, areas: areasLayer.getAreas() });
+    const dataURI = exportFile({
+      ...gameData,
+      areas: areasLayer.getAreas(),
+      characters: charactersLayer.getCharacters(),
+    });
     download.href = dataURI;
   });
 });

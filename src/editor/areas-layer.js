@@ -116,7 +116,7 @@ export const AreasLayer = {
         viewport = newViewport; // eslint-disable-line
         AreasLayer.drawAll({ ...args, areas, selected, viewport });
       },
-      getAreas() { return areas; }
+      getAreas() { return areas; },
     };
   },
 

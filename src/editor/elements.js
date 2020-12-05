@@ -5,11 +5,11 @@ export const Elements = {
       : contLabel;
 
     if (!(nodes instanceof Array)) {
-      nodes = [nodes]
+      nodes = [nodes]; // eslint-disable-line no-param-reassign
     }
     for (let i = 0; i < nodes.length; i++) {
       if (typeof nodes[i] === 'string') {
-        nodes[i] = document.createTextNode(nodes[i]);
+        nodes[i] = document.createTextNode(nodes[i]); // eslint-disable-line no-param-reassign
       }
       w.appendChild(nodes[i]);
     }
@@ -40,7 +40,7 @@ export const Elements = {
     const el = document.createElement(contLabel);
     const keys = Object.keys(attrs) || [];
     for (let i = 0; i < keys.length; i++) {
-      el.setAttribute(""+keys[i], ""+attrs[keys[i]]);
+      el.setAttribute(`${keys[i]}`, `${attrs[keys[i]]}`);
     }
     return el;
   },

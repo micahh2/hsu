@@ -42,16 +42,16 @@ export const Render = {
     return newEl;
   },
   renderToEl(p, c) {
-    if (c == null) { c = []; }
+    if (c == null) { c = []; } // eslint-disable-line no-param-reassign
     if (p == null) {
-      console.warn('Parent undefined. Parent:', p, 'Child:', c);
+      console.warn('Parent undefined. Parent:', p, 'Child:', c); // eslint-disable-line no-console
       return;
     }
     if (c instanceof HTMLCollection || c instanceof NodeList) {
-      c = Array.prototype.slice.call(c);
+      c = Array.prototype.slice.call(c); // eslint-disable-line no-param-reassign
     }
     if (!(c instanceof Array)) {
-      c = [c];
+      c = [c]; // eslint-disable-line no-param-reassign
     }
     let i;
     const children = Array.prototype.slice.call(p.childNodes); // Convert to array
@@ -69,7 +69,8 @@ export const Render = {
       // Update node
       if (currentNode.nodeValue == null
         && currentNode.nodeName === newEl.nodeName
-        && currentNode.nodeType === newEl.nodeType) {
+        && currentNode.nodeType === newEl.nodeType
+        && newEl.nodeName !== 'CANVAS') {
         const attrs = Array.prototype.slice.call(currentNode.attributes);
         const attrNames = attrs.map((t) => t.name);
         const newAttrs = Array.prototype.slice.call(newEl.attributes);
