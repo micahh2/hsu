@@ -1,13 +1,13 @@
-import { expect } from "chai";
-import { PathFinding } from "./path-finding.js";
+import { expect } from 'chai';
+import { PathFinding } from './path-finding.js';
 
-describe("aStar", () => {
+describe('aStar', () => {
   const o = 0; // intermediate points when going without turn (the forward trace)
   const u = 0; // turning "u-points"
   const s = 0; // start point
   const f = 0; // finish point
 
-  it("should find a valid path", () => {
+  it('should find a valid path', () => {
     const graph = [
       [0, u, o, o, f],
       [u, 1, 1, 1, 1],
@@ -29,7 +29,7 @@ describe("aStar", () => {
     ]);
   });
 
-  it("should generate an optimal path", () => {
+  it('should generate an optimal path', () => {
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const graph = [
@@ -44,7 +44,7 @@ describe("aStar", () => {
     expect(path).to.eql([{ x: 0, y: 1 }, { x: 1, y: 0 }, finish]);
   });
 
-  it("should generate a diagonal path", () => {
+  it('should generate a diagonal path', () => {
     const graph = [
       [0, 0, 1, 1, f],
       [0, 1, 1, o, 1],
@@ -59,7 +59,7 @@ describe("aStar", () => {
     expect(path).to.eql([finish]);
   });
 
-  it("should go straight over a wall, then diagonal to the right", () => {
+  it('should go straight over a wall, then diagonal to the right', () => {
     const graph = [
       [0, u, 0, 0, 0],
       [u, 1, o, 0, 0],
@@ -74,7 +74,7 @@ describe("aStar", () => {
     expect(path).to.eql([{ x: 0, y: 1 }, { x: 1, y: 0 }, finish]);
   });
 
-  it("should go straight up, diagonal over the wall, and straight down", () => {
+  it('should go straight up, diagonal over the wall, and straight down', () => {
     const graph = [
       [0, 0, u, 0, 0],
       [0, o, 1, o, 0],
@@ -89,7 +89,7 @@ describe("aStar", () => {
     expect(path).to.eql([{ x: 2, y: 0 }, finish]);
   });
 
-  it("should first go up-right (diagonal), then down a corridor", () => {
+  it('should first go up-right (diagonal), then down a corridor', () => {
     const graph = [
       [0, 0, 0, u, 0],
       [0, 0, o, 1, u],
@@ -109,22 +109,22 @@ describe("aStar", () => {
   });
 });
 
-describe("areNeighbors", () => {
-  it("should return true for two areas are neighbors", () => {
+describe('areNeighbors', () => {
+  it('should return true for two areas are neighbors', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
     const b = { x: 10, y: 0, width: 10, height: 10 };
 
     const result = PathFinding.areNeighbors(a, b, 4);
     expect(result).true;
   });
-  it("should return false for two areas which are not neighbors", () => {
+  it('should return false for two areas which are not neighbors', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
     const b = { x: 10, y: 10, width: 10, height: 10 };
 
     const result = PathFinding.areNeighbors(a, b, 4);
     expect(result).false;
   });
-  it("should return true for are beighbor with area below it", () => {
+  it('should return true for are beighbor with area below it', () => {
     const a = { x: 0, y: 0, width: 2, height: 2 };
     const b = { x: 0, y: 2, width: 2, height: 2 };
 
@@ -133,8 +133,8 @@ describe("areNeighbors", () => {
   });
 });
 
-describe("gridToGraph", () => {
-  it("should receive a grid and return a graph", () => {
+describe('gridToGraph', () => {
+  it('should receive a grid and return a graph', () => {
     const grid = [
       [0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0],
@@ -151,7 +151,7 @@ describe("gridToGraph", () => {
     expect(graph).to.eql([{ x: 0, y: 0, width: 5, height: 5, neighbors: [] }]);
   });
 
-  it("should receive a blocked grid and return an empty graph", () => {
+  it('should receive a blocked grid and return an empty graph', () => {
     const grid = [
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
@@ -168,7 +168,7 @@ describe("gridToGraph", () => {
     expect(graph).to.eql([]);
   });
 
-  it("should receive a mixed grid and return a graph with neighbors", () => {
+  it('should receive a mixed grid and return a graph with neighbors', () => {
     const grid = [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
@@ -185,8 +185,8 @@ describe("gridToGraph", () => {
     expect(graph[0].neighbors.length).to.eql(2);
   });
 });
-describe("hasBlock", () => {
-  it("should receive a blocked grid and return true", () => {
+describe('hasBlock', () => {
+  it('should receive a blocked grid and return true', () => {
     const grid = [
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
@@ -198,7 +198,7 @@ describe("hasBlock", () => {
     const res = PathFinding.hasBlock({ grid, x: 0, y: 0, width: 5, height: 5 });
     expect(res).true;
   });
-  it("should receive a partially blocked grid and return true", () => {
+  it('should receive a partially blocked grid and return true', () => {
     const grid = [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
