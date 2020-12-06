@@ -106,24 +106,21 @@ export const PathFinding = {
     return Math.abs(start.x - finish.x) + Math.abs(start.y - finish.y);
   },
 
-  gridToGraph({ grid, width, height, actorSize, x, y }) {
-    const subWidth = width / 2;
-    const subHeight = height / 2;
+  gridToSubgraph({ grid, width, height, actorSize, x, y }) {
+    const subWidth = Math.floor(width / 2);
+    const remainderWidth = width - subWidth;
+    const subHeight = Math.floor(height / 2);
+    const remainderHeight = height - subHeight;
 
     const isFree = !PathFinding.hasBlock({ grid, x, y, width, height });
     if (isFree) {
       const area = { x, y, width, height, neighbors: [] };
-      return {
-        topLeft: [area],
-        topRight: [area],
-        botLeft: [area],
-        botRight: [area],
-      };
+      return [area];
     }
     if (subWidth < actorSize && subHeight < actorSize) {
-      return { topLeft: [], topRight: [], botLeft: [], botRight: [] };
+      return [];
     }
-    const topLeft = PathFinding.gridToGraph({
+    const topLeft = PathFinding.gridToSubgraph({
       grid,
       width: subWidth,
       height: subHeight,
@@ -131,70 +128,99 @@ export const PathFinding = {
       x,
       y,
     });
-    const topRight = PathFinding.gridToGraph({
+    const topRight = PathFinding.gridToSubgraph({
       grid,
-      width: subWidth,
+      width: remainderWidth,
       height: subHeight,
       actorSize,
       x: x + subWidth,
       y,
     });
-    const botLeft = PathFinding.gridToGraph({
+    const botLeft = PathFinding.gridToSubgraph({
       grid,
       width: subWidth,
-      height: subHeight,
+      height: remainderHeight,
       actorSize,
       x,
       y: y + subHeight,
     });
-    const botRight = PathFinding.gridToGraph({
+    const botRight = PathFinding.gridToSubgraph({
       grid,
-      width: subWidth,
-      height: subHeight,
+      width: remainderWidth,
+      height: remainderHeight,
       actorSize,
       x: x + subWidth,
       y: y + subHeight,
     });
-    topLeft.neighbors = [
-      ...topRight.topLeft,
-      ...topRight.botLeft,
-      ...botLeft.topLeft,
-      ...botLeft.topRight,
-    ].filter((t, i, self) => self.indexOf(t) === i);
-    topRight.neighbors = [
-      ...topLeft.topRight,
-      ...topLeft.botRight,
-      ...botRight.topRight,
-      ...botRight.topLeft,
-    ].filter((t, i, self) => self.indexOf(t) === i);
-    botLeft.neighbors = [
-      ...topLeft.botLeft,
-      ...topLeft.botRight,
-      ...botRight.topLeft,
-      ...botRight.botLeft,
-    ].filter((t, i, self) => self.indexOf(t) === i);
-    botRight.neighbors = [
-      ...topRight.botRight,
-      ...topRight.botLeft,
-      ...botLeft.botRight,
-      ...botLeft.topRight,
-    ].filter((t, i, self) => self.indexOf(t) === i);
+    /* eslint-disable no-param-reassign */
+    topLeft.forEach((k) => {
+      k.neighbors = [...topRight, ...botLeft].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    topRight.forEach((k) => {
+      k.neighbors = [...topLeft, ...botRight].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    botLeft.forEach((k) => {
+      k.neighbors = [...topLeft, ...botRight].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    botRight.forEach((k) => {
+      k.neighbors = [...topRight, ...botLeft].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    /* eslint-enable no-param-reassign */
+    return [...topLeft, ...topRight, ...botLeft, ...botRight];
+  },
 
-    return {
-      topLeft: [topLeft],
-      topRight: [topRight],
-      botLeft: [botLeft],
-      botRight: [botRight],
-    };
+  gridToGraph({ grid, width, height, actorSize }) {
+    const res = PathFinding.gridToSubgraph({
+      grid,
+      width,
+      height,
+      actorSize,
+      x: 0,
+      y: 0,
+    });
+
+    return res.filter((t, i, self) => self.indexOf(t) === i);
   },
 
   hasBlock({ grid, x, y, width, height }) {
-    for (let i = y; i < height; i++) {
-      for (let j = x; j < width; j++) {
+    for (let i = y; i < y + height; i++) {
+      for (let j = x; j < x + width; j++) {
         if (grid[i] != null && grid[i][j] > 0) {
           return true;
         }
       }
+    }
+
+    return false;
+  },
+
+  areNeighbors(a, b, overlap) {
+    if (a.x + a.width === b.x || b.x + b.width === a.x) {
+      let first = a;
+      let last = b;
+      if (a.y > b.y) {
+        first = b;
+        last = a;
+      }
+      return last.y - first.y <= first.height - overlap;
+    }
+
+    if (a.y + a.height === b.y || b.y + b.height === a.y) {
+      let first = a;
+      let last = b;
+      if (a.x > b.x) {
+        first = b;
+        last = a;
+      }
+      return last.x - first.x <= first.width - overlap;
     }
     return false;
   },
