@@ -4,9 +4,9 @@
  */
 export const PathFinding = {
   /**
-     * aStar.
-     * A* Path Finding
-     */
+   * aStar.
+   * A* Path Finding
+   */
   aStar({ graph, start, finish }) {
     const nextPlaces = [];
     let place = start;
@@ -22,7 +22,12 @@ export const PathFinding = {
         if (offsetX === 0 && offsetY === 0) continue;
 
         // Stay within bounds of the graph
-        if (newX < 0 || newY < 0 || newY >= graph.length || newX >= graph[newY].length) continue;
+        if (
+          newX < 0
+          || newY < 0
+          || newY >= graph.length
+          || newX >= graph[newY].length
+        ) continue;
 
         // Don't go in a cycle/loop
         if (nextPlaces.some((p) => p.x === newX && p.y === newY)) continue;
@@ -36,8 +41,8 @@ export const PathFinding = {
           from: place,
         };
         newPlace.cost = (place.cost || 0)
-                    + PathFinding.moveCost(place, newPlace)
-                    + PathFinding.distanceCost(newPlace, finish);
+          + PathFinding.moveCost(place, newPlace)
+          + PathFinding.distanceCost(newPlace, finish);
 
         nextPlaces.push(newPlace);
       }
@@ -64,36 +69,159 @@ export const PathFinding = {
   },
 
   /**
-     * getDirection.
-     * Gets the direction between two points
-     * @returns {string} something like: '0:0', '-1:0', '1:1', 'origin'
-     */
+   * getDirection.
+   * Gets the direction between two points
+   * @returns {string} something like: '0:0', '-1:0', '1:1', 'origin'
+   */
   getDirection(start, finish) {
-    return finish ? `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}` : 'origin';
+    return finish
+      ? `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}`
+      : 'origin';
   },
 
   /**
-     * distanceCost.
-     *
-     * @param start
-     * @param finish
-     * @returns {number} - distance between start a finish
-     */
+   * distanceCost.
+   *
+   * @param start
+   * @param finish
+   * @returns {number} - distance between start a finish
+   */
   distanceCost(start, finish) {
     // This is discounted by half to allow move cost to be more important...
     // if we're okay with unecessary diagonal moves we can remove this
-    return (Math.sqrt((finish.x - start.x) ** 2) + ((finish.y - start.y) ** 2)) / 2;
+    return (
+      (Math.sqrt((finish.x - start.x) ** 2) + (finish.y - start.y) ** 2) / 2
+    );
   },
 
   /**
-     * moveCost.
-     * A sperate cost calculation for each move.
-     * Diagonal moves should be aschewed in favor of straight lines
-     * @param {} start
-     * @param {} finish
-     */
+   * moveCost.
+   * A sperate cost calculation for each move.
+   * Diagonal moves should be aschewed in favor of straight lines
+   * @param {} start
+   * @param {} finish
+   */
   moveCost(start, finish) {
     // Even if moming is diagonal, it is counted as two movements: horizontal and vertical
     return Math.abs(start.x - finish.x) + Math.abs(start.y - finish.y);
+  },
+
+  gridToSubgraph({ grid, width, height, actorSize, x, y }) {
+    const subWidth = Math.floor(width / 2);
+    const remainderWidth = width - subWidth;
+    const subHeight = Math.floor(height / 2);
+    const remainderHeight = height - subHeight;
+
+    const isFree = !PathFinding.hasBlock({ grid, x, y, width, height });
+    if (isFree) {
+      const area = { x, y, width, height, neighbors: [] };
+      return [area];
+    }
+    if (subWidth < actorSize && subHeight < actorSize) {
+      return [];
+    }
+    const topLeft = PathFinding.gridToSubgraph({
+      grid,
+      width: subWidth,
+      height: subHeight,
+      actorSize,
+      x,
+      y,
+    });
+    const topRight = PathFinding.gridToSubgraph({
+      grid,
+      width: remainderWidth,
+      height: subHeight,
+      actorSize,
+      x: x + subWidth,
+      y,
+    });
+    const botLeft = PathFinding.gridToSubgraph({
+      grid,
+      width: subWidth,
+      height: remainderHeight,
+      actorSize,
+      x,
+      y: y + subHeight,
+    });
+    const botRight = PathFinding.gridToSubgraph({
+      grid,
+      width: remainderWidth,
+      height: remainderHeight,
+      actorSize,
+      x: x + subWidth,
+      y: y + subHeight,
+    });
+    /* eslint-disable no-param-reassign */
+    topLeft.forEach((k) => {
+      k.neighbors = [...topRight, ...botLeft].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    topRight.forEach((k) => {
+      k.neighbors = [...topLeft, ...botRight].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    botLeft.forEach((k) => {
+      k.neighbors = [...topLeft, ...botRight].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    botRight.forEach((k) => {
+      k.neighbors = [...topRight, ...botLeft].filter(
+        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
+      );
+    });
+    /* eslint-enable no-param-reassign */
+    return [...topLeft, ...topRight, ...botLeft, ...botRight];
+  },
+
+  gridToGraph({ grid, width, height, actorSize }) {
+    const res = PathFinding.gridToSubgraph({
+      grid,
+      width,
+      height,
+      actorSize,
+      x: 0,
+      y: 0,
+    });
+
+    return res.filter((t, i, self) => self.indexOf(t) === i);
+  },
+
+  hasBlock({ grid, x, y, width, height }) {
+    for (let i = y; i < y + height; i++) {
+      for (let j = x; j < x + width; j++) {
+        if (grid[i] != null && grid[i][j] > 0) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  },
+
+  areNeighbors(a, b, overlap) {
+    if (a.x + a.width === b.x || b.x + b.width === a.x) {
+      let first = a;
+      let last = b;
+      if (a.y > b.y) {
+        first = b;
+        last = a;
+      }
+      return last.y - first.y <= first.height - overlap;
+    }
+
+    if (a.y + a.height === b.y || b.y + b.height === a.y) {
+      let first = a;
+      let last = b;
+      if (a.x > b.x) {
+        first = b;
+        last = a;
+      }
+      return last.x - first.x <= first.width - overlap;
+    }
+    return false;
   },
 };
