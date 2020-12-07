@@ -43,16 +43,17 @@
       "response": "Hello then.",
       "options": [
         { "id": 1, "query": "Goodbye.", "event": "end-conversation" },
-        { "id": 2, "query": "Are you going home?", "response": "No.", "event": "return-root" },
+        { "id": 2, "query": "Are you going home?", "response": "No.", "event": "return-response" },
         {
           "id": 3,
           "query": "Where can I find food?",
-          "response": "There's a number of palces.",
+          "response": "There's a number of places.",
           "options": [
             { "id": 1, "query": "Where is cheap?", "response": "The Mensa is cheap." },
-            { "id": 2, "query": "Where is convienent?", "response": "The Cafeteria is convienent" },
+            { "id": 2, "query": "Where is convenient?", "response": "The Cafeteria is convenient" },
             { "id": 3, "query": "Where is delicious?", "response": "No where around here!" }
-          ]
+          ],
+          "event": "return-response"
         }
       ]
     }
@@ -79,16 +80,17 @@
       "response": "Yo sup!",
       "options": [
         { "id": 1, "query": "Goodbye.", "event": "end-conversation" },
-        { "id": 2, "query": "Are you going home?", "response": "No.", "event": "return-root" },
+        { "id": 2, "query": "haha?", "response": "No.", "event": "return-response" },
         {
           "id": 3,
-          "query": "Where can I find food?",
-          "response": "There's a number of palces.",
+          "query": "Is that criminal?",
+          "response": "There's a number of places.",
           "options": [
             { "id": 1, "query": "Where is cheap?", "response": "The Mensa is cheap." },
-            { "id": 2, "query": "Where is convienent?", "response": "The Cafeteria is convienent" },
+            { "id": 2, "query": "Where is convenient?", "response": "The Cafeteria is convenient" },
             { "id": 3, "query": "Where is delicious?", "response": "No where around here!" }
-          ]
+          ],
+          "event": "return-response"
         }
       ]
     }

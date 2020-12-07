@@ -46,8 +46,6 @@ export const Physics = {
     // Update player location in map
     Physics.updateLocationMap(locMap, { actor: newPlayer, oldActor: player, updateStats });
 
-    // console.log(newPlayer);
-
     let newOthers = characters;
     if (!paused) {
       newOthers = new Array(characters.length);
@@ -69,8 +67,6 @@ export const Physics = {
 
     // Increment Frames
     updateStats('frames', 1);
-
-    console.log(newPlayer);
 
     return {
       ...state,
