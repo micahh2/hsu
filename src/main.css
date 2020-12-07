@@ -165,3 +165,17 @@ body {
   font-family: 'Press Start 2P';
   font-size: 10px;
 }
+
+#ingameTime{
+    margin-left: -36.5px;
+    width: 78px;
+    align-items: center;
+    background-color: rgba(55, 55, 55, 0.5);
+    border-radius: 0 0 5px 5px;
+    border: 2px solid black;
+    border-top: none;
+    padding: 5px;
+    color:#00dd3c;
+    font-family: 'Press Start 2P';
+    font-size: 10px;
+  }

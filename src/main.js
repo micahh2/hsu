@@ -216,6 +216,9 @@ window.addEventListener('load', async () => {
   // Time
   tim();
 
+  // just added these here for testing
+  setTimer(40);
+  ingameTime(0);
   /* eslint-enable no-use-before-define */
 });
 
@@ -348,6 +351,53 @@ function tim() {
   setTimeout(tim, 500); // so tim can keep updating
 
   document.getElementById('time').innerHTML = `${tHour}:${tMin}:${tSec}`;
+}
+
+/*
+* this function formats time (in seconds) into a nice looking
+* time with hours, minutes and seconds
+*/
+function formatTime(time) {
+  const hrs = Math.floor(time / 60 / 60);
+  const mins = Math.floor((time / 60) % 60);
+  const secs = Math.floor(time % 60);
+
+  let ret = '';
+  if (hrs > 0) {
+    ret += `${hrs}:${mins < 10 ? '0' : ''}`;
+  }
+  ret += `${mins}:${secs < 10 ? '0' : ''}`;
+  ret += `${secs}`;
+  return ret;
+}
+
+// counts time from the moment of calling the function, can be set to 0 to reset
+function ingameTime(seconds) {
+  let time = seconds;
+  setInterval(() => {
+    document.getElementById('ingameTime').innerHTML = formatTime(time);
+    time++;
+  }, 1000);
+}
+// sets a timer that counts down to 0. Time must be specified in seconds.
+// To stop the timer, use "stopTimer(intervalName)" function
+function setTimer(seconds) {
+  let time = seconds;
+  // sets the interval in which the time will tick, 1000 = 1s
+  setInterval(() => {
+    document.getElementById('timer').innerHTML = formatTime(time);
+
+    // if timer runs out, this function returns a 1
+    if (time <= 0) {
+      document.getElementById('timer').innerHTML = null;
+      return 1;
+    }
+    // if timer didnt run out, decrease time by 1
+    if (!pause) {
+      time -= 1;
+    }
+  // the interval in which the time gets updated (1000 = 1 second)
+  }, 1000);
 }
 
 /* eslint-disable no-shadow */
