@@ -261,8 +261,32 @@ export const Story = {
    *
    * @param {}
    */
-  updateDialog(/* { dialog, _action } */) {
-    // Todo
+  updateDialog(dialogOption, _action, character) {
+    console.log("diaa");
+    console.log(character);
+    const con = document.getElementById('conversation');
+
+    switch (dialogOption.event) {
+      case 'end-conversation':
+        return function () {
+          con.style.display = 'none';
+        }
+      case  'return-response':
+        if (dialogOption.options){
+          let options = ``;
+          return function () {
+            for (let i in dialogOption.options){
+              options += `<button class="option_button">${dialogOption.options[i].query}</button><br>`;
+            }
+            con.innerHTML = `<p><b>${character.name}: </b>`
+                + `${dialogOption.response}</p>` +`<p>${options}</p>`;
+          }
+        }
+        return function () {
+          con.innerHTML = `<p><b>${character.name}: </b>`
+                        + `${dialogOption.response}</p>`;
+        }
+    }
   },
 
   /**

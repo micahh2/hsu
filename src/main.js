@@ -187,8 +187,10 @@ window.addEventListener('load', async () => {
       storyChanges = Story.getChanges(gameState, newGameState);
     }
 
-    if (gameState.conversation !== newGameState.conversation) {
+    if (gameState.conversation !== newGameState.conversation && flag === true) {
+      console.log("connnn")
       renderConversation(newGameState.conversation); // eslint-disable-line no-use-before-define
+      flag = false;
     }
   }, 100);
 
@@ -282,12 +284,15 @@ window.addEventListener('keyup', (e) => {
     case 'KeyI':
       toggleInventoryOverlay(e); // eslint-disable-line no-use-before-define
       break;
+    case 'KeyC':
+      flag = !flag; // eslint-disable-line no-use-before-define
+      break;
     default:
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
 });
-
+let flag = false;
 /**
  * canvasProvider.
  * wraps document.createElement, allowing for easy replacement when testing
@@ -315,11 +320,30 @@ function renderConversation(conversation) {
   }
   const { character, currentDialog } = conversation;
   el.style.display = 'block';
+
+  // add multiple conversation options
+  let options = ``;
+  for (let i in currentDialog.options){
+    options += `<button class="option_button">${currentDialog.options[i].query}</button><br>`;
+  }
+
   const html = `<p>
-    <b>${character.name}:</b>
-    ${currentDialog.response}
-  </p>`;
-  el.innerHTML = html;
+                 <b>${character.name}:</b>
+                 ${currentDialog.response}
+                </p>`;
+
+  const button_html = `<p>${options}</p>`;
+
+  const final_html = html + button_html;
+
+
+  el.innerHTML = final_html;
+
+  // add onclick functions to all buttons
+  for (let i in currentDialog.options){
+    let button = document.getElementsByClassName("option_button")[i];
+    button.onclick = Story.updateDialog(currentDialog.options[i], null, character);
+  }
 
   if (!conversation.conversationTriggered) {
     el.style.display = 'none';
