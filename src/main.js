@@ -384,13 +384,13 @@ function ingameTime(seconds) {
 function setTimer(seconds) {
   let time = seconds;
   // sets the interval in which the time will tick, 1000 = 1s
-  setInterval(() => {
+  const timer = setInterval(() => {
     document.getElementById('timer').innerHTML = formatTime(time);
 
     // if timer runs out, this function returns a 1
     if (time <= 0) {
-      document.getElementById('timer').innerHTML = null;
-      return 1;
+      document.getElementById('timer').innerHTML = '';
+      clearTimeout(timer);
     }
     // if timer didnt run out, decrease time by 1
     if (!pause) {
