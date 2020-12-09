@@ -187,10 +187,16 @@ window.addEventListener('load', async () => {
       storyChanges = Story.getChanges(gameState, newGameState);
     }
 
-    if (gameState.conversation !== newGameState.conversation && flag === true) {
+    if (gameState.conversation !== newGameState.conversation && enableConversation === true) {
       console.log("connnn")
-      renderConversation(newGameState.conversation); // eslint-disable-line no-use-before-define
-      flag = false;
+      /* eslint-disable no-use-before-define */
+      const updateConvo = (newConvo) => {
+        gameState.conversation = newConvo;
+        renderConversation(gameState.conversation, updateConvo);
+      };
+      renderConversation(newGameState.conversation, updateConvo);
+      /* eslint-enable no-use-before-define */
+      enableConversation = false;
     }
   }, 100);
 
@@ -222,6 +228,7 @@ let right = false;
 let attack = false;
 let pause = false;
 let zoom = false;
+let enableConversation = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
   if (e.defaultPrevented) { return; }
@@ -285,14 +292,14 @@ window.addEventListener('keyup', (e) => {
       toggleInventoryOverlay(e); // eslint-disable-line no-use-before-define
       break;
     case 'KeyC':
-      flag = !flag; // eslint-disable-line no-use-before-define
+      enableConversation = !enableConversation; // eslint-disable-line no-use-before-define
       break;
     default:
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
 });
-let flag = false;
+
 /**
  * canvasProvider.
  * wraps document.createElement, allowing for easy replacement when testing
@@ -312,27 +319,31 @@ function canvasProvider() {
  * @example
       renderConversation(gameState.conversation);
  */
-function renderConversation(conversation) {
+function renderConversation(conversation, updateConvo) {
   const el = document.getElementById('conversation');
   if (!conversation) {
     el.style.display = 'none';
     return;
   }
   const { character, currentDialog } = conversation;
+  const response = currentDialog.response;
+  const goodbye = { query: 'Goodbye' };
+  const options = (currentDialog.options || []).concat(goodbye);
+
   el.style.display = 'block';
 
   // add multiple conversation options
-  let options = ``;
-  for (let i in currentDialog.options){
-    options += `<button class="option_button">${currentDialog.options[i].query}</button><br>`;
+  let optionHTML = '';
+  for (let i in Object.keys(options)) {
+    optionHTML += `<button class="option_button">${options[i].query}</button><br>`;
   }
 
   const html = `<p>
                  <b>${character.name}:</b>
-                 ${currentDialog.response}
+                 ${response}
                 </p>`;
 
-  const button_html = `<p>${options}</p>`;
+  const button_html = `<p>${optionHTML}</p>`;
 
   const final_html = html + button_html;
 
@@ -340,9 +351,19 @@ function renderConversation(conversation) {
   el.innerHTML = final_html;
 
   // add onclick functions to all buttons
-  for (let i in currentDialog.options){
+  for (let i in Object.keys(options)) {
     let button = document.getElementsByClassName("option_button")[i];
-    button.onclick = Story.updateDialog(currentDialog.options[i], null, character);
+    button.onclick = () =>  {
+      // Story.updateDialog( currentDialog.options[i], null, character);
+      const option = options[i];
+      if (option === goodbye || option.response == null) {
+        // Recursive!
+        updateConvo({ ...conversation, conversationTriggered: false });
+        return;
+      }
+      // Recursive!
+      updateConvo({ ...conversation, currentDialog: option });
+    };
   }
 
   if (!conversation.conversationTriggered) {

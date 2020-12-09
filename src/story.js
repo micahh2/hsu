@@ -262,8 +262,6 @@ export const Story = {
    * @param {}
    */
   updateDialog(dialogOption, _action, character) {
-    console.log("diaa");
-    console.log(character);
     const con = document.getElementById('conversation');
 
     switch (dialogOption.event) {
@@ -311,9 +309,11 @@ export const Story = {
   conversationTriggered(gameState, player, characters, events, conversationTriggered){
     for (let i = 0; i < characters.length; i++){
       let character = characters[i];
+      let fallbackSpeed = character.fallbackSpeed;
       if (character.type === 'vip' && Story.isWithinDistance({ distance: events[2].trigger.distance, a: player, b: character })){
         character.speed = 0; // when triggered, stop moving
         conversationTriggered = true;
+        console.log(character.fallbackSpeed);
 
         return {
           character,
@@ -322,7 +322,7 @@ export const Story = {
           conversationTriggered
         };
       }
-      character.speed = 2; //TODO need to be not hardcoded
+      character.speed = fallbackSpeed;
     }
     conversationTriggered = false;
     return conversationTriggered;
