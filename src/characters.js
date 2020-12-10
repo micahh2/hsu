@@ -39,8 +39,19 @@ export const Characters = {
     if (xmove !== 0 || ymove !== 0) {
       let prefix = '';
       let { facing } = newNPC;
-      if (ymove < 0) { prefix = 'up'; } else if (ymove > 0) { prefix = 'down'; }
-      if (xmove < 0) { facing = `${prefix}left`; } else if (xmove > 0) { facing = `${prefix}right`; } else if (prefix) { facing = prefix; }
+      if (ymove < 0) {
+        prefix = 'up';
+      } else if (ymove > 0) {
+        prefix = 'down';
+      }
+
+      if (xmove < 0) {
+        facing = `${prefix}left`;
+      } else if (xmove > 0) {
+        facing = `${prefix}right`;
+      } else if (prefix) {
+        facing = prefix;
+      }
 
       newNPC = {
         ...newNPC,

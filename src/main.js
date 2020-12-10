@@ -14,6 +14,7 @@ const fetchTilesetData = new Promise((res) => {
     .then((response) => res(response.json()));
 });
 
+let eventQueue = [];
 window.addEventListener('load', async () => {
   const start = new Date(); // Save the start time
   const [gameData, tilemap] = await Promise.all([
@@ -137,7 +138,7 @@ window.addEventListener('load', async () => {
       attack, // game state
     });
     /* eslint-enable no-use-before-define */
-    if (storyChanges) {
+    if (storyChanges != null && Object.keys(storyChanges).length > 0) {
       physicsState = Story.applyChanges(physicsState, storyChanges);
       storyChanges = null;
     }
@@ -166,41 +167,47 @@ window.addEventListener('load', async () => {
     window.requestAnimationFrame(physicsLoop);
   };
   // Start main game loop
-  physicsLoop();
+  physicsLoop(performance.now());
 
   // Update game state periodically (100ms)
   let last = new Date();
   setInterval(() => {
     const timeSinceLast = new Date() - last;
+    // Update game state with the latest from physics
     gameState = {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
     };
     const now = new Date() - start;
-    let conversationTriggered = false;
+    const flags = { enableConversation }; // eslint-disable-line no-use-before-define
+    const callingEventQueue = eventQueue;
     const newGameState = Story.updateGameState({
       gameState,
       now,
       timeSinceLast,
-      conversationTriggered
+      flags,
+      eventQueue: callingEventQueue,
     });
+    eventQueue = eventQueue.filter((t) => !callingEventQueue.includes(t));
     last = new Date();
     if (newGameState !== gameState) {
       storyChanges = Story.getChanges(gameState, newGameState);
     }
 
-    if (gameState.conversation !== newGameState.conversation && enableConversation === true) {
-      console.log("connnn")
-      /* eslint-disable no-use-before-define */
+    /* eslint-disable no-use-before-define */
+    if (gameState.conversation !== newGameState.conversation) {
       const updateConvo = (newConvo) => {
-        gameState.conversation = newConvo;
-        renderConversation(gameState.conversation, updateConvo);
+        eventQueue = eventQueue.concat({
+          type: 'update-conversation',
+          conversation: newConvo,
+        });
       };
       renderConversation(newGameState.conversation, updateConvo);
-      /* eslint-enable no-use-before-define */
       enableConversation = false;
     }
+    /* eslint-enable no-use-before-define */
+    gameState = newGameState;
   }, 100);
 
   // Update FPS/other stats every 1000ms
@@ -338,47 +345,43 @@ function renderConversation(conversation, updateConvo) {
     return;
   }
   const { character, currentDialog } = conversation;
-  const response = currentDialog.response;
+  const { response } = currentDialog;
   const goodbye = { query: 'Goodbye' };
   const options = (currentDialog.options || []).concat(goodbye);
 
   el.style.display = 'block';
 
   // add multiple conversation options
-  let optionHTML = '';
-  for (let i in Object.keys(options)) {
-    optionHTML += `<button class="option_button">${options[i].query}</button><br>`;
-  }
+  const optionHTML = Object.keys(options).map(
+    (i) => `<button class="option_button">${options[i].query}</button><br>`,
+  ).join('');
 
   const html = `<p>
                  <b>${character.name}:</b>
                  ${response}
                 </p>`;
 
-  const button_html = `<p>${optionHTML}</p>`;
+  const buttonHTML = `<p>${optionHTML}</p>`;
 
-  const final_html = html + button_html;
+  const finalHTML = html + buttonHTML;
 
-
-  el.innerHTML = final_html;
+  el.innerHTML = finalHTML;
 
   // add onclick functions to all buttons
-  for (let i in Object.keys(options)) {
-    let button = document.getElementsByClassName("option_button")[i];
-    button.onclick = () =>  {
-      // Story.updateDialog( currentDialog.options[i], null, character);
+  const buttons = el.querySelectorAll('button');
+  Object.keys(options).forEach((i) => {
+    const button = buttons[i];
+    button.addEventListener('click', () => {
       const option = options[i];
       if (option === goodbye || option.response == null) {
-        // Recursive!
-        updateConvo({ ...conversation, conversationTriggered: false });
+        updateConvo({ ...conversation, active: false });
         return;
       }
-      // Recursive!
       updateConvo({ ...conversation, currentDialog: option });
-    };
-  }
+    });
+  });
 
-  if (!conversation.conversationTriggered) {
+  if (!conversation.active) {
     el.style.display = 'none';
   }
 }

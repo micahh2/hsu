@@ -109,7 +109,10 @@ export const Story = {
   isTriggered({
     player, characters, areas, trigger, now, timeSinceLast,
   }) {
-    switch (trigger.type) {
+    const triggerType = trigger ? trigger.type : 'dynamic';
+    switch (triggerType) {
+      case 'dynamic': // Dynamic events are always triggered
+        return true;
       case 'time':
         return Story.isTime({ time: trigger.time, now });
       case 'interval':
@@ -137,7 +140,7 @@ export const Story = {
    * @param {} now
    */
   isRecurrentEvent(e, now) {
-    return e.trigger.type === 'interval' && (e.trigger.end == null || now < e.trigger.end);
+    return e.trigger && e.trigger.type === 'interval' && (e.trigger.end == null || now < e.trigger.end);
   },
 
   /**
@@ -145,31 +148,52 @@ export const Story = {
    *
    * @param {}
    */
-  updateGameState({ gameState, now, timeSinceLast }) {
+  updateGameState({ gameState, now, timeSinceLast, flags, eventQueue = [] }) {
     const { player, areas } = gameState;
-    let { conversation, characters, events, conversationTriggered } = gameState;
+    const { enableConversation } = flags || { enableConversation: false };
+    let { events } = gameState;
+    events = events.concat(eventQueue);
     let expired = [];
+    let current = {
+      characters: gameState.characters,
+      conversation: gameState.conversation,
+    };
 
     for (let i = 0; i < events.length; i++) {
-      // if (!Story.isTriggered({
-      //   areas, player, characters, trigger: events[i].trigger, now, timeSinceLast,
-      // })) {
-      //   continue;
-      // }
+      if (!Story.isTriggered({
+        areas,
+        player,
+        characters: current.characters,
+        trigger: events[i].trigger,
+        now,
+        timeSinceLast,
+      })) {
+        continue;
+      }
 
       const selector = events[i].selector && Story.createSelector(events[i].selector);
       switch (events[i].type) {
         case 'set-destination':
           // Set destination
-          characters = Story.setDestination({
-            characters,
+          current.characters = Story.setDestination({
+            characters: current.characters,
             selector,
             destination: events[i].destination,
           });
           break;
         case 'start-conversation':
-          // conversation = Story.startConversation({ characters, selector });
-          conversation = Story.conversationTriggered(gameState, player, characters, events, conversationTriggered);
+          if (!enableConversation) { break; }
+          current = Story.startConversation({
+            characters: current.characters,
+            conversation: current.conversation,
+            selector,
+          });
+          break;
+        case 'update-conversation':
+          current = Story.updateConversation({
+            characters: current.characters,
+            conversation: events[i].conversation,
+          });
           break;
         default:
           break;
@@ -184,8 +208,7 @@ export const Story = {
 
     return {
       ...gameState,
-      conversation,
-      characters,
+      ...current,
     };
   },
 
@@ -196,10 +219,48 @@ export const Story = {
    */
   startConversation({ characters, selector }) {
     const character = characters.find(selector);
+    const newCharacter = {
+      ...character,
+      fallbackSpeed: character.speed,
+      speed: 0,
+    };
+    const updateCharacters = characters.map((t) => {
+      if (t.id === character.id) { return newCharacter; }
+      return t;
+    });
     return {
-      character,
-      currentDialog: character.dialog,
-      selectedOption: 0,
+      characters: updateCharacters,
+      conversation: {
+        character: newCharacter,
+        currentDialog: newCharacter.dialog,
+        active: true,
+        selectedOption: 0,
+      },
+    };
+  },
+
+  /**
+   * updateConversation.
+   *
+   * @param {}
+   */
+  updateConversation({ conversation, characters }) {
+    const { character } = conversation;
+    const newCharacter = conversation.active
+      ? character
+      : {
+        ...character,
+        speed: character.fallbackSpeed,
+      };
+    const updateCharacters = conversation.active
+      ? characters
+      : characters.map((t) => {
+        if (t.id === character.id) { return newCharacter; }
+        return t;
+      });
+    return {
+      characters: updateCharacters,
+      conversation,
     };
   },
 
@@ -230,37 +291,6 @@ export const Story = {
   },
 
   /**
-   * updateDialog.
-   *
-   * @param {}
-   */
-  updateDialog(dialogOption, _action, character) {
-    const con = document.getElementById('conversation');
-
-    switch (dialogOption.event) {
-      case 'end-conversation':
-        return function () {
-          con.style.display = 'none';
-        }
-      case  'return-response':
-        if (dialogOption.options){
-          let options = ``;
-          return function () {
-            for (let i in dialogOption.options){
-              options += `<button class="option_button">${dialogOption.options[i].query}</button><br>`;
-            }
-            con.innerHTML = `<p><b>${character.name}: </b>`
-                + `${dialogOption.response}</p>` +`<p>${options}</p>`;
-          }
-        }
-        return function () {
-          con.innerHTML = `<p><b>${character.name}: </b>`
-                        + `${dialogOption.response}</p>`;
-        }
-    }
-  },
-
-  /**
    * newId.
    *
    * @param {} collection
@@ -268,36 +298,4 @@ export const Story = {
   newId(collection) {
     return collection.reduce((a, b) => Math.max(a, b.id), -1) + 1;
   },
-
-  /**
-   * to detect if conversation is triggered
-   *
-   * @param gameState
-   * @param player
-   * @param characters
-   * @param events
-   * @param conversationTriggered
-   * @returns {boolean|{conversationTriggered: boolean, character: *, currentDialog: *, selectedOption: number}}
-   */
-  conversationTriggered(gameState, player, characters, events, conversationTriggered){
-    for (let i = 0; i < characters.length; i++){
-      let character = characters[i];
-      let fallbackSpeed = character.fallbackSpeed;
-      if (character.type === 'vip' && Story.isWithinDistance({ distance: events[2].trigger.distance, a: player, b: character })){
-        character.speed = 0; // when triggered, stop moving
-        conversationTriggered = true;
-        console.log(character.fallbackSpeed);
-
-        return {
-          character,
-          currentDialog: character.dialog,
-          selectedOption: 0,
-          conversationTriggered
-        };
-      }
-      character.speed = fallbackSpeed;
-    }
-    conversationTriggered = false;
-    return conversationTriggered;
-  }
 };

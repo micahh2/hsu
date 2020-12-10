@@ -102,21 +102,15 @@ export const Physics = {
   },
 
   // Returns a "moved" actor that has no collision
-  getUseableMove({
-    oldActor, actor, width, height, pixels, locMap, updateStats, useHandycap,
-  }) {
+  getUseableMove({ oldActor, actor, width, height, pixels, locMap, updateStats, useHandycap }) {
     if (oldActor === actor) { return actor; }
 
-    if (!Physics.collision({
-      actor, pixels, locMap, oldActor, updateStats,
-    })) {
+    if (!Physics.collision({ actor, pixels, locMap, updateStats })) {
       return actor;
     }
     if (actor.y !== oldActor.y && actor.x !== oldActor.x) {
       const withoutx = { ...actor, x: oldActor.x };
-      if (!Physics.collision({
-        actor: withoutx, pixels, locMap, oldActor, updateStats,
-      })) {
+      if (!Physics.collision({ actor: withoutx, pixels, locMap, updateStats })) {
         return withoutx;
       }
       const withouty = { ...actor, y: oldActor.y };
@@ -139,9 +133,7 @@ export const Physics = {
           0,
         );
         const handycapped = { ...actor, x: handycappedx, y: handycappedy };
-        if (!Physics.collision({
-          actor: handycapped, pixels, locMap, oldActor, updateStats,
-        })) {
+        if (!Physics.collision({ actor: handycapped, pixels, locMap, updateStats })) {
           return handycapped;
         }
       }
@@ -150,9 +142,7 @@ export const Physics = {
   },
 
   // Returns true if a player has a collision
-  collision({
-    actor, locMap, pixels, oldActor, updateStats,
-  }) {
+  collision({ actor, locMap, pixels, updateStats }) {
     const start = new Date(); // Gets the curent time
     // Check against other players in a region surounding the square you're in
     const nineSquares = [
@@ -180,7 +170,7 @@ export const Physics = {
       const firstWidth = t.x > actor.x ? actor.width : t.width;
       const firstHeight = t.y > actor.y ? actor.height : t.height;
       // Collision?
-      return (!oldActor || !Util.eq(t, oldActor))
+      return (t.id !== actor.id)
         && Math.abs(t.x - actor.x) < firstWidth
         && Math.abs(t.y - actor.y) < firstHeight;
     });
