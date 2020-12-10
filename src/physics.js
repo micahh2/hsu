@@ -80,8 +80,8 @@ export const Physics = {
     // This means that we can have no items LARGER than 30
     const keyx = Math.max(Math.floor(x / 30) + offsetx, 0);
     const keyy = Math.max(Math.floor(y / 30) + offsety, 0);
-    // Note: this breaks down if we have more than 10000 cells in our grid
-    return 10000 * keyx + keyy;
+    // Note: this breaks down if we have more than 100,000 cells in our grid
+    return 100000 * keyx + keyy;
   },
 
   // For performance reasons, this function is not pure! it modified the map passed in
@@ -92,7 +92,7 @@ export const Physics = {
     if (oldActor) {
       const oldKey = Physics.mapKey(oldActor.x, oldActor.y);
       if (map[oldKey]) {
-        map[oldKey] = map[oldKey].filter((t) => !Util.eq(t, oldActor));
+        map[oldKey] = map[oldKey].filter((t) => t.id !== oldActor.id);
       }
     }
     map[key] = (map[key] || []).concat(actor);

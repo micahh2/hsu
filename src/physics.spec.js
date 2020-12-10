@@ -64,3 +64,15 @@ describe('getUseableMove', () => {
     expect(updatedPlayer.y).to.eql(1);
   });
 });
+
+describe('updateLocationMap', () => {
+  it('should remove an old player even if it has been modified', () => {
+    const oldActor = { id: 1, x: 1, y: 2 };
+    const actor = { id: 1, x: 100, y: 200 };
+    const locMap = {};
+    Physics.updateLocationMap(locMap, { actor: oldActor, oldActor: null, updateStats });
+    Physics.updateLocationMap(locMap, { actor, oldActor: { ...oldActor, speed: 0 }, updateStats });
+    const items = Object.values(locMap).reduce((a, b) => a.concat(b), []);
+    expect(items).to.eql([actor]);
+  });
+});
