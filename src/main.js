@@ -4,6 +4,7 @@ import { Sprite } from './sprite.js';
 import { Characters } from './characters.js';
 import { Camera } from './camera.js';
 import { Map } from './map.js';
+import { Music } from './music.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -233,9 +234,17 @@ window.addEventListener('load', async () => {
   // Time
   tim();
 
-  // just added these here for testing
-  setTimer(40);
+  /**
+   *  just added these here for testing, uncomment to test -Eetu
+   */
+  setTimer(4);
   ingameTime(0);
+  const musicPlayer = Music;
+  // plays a sound of a waterdroplet, does not loop
+  musicPlayer.playTrack('#waterdrop', 0.2, false);
+  // plays background music and loops it
+  musicPlayer.playTrack('#backgroundchill', 0.3, true);
+
   /* eslint-enable no-use-before-define */
 });
 
@@ -440,6 +449,10 @@ function setTimer(seconds) {
   let time = seconds;
   // sets the interval in which the time will tick, 1000 = 1s
   const timer = setInterval(() => {
+    if (seconds < 0) {
+      clearInterval(timer);
+      document.getElementById('timer').innerHTML = '';
+    }
     document.getElementById('timer').innerHTML = formatTime(time);
 
     // if timer runs out, this function returns a 1
