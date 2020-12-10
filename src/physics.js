@@ -1,5 +1,3 @@
-import { Util } from './util.js';
-
 /**
  * Physics.
  * Methods for dealing with physics
