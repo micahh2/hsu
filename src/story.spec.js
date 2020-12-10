@@ -78,39 +78,47 @@ describe('createSelector', () => {
 });
 
 describe('startConversation', () => {
+  const characters = [{
+    id: 1,
+    name: 'Frau Kold',
+    type: 'vip',
+    x: 30,
+    y: 70,
+    maxLeft: 0,
+    maxRight: 36,
+    maxUp: 0,
+    maxDown: 159,
+    speed: 1,
+    width: 15,
+    height: 15,
+    spriteIndex: 12,
+    isNew: true,
+    actions: {
+      t: 'start-conversation',
+      a: 'attack',
+    },
+    dialog: {
+      response: 'Hello then.',
+      options: [
+        { id: 1, query: 'Goodbye.', event: 'end-conversation' },
+        { id: 2, query: 'Are you going home?', response: 'No.', event: 'return-root' },
+      ],
+    },
+  }];
   it('should return the dialog of a character', () => {
-    const characters = [{
-      id: 1,
-      name: 'Frau Kold',
-      type: 'vip',
-      x: 30,
-      y: 70,
-      maxLeft: 0,
-      maxRight: 36,
-      maxUp: 0,
-      maxDown: 159,
-      speed: 1,
-      width: 15,
-      height: 15,
-      spriteIndex: 12,
-      isNew: true,
-      actions: {
-        t: 'start-conversation',
-        a: 'attack',
-      },
-      dialog: {
-        response: 'Hello then.',
-        options: [
-          { id: 1, query: 'Goodbye.', event: 'end-conversation' },
-          { id: 2, query: 'Are you going home?', response: 'No.', event: 'return-root' },
-        ],
-      },
-    }];
     const selector = (t) => t.id === 1;
     const { conversation } = Story.startConversation({ characters, selector });
     expect(conversation.currentDialog).to.eql(characters[0].dialog);
     expect(conversation.character.id).to.eql(characters[0].id);
     expect(conversation.selectedOption).to.eql(0);
+  });
+  it('should only set the fallback if the current speed is non-zero', () => {
+    const selector = (t) => t.id === 1;
+    const changes = Story.startConversation({ characters, selector });
+    const kold = Story.startConversation({
+      characters: changes.characters, selector
+    }).characters[0];
+    expect(kold.fallbackSpeed).to.not.equal(0);
   });
 });
 

@@ -221,7 +221,7 @@ export const Story = {
     const character = characters.find(selector);
     const newCharacter = {
       ...character,
-      fallbackSpeed: character.speed,
+      fallbackSpeed: character.speed || character.fallbackSpeed,
       speed: 0,
     };
     const updateCharacters = characters.map((t) => {
