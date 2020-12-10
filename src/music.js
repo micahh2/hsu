@@ -1,3 +1,6 @@
+/**
+ * Module for dealing with music and sound
+ */
 export const Music = {
 
   /**

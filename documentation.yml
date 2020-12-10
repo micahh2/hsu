@@ -14,6 +14,7 @@ toc:
         - renderConversation
         - canvasProvider
         - tim
+        - setTimer
   - name: Modules
     children:
         - Camera
@@ -23,7 +24,14 @@ toc:
         - Sprite
         - Story
         - Util
+        - Music
   - name: Tests
     file: test-report.md
   - name: Roadmap
     file: extra/roadmap.md
+  - name: Iterations
+    children:
+      - name: Retrospective 1
+        file: extra/retrospective-1.md
+      - name: Retrospective 2
+        file: extra/retrospective-2.md
