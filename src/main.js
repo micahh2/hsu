@@ -239,11 +239,8 @@ window.addEventListener('load', async () => {
    */
   setTimer(4);
   ingameTime(0);
-  const musicPlayer = Music;
-  // plays a sound of a waterdroplet, does not loop
-  musicPlayer.playTrack('#waterdrop', 0.2, false);
-  // plays background music and loops it
-  musicPlayer.playTrack('#backgroundchill', 0.3, true);
+
+  playMusic();
 
   /* eslint-enable no-use-before-define */
 });
@@ -326,7 +323,9 @@ window.addEventListener('keyup', (e) => {
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
+  playMusic(); // eslint-disable-line no-use-before-define
 });
+window.addEventListener('click', () => { playMusic(); }); // eslint-disable-line no-use-before-define
 
 /**
  * canvasProvider.
@@ -613,4 +612,18 @@ function toggleInventoryOverlay(e) {
     overlay.style.display = 'none';
     overlayOpen = false;
   }
+}
+
+let started = false;
+function playMusic() {
+  if (started) { return; }
+  // plays a sound of a waterdroplet, does not loop
+  Music.playTrack('#waterdrop', 0.2, false).catch(() => {
+    started = false;
+  });
+  // plays background music and loops it
+  Music.playTrack('#backgroundchill', 0.3, true).catch(() => {
+    started = false;
+  });
+  started = true;
 }

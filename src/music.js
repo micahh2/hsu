@@ -24,13 +24,13 @@ export const Music = {
       song.loop = false;
     }
     // plays the selected track
-    song.play();
+    return song.play();
   },
   /**
     * this function can be used to stop any sound or music track
     */
   stopTrack(trackId) {
     const song = document.querySelector(trackId);
-    song.pause();
+    return song.pause();
   },
 };
