@@ -116,7 +116,7 @@ describe('startConversation', () => {
     const selector = (t) => t.id === 1;
     const changes = Story.startConversation({ characters, selector });
     const kold = Story.startConversation({
-      characters: changes.characters, selector
+      characters: changes.characters, selector,
     }).characters[0];
     expect(kold.fallbackSpeed).to.not.equal(0);
   });
