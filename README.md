@@ -11,10 +11,23 @@ You can zoom in or out by pressing "z"
 
 <img alt="zoom" src="./extra/zoomed.png" style="width: 500px" />
 
-There are icons that are part of the Heads Up Display (HUD).
+There are icons that are part of the Heads up Display (HUD)
+Right underneath them, there is a clock and in-game timer.
+
+<img alt="inventory" src="./extra/hud_timers.png" style="width: 500px" />
+
+
 You can bring up your current inventory by clicking on the backpack.
 
 <img alt="inventory" src="./extra/inventory.png" style="width: 500px" />
+
+You can interact with certain NPCs by pressing the "C" button.
+Dialogs offer multiple choices of sub-questions and answers.
+
+<img alt="inventory" src="./extra/dialog-1.png" style="width: 500px" />
+<img alt="inventory" src="./extra/dialog-2.png" style="width: 500px" />
+
+There is also looping background music playing.
 
 See our [roadmap](https://micah.dvyld.com/hsu/docs#roadmap) for details on what features are coming up next.
 
