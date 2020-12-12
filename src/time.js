@@ -45,10 +45,7 @@ export const Time = {
         clearInterval(timer);
         document.getElementById('timer').style.visibility = 'hidden';
         document.getElementById('timer').innerHTML = '';
-      }
-
-      // if timer didnt run out, decrease time by 1 second
-      else {
+      } else { // if timer didnt run out, decrease time by 1 second
         document.getElementById('timer').innerHTML = this.formatTime(time);
         time--;
       }
