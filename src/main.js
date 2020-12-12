@@ -240,9 +240,13 @@ window.addEventListener('load', async () => {
   setTimer(4);
   ingameTime(0);
 
-  playMusic();
+  const emailIcon = document.getElementById('email');
+  const messageOverlay = document.getElementById('message-overlay-container');
+  emailIcon.addEventListener('click', () => {
+    renderMessageOverlay(messageOverlay);
+  });
 
-  /* eslint-enable no-use-before-define */
+  /* eeslint-enable no-use-before-define */
 });
 
 // Modified by the eventListener
@@ -614,16 +618,48 @@ function toggleInventoryOverlay(e) {
   }
 }
 
-let started = false;
-function playMusic() {
-  if (started) { return; }
-  // plays a sound of a waterdroplet, does not loop
-  Music.playTrack('#waterdrop', 0.2, false).catch(() => {
-    started = false;
+function renderMessageOverlay(element) {
+  const innerEl = element.querySelector('#message-overlay');
+  const overlay = element.querySelector('.overlay');
+  const html = `
+    <button class="accHead">Course Schedule</button>
+    <div class="accBody">Unavilable.</div>
+
+    <button class="accHead">Reregistration for Next Semester</button>
+    <div class="accBody">Gib Money.</div>
+
+    <button class="accHead">Greetings from a Nigerian Prince</button>
+    <div class="accBody">Need help, send money and get money.</div>
+
+    <button class="accHead">Maultaschen?</button>
+    <div class="accBody">Maultaschen!</div>
+  `;
+  innerEl.innerHTML = html; // eslint-disable-line
+
+  let isOpen = true;
+  overlay.style.display = 'block';
+  innerEl.style.display = 'block';
+  overlay.addEventListener('click', () => {
+    if (isOpen) {
+      innerEl.style.display = 'none';
+      overlay.style.display = 'none';
+    } else {
+      innerEl.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+    isOpen = !isOpen;
   });
-  // plays background music and loops it
-  Music.playTrack('#backgroundchill', 0.3, true).catch(() => {
-    started = false;
-  });
-  started = true;
+
+  const accHeadList = innerEl.querySelectorAll('.accHead');
+  for (let i = 0; i < accHeadList.length; i++) {
+    accHeadList[i].addEventListener('click', (e) => {
+      e.preventDefault();
+      const accBodyList = e.target.nextElementSibling;
+      if (accBodyList.style.display === 'block') {
+        accBodyList.style.display = 'none';
+      } else {
+        accBodyList.style.display = 'block';
+      }
+    });
+  }
 }

@@ -1,41 +1,41 @@
 * {
-    font-family: sans-serif;
+  font-family: sans-serif;
 }
 html {
   overflow: hidden;
 }
 body {
-    color: white;
-    height: 100%;
-    width: 100%;
-    display: inline;
-    margin: 0;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-color: rgb(100, 100, 100);
+  color: white;
+  height: 100%;
+  width: 100%;
+  display: inline;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: rgb(100, 100, 100);
 }
 
 #logo {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    margin: 0;
-    padding: 0;
-    display: flex;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  margin: 0;
+  padding: 0;
+  display: flex;
 }
 #logo h1 {
-    margin: 0;
-    margin-left: 1em;
-    line-height: 2em;
-    letter-spacing: .2em;
+  margin: 0;
+  margin-left: 1em;
+  line-height: 2em;
+  letter-spacing: .2em;
 }
 
 #stage canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 #objects-layer {
   z-index: -1;
@@ -45,37 +45,37 @@ body {
 }
 
 #images img {
-    display:none;
+  display:none;
 }
 
 #fps {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 #conversation {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    min-height: 20%;
-    background: grey;
-    padding: 30px;
-    box-sizing: border-box;
-    display: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 20%;
+  background: grey;
+  padding: 30px;
+  box-sizing: border-box;
+  display: none;
 }
 
 #icon {
-    width: 4em;
-    height: 4em;
-    animation: spin 128s linear infinite;
+  width: 4em;
+  height: 4em;
+  animation: spin 128s linear infinite;
 }
 
 @keyframes spin {
-    100% {
-        transform:rotate(-360deg);
-    }
+  100% {
+    transform:rotate(-360deg);
+  }
 }
 
 .container{ /* stick the ui-icon and time together so no matter the window size both elements remain together */
@@ -86,14 +86,14 @@ body {
 }
 
 .ui-icon {
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    padding: 5px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  padding: 5px;
 }
 .ui-icon img {
-    width: 64px;
-    height: 64px;
+  width: 64px;
+  height: 64px;
 }
 
 #ui-icons {
@@ -107,55 +107,55 @@ body {
 }
 
 .overlay {
-    position: fixed;
-    display: none;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.75);
-    cursor: pointer;
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
 }
 
 .content {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .inventory {
-    width: 318px;
-    height: 318px;
-    background: grey;
-    border-radius: 5px;
-    padding: 5px;
+  width: 318px;
+  height: 318px;
+  background: grey;
+  border-radius: 5px;
+  padding: 5px;
 
 }
 
 .slot {
-    width: 70px;
-    height: 70px;
-    background: lightgrey;
-    justify-content: center;
-    border: solid 2.5px darkgrey;
-    margin: 2px;
-    float: left;
+  width: 70px;
+  height: 70px;
+  background: lightgrey;
+  justify-content: center;
+  border: solid 2.5px darkgrey;
+  margin: 2px;
+  float: left;
 
 }
 
 .item {
-    width: auto;
-    height: auto;
+  width: auto;
+  height: auto;
 
 }
 
 .item img {
-    width: 100%;
-    margin: 0 auto;
+  width: 100%;
+  margin: 0 auto;
 }
 
- #time{
+#time{
   margin-left: -36.5px;
   width: 78px;
   align-items: center;
@@ -169,16 +169,55 @@ body {
   font-size: 10px;
 }
 
-#ingameTime{
-    margin-left: -36.5px;
-    width: 78px;
-    align-items: center;
-    background-color: rgba(55, 55, 55, 0.5);
-    border-radius: 0 0 5px 5px;
-    border: 2px solid black;
-    border-top: none;
-    padding: 5px;
-    color:#00dd3c;
-    font-family: 'Press Start 2P';
-    font-size: 10px;
+#ingameTime {
+  margin-left: -36.5px;
+  width: 78px;
+  align-items: center;
+  background-color: rgba(55, 55, 55, 0.5);
+  border-radius: 0 0 5px 5px;
+  border: 2px solid black;
+  border-top: none;
+  padding: 5px;
+  color:#00dd3c;
+  font-family: 'Press Start 2P';
+  font-size: 10px;
+}
+
+#message-overlay {
+  width: 400gin-:;  margin-left: -200px;
+  background-color: grey;
+  z-index: 3;
+  position: relative;
+}
+
+.accHead {
+  width: 400px;
+  height: 50px;
+  background: darkgrey;
+  border-radius: 5px;
+  border-bottom: 2px solid black;
+  border-right: 2px solid black;
+  margin-bottom: 1px;
+  padding: 5px;
+  display: flex;
+  justify-content: Left;
+  font-weight: bold;
+}
+
+.accHead:hover {
+  background: grey;
+}
+
+.accBody {
+  width: 388px;
+  height: 75px;
+  background: lightgrey;
+  border-radius: 5px;
+  padding: 5px;
+  border-bottom: 2px solid grey;
+  border-right: 2px solid grey;
+  color: black;
+  margin-bottom: 1px;
+  display: none;
+  justify-content: Left;
 }
