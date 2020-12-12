@@ -1,3 +1,4 @@
+import { PathFinding } from './path-finding.js';
 import { Util } from './util.js';
 
 /** A class containing methods for dealing with characters  */
@@ -10,7 +11,7 @@ export const Characters = {
    * @param {number} state.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
-  moveNPC({ npc, width, height, player, attack }) {
+  moveNPC({ npc, width, height, player, attack, graph }) {
     let newNPC = npc;
 
     // Allow for spawn points
@@ -22,14 +23,26 @@ export const Characters = {
 
     // If we're near to destination, or have a collision pick a new destination
     if (!npc.destination || Util.dist(npc, npc.destination) < npc.width || npc.hasCollision) {
-      newNPC = {
-        ...newNPC,
-        destination: Characters.newDestination({
-          width, height, attack, player, npc: newNPC,
-        }),
-      };
+      if (!npc.waypoints || npc.waypoints.length === 0) {
+        const finish = Characters.newDestination({
+          width, height, attack, player, npc: newNPC });
+        const path = PathFinding.aStar({ graph, start: newNPC, finish });
+        newNPC = {
+          ...newNPC,
+          destination: path[0],
+          waypoints: path.slice(1),
+        };
+      } else {
+        newNPC = {
+          ...newNPC,
+          destination: newNPC.waypoints,
+          waypoints: newNPC.waypoints.slice(1),
+        };
+      }
     }
-
+    if (!newNPC.destination) {
+      return newNPC;
+    }
     const x = newNPC.x + Math.round(newNPC.width / 2);
     const y = newNPC.y + Math.round(newNPC.height / 2);
     const xdist = Math.abs(x - newNPC.destination.x);

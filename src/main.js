@@ -6,6 +6,7 @@ import { Camera } from './camera.js';
 import { Map } from './map.js';
 import { Music } from './music.js';
 import { Time } from './time.js';
+import { PathFinding } from './path-finding.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -70,6 +71,12 @@ window.addEventListener('load', async () => {
   // Load the initial story
   let gameState = Story.loadGameState(gameData);
 
+  const graph = PathFinding.gridToGraph({
+    grid: pixels,
+    width: mapDim.width,
+    height: mapDim.height,
+    actorSize: gameState.player.width });
+
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
   const sprites = Sprite.loadSprites({
@@ -114,6 +121,7 @@ window.addEventListener('load', async () => {
     updateStats, // eslint-disable-line no-use-before-define
     moveNPC: Characters.moveNPC,
     movePlayer, // eslint-disable-line no-use-before-define
+    graph,
   };
 
   /**
