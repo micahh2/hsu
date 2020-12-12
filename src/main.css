@@ -24,8 +24,7 @@ body {
     display: flex;
 }
 #logo h1 {
-    margin: 0;
-    margin-left: 1em;
+    margin: 0 0 0 1em;
     line-height: 2em;
     letter-spacing: .2em;
 }
@@ -184,4 +183,29 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
+}
+.accordion-container {
+  background-color: gray;
+  z-index: 2;
+  position: relative;
+  width: 400px;
+  margin-left: -200px;
+  padding: 10px;
+  border-radius: 5px;
+}
+.accordion-container h2 {
+  text-align: center;
+}
+.accordion-toggle {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+.accordion-expandable {
+  display: none;
+  margin-bottom: 15px;
+}
+
+#quest-overlay {
+   display: none;
 }

@@ -6,6 +6,7 @@ import { Camera } from './camera.js';
 import { Map } from './map.js';
 import { Music } from './music.js';
 import { Time } from './time.js';
+import { QuestUI } from './ui/quest-ui.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -71,7 +72,7 @@ window.addEventListener('load', async () => {
   let gameState = Story.loadGameState(gameData);
 
   // Load sprites
-  const characterSprite = document.getElementById('character-sprite');
+  const characterSprite = document.getElementById('character-sprite'); // TODO duplicated code
   const sprites = Sprite.loadSprites({
     characterSprite: {
       image: characterSprite, // Actual image data
@@ -230,6 +231,20 @@ window.addEventListener('load', async () => {
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
   inventory.addEventListener('click', (e) => { e.preventDefault(); });
 
+  // Quest UI
+  const quests = [{
+    title: 'Talk to someone',
+    tasks: [{ description: 'Talk to anyone about anything!' }],
+  }, {
+    title: 'Find your notebook',
+    tasks: [
+      { description: 'You last left your notebook in a classroom. Talk to your teachers.' },
+      { description: 'Frau Kold says another student picked it up!', hidden: true },
+    ],
+  }];
+  const questIcon = document.getElementById('quest'); // HTMLElement
+  const questOverlay = document.getElementById('quest-overlay'); // HTMLElement
+  QuestUI.renderOverlay({ icon: questIcon, overlay: questOverlay, quests });
   /* eslint-enable no-use-before-define */
 });
 
