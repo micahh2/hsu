@@ -8,43 +8,26 @@ export const PathFinding = {
    * A* Path Finding
    */
   aStar({ graph, start, finish }) {
+    const startPlace = graph.find((t) => PathFinding.inArea(t, start));
+    const finishPlace = graph.find((t) => PathFinding.inArea(t, finish));
+    if (!finishPlace) {
+      return [];
+    }
     const nextPlaces = [];
-    let place = start;
-    while (place && (place.x !== finish.x || place.y !== finish.y)) {
-      const maxNumberOfNeighbors = 9;
-      for (let i = 0; i < maxNumberOfNeighbors; i++) {
-        const offsetX = 1 - (i % 3); // -1,  0,  1, -1, 0, 1, -1, 0, 1
-        const offsetY = 1 - Math.floor(i / 3); // -1, -1, -1,  0, 0, 0,  1, 1, 1
-        const newX = place.x + offsetX;
-        const newY = place.y + offsetY;
-
-        // Don't stay in the same place
-        if (offsetX === 0 && offsetY === 0) continue;
-
-        // Stay within bounds of the graph
-        if (
-          newX < 0
-          || newY < 0
-          || newY >= graph.length
-          || newX >= graph[newY].length
-        ) continue;
-
+    const been = [];
+    let place = startPlace;
+    while (place && (place.x !== finishPlace.x || place.y !== finishPlace.y)) {
+      for (let i = 0; i < place.neighbors.length; i++) {
+        const neighbor = place.neighbors[i];
         // Don't go in a cycle/loop
-        if (nextPlaces.some((p) => p.x === newX && p.y === newY)) continue;
-
-        // Don't go somewhere that's blocked
-        if (graph[newY][newX] > 0) continue;
-
-        const newPlace = {
-          x: newX,
-          y: newY,
-          from: place,
-        };
+        if (been.includes(neighbor)) { continue; }
+        const newPlace = { ...neighbor, from: place };
         newPlace.cost = (place.cost || 0)
           + PathFinding.moveCost(place, newPlace)
           + PathFinding.distanceCost(newPlace, finish);
 
         nextPlaces.push(newPlace);
+        been.push(neighbor);
       }
       // Sort ascending order
       nextPlaces.sort((place1, place2) => place1.cost - place2.cost);
@@ -54,6 +37,9 @@ export const PathFinding = {
     // "place" is now the destination (and it has a "from" property), or undefined
     let lastDirection;
     const path = [];
+    if (place && (place.x !== finish.x || place.y !== finish.y)) {
+      path.push(finish);
+    }
     // Go backwards through the path using the "from"s that setup before:
     while (place && place.from) {
       const newDirection = PathFinding.getDirection(place, place.from);
@@ -77,6 +63,19 @@ export const PathFinding = {
     return finish
       ? `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}`
       : 'origin';
+  },
+
+  /**
+   * inArea.
+   *
+   * @param {} area
+   * @param {} point
+   */
+  inArea(area, point) {
+    return area.x <= point.x
+      && area.y <= point.y
+      && area.x + area.width > point.x
+      && area.y + area.height > point.y;
   },
 
   /**
@@ -113,12 +112,12 @@ export const PathFinding = {
     const remainderHeight = height - subHeight;
 
     const isFree = !PathFinding.hasBlock({ grid, x, y, width, height });
+    if (width < actorSize && height < actorSize) {
+      return [];
+    }
     if (isFree) {
       const area = { x, y, width, height, neighbors: [] };
       return [area];
-    }
-    if (subWidth < actorSize && subHeight < actorSize) {
-      return [];
     }
     const topLeft = PathFinding.gridToSubgraph({
       grid,

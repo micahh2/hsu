@@ -1,20 +1,47 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding.js';
 
-describe('aStar', () => {
-  const o = 0; // intermediate points when going without turn (the forward trace)
-  const u = 0; // turning "u-points"
-  const s = 0; // start point
-  const f = 0; // finish point
+const o = 0; // intermediate points when going without turn (the forward trace)
+const u = 0; // turning "u-points"
+const s = 0; // start point
+const f = 0; // finish point
 
+function toObjectGraph(arrayGraph) {
+  const maxNumberOfNeighbors = 9;
+  const objectGraph = [];
+  arrayGraph.forEach((a, i) => {
+    a.forEach((b, j) => {
+      if (arrayGraph[i][j] > 0) { return; }
+      const area = { x: j, y: i, width: 1, height: 1, neighbors: [] };
+      for (let l = 0; l < maxNumberOfNeighbors; l++) {
+        const offsetX = 1 - (l % 3);
+        const offsetY = 1 - Math.floor(l / 3);
+        const newX = j + offsetX;
+        const newY = i + offsetY;
+        if (offsetX === 0 && offsetY === 0) { continue; }
+        if (newY < 0 || newX < 0) { continue; }
+        if (newY >= arrayGraph.length || newX >= arrayGraph[0].length) { continue; }
+        if (arrayGraph[newY][newX] > 0) { continue; }
+        const neighbor = objectGraph.find((t) => t.x === newX && t.y === newY);
+        if (!neighbor) { continue; }
+        area.neighbors.push(neighbor);
+        neighbor.neighbors.push(area);
+      }
+      objectGraph.push(area);
+    });
+  });
+  return objectGraph;
+}
+
+describe('aStar', () => {
   it('should find a valid path', () => {
-    const graph = [
+    const graph = toObjectGraph([
       [0, u, o, o, f],
       [u, 1, 1, 1, 1],
       [0, u, o, u, 0],
       [1, 1, 1, 1, u],
       [s, o, o, u, 0],
-    ];
+    ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
@@ -32,26 +59,26 @@ describe('aStar', () => {
   it('should generate an optimal path', () => {
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const graph = [
+    const graph = toObjectGraph([
       [0, o, 0, 0, f],
       [o, 1, 1, 1, 1],
       [0, 1, 0, 0, 0],
       [0, 1, 0, 0, 0],
       [s, 1, 0, 0, 0],
-    ];
+    ]);
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([{ x: 0, y: 1 }, { x: 1, y: 0 }, finish]);
   });
 
   it('should generate a diagonal path', () => {
-    const graph = [
+    const graph = toObjectGraph([
       [0, 0, 1, 1, f],
       [0, 1, 1, o, 1],
       [1, 1, o, 1, 1],
       [1, o, 1, 1, 0],
       [s, 1, 1, 0, 0],
-    ];
+    ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
@@ -60,13 +87,13 @@ describe('aStar', () => {
   });
 
   it('should go straight over a wall, then diagonal to the right', () => {
-    const graph = [
+    const graph = toObjectGraph([
       [0, u, 0, 0, 0],
       [u, 1, o, 0, 0],
       [o, 1, 0, o, 0],
       [o, 1, 0, 0, f],
       [s, 1, 0, 0, 0],
-    ];
+    ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 3 };
     const path = PathFinding.aStar({ graph, start, finish });
@@ -75,13 +102,13 @@ describe('aStar', () => {
   });
 
   it('should go straight up, diagonal over the wall, and straight down', () => {
-    const graph = [
+    const graph = toObjectGraph([
       [0, 0, u, 0, 0],
       [0, o, 1, o, 0],
       [s, 0, 1, 0, f],
       [0, 0, 1, 0, 0],
       [0, 0, 1, 0, 0],
-    ];
+    ]);
     const start = { x: 0, y: 2 };
     const finish = { x: 4, y: 2 };
     const path = PathFinding.aStar({ graph, start, finish });
@@ -90,13 +117,13 @@ describe('aStar', () => {
   });
 
   it('should first go up-right (diagonal), then down a corridor', () => {
-    const graph = [
+    const graph = toObjectGraph([
       [0, 0, 0, u, 0],
       [0, 0, o, 1, u],
       [0, o, 0, 1, o],
       [u, 0, 0, 1, o],
       [s, 0, 0, 1, f],
-    ];
+    ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 4 };
     const path = PathFinding.aStar({ graph, start, finish });
@@ -183,6 +210,28 @@ describe('gridToGraph', () => {
     });
     expect(graph.length).to.eql(3);
     expect(graph[0].neighbors.length).to.eql(2);
+  });
+
+  it('grid to graph using A*', () => {
+    const grid = [
+      [1, 0, 0, 0, f, f],
+      [0, 1, 0, 0, f, f],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [s, s, 0, 0, 0, 0],
+      [s, s, 0, 0, 0, 0],
+    ];
+    const graph = PathFinding.gridToGraph({
+      grid,
+      width: 6,
+      height: 6,
+      actorSize: 2,
+    });
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 0 };
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(graph.length).gt(0);
+    expect(path).to.eql([{ x: 3, y: 3 }, { x: 3, y: 0 }, { x: 4, y: 0 }]);
   });
 });
 describe('hasBlock', () => {

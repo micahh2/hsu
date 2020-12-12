@@ -24,7 +24,7 @@ export const Physics = {
       characters, width, height,
       locMap, updateStats,
       moveNPC, movePlayer,
-      paused, attack, up, down, left, right,
+      paused, attack, up, down, left, right, graph,
     } = state;
 
     // Get the move the player wants to make
@@ -54,7 +54,7 @@ export const Physics = {
       for (let i = 0; i < characters.length; i++) {
         // Get new NPC move
         const newActor = moveNPC({
-          npc: characters[i], width, height, player: newPlayer, attack, updateStats,
+          npc: characters[i], width, height, player: newPlayer, attack, updateStats, graph,
         });
         newOthers[i] = Physics.getUseableMove({
           oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats,
