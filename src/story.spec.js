@@ -59,8 +59,10 @@ describe('setDestination', () => {
   it('should return updated destinations', () => {
     const characters = [{ id: 1 }, { id: 5 }, { id: 3 }];
     const destination = { x: 1, y: 2 };
+    const graph = [{ x: 0, y: 0, width: 100, height: 100 }];
     const selector = () => true;
-    const newCharacters = Story.setDestination({ characters, destination, selector });
+
+    const newCharacters = Story.setDestination({ graph, characters, destination, selector });
     expect(
       newCharacters.map(() => destination),
     ).to.eql(
@@ -289,13 +291,14 @@ describe('updateGameState', () => {
   it('should set destination on time', () => {
     const e = gameData.events[0];
     const character = gameData.characters[0];
+    const graph = [{ x: 0, y: 0, width: 100, height: 100 }];
     const gameState = {
       conversation: null,
       ...gameData,
       characters: [character],
       events: [e], // Just one for now
     };
-    const newGameState = Story.updateGameState({ gameState, now: 100090 });
+    const newGameState = Story.updateGameState({ graph, gameState, now: 100090 });
     expect(newGameState.conversation).null;
     expect(newGameState.characters[0].destination).to.eql(e.destination);
   });

@@ -37,11 +37,14 @@ body {
     width: 100%;
     height: 100%;
 }
-#objects-layer {
+#debug-layer {
   z-index: -1;
 }
-#layout-layer {
+#objects-layer {
   z-index: -2;
+}
+#layout-layer {
+  z-index: -3;
 }
 
 #images img {

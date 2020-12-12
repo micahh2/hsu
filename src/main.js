@@ -36,6 +36,7 @@ window.addEventListener('load', async () => {
   // Load elements from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
+  const debugCanvas = document.getElementById('debug-layer');
 
   // const layoutImage = document.getElementById('layout');
   // const backgroundImage = document.getElementById('background');
@@ -50,6 +51,7 @@ window.addEventListener('load', async () => {
 
   const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
   Camera.setCanvasResolution(virtualCanvas, mapDim.width, mapDim.width);
+  Camera.setCanvasResolution(debugCanvas, mapDim.width, mapDim.width);
   Map.drawTileMapToContext({
     context: virtualCanvas.getContext('2d'),
     tilemap,
@@ -172,6 +174,8 @@ window.addEventListener('load', async () => {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
+    Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
+
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
   };
@@ -192,6 +196,7 @@ window.addEventListener('load', async () => {
     const flags = { enableConversation }; // eslint-disable-line no-use-before-define
     const callingEventQueue = eventQueue;
     const newGameState = Story.updateGameState({
+      graph,
       gameState,
       now,
       timeSinceLast,

@@ -22,27 +22,25 @@ export const Characters = {
     }
 
     // If we're near to destination, or have a collision pick a new destination
-    if (!npc.destination || Util.dist(npc, npc.destination) < npc.width || npc.hasCollision) {
-      if (!npc.waypoints || npc.waypoints.length === 0) {
-        const finish = Characters.newDestination({
-          width, height, attack, player, npc: newNPC });
-        const path = PathFinding.aStar({ graph, start: newNPC, finish });
-        newNPC = {
-          ...newNPC,
-          destination: path[0],
-          waypoints: path.slice(1),
+    if (!npc.destination || Util.dist(npc, npc.destination) <= npc.speed || npc.hasCollision) {
+      let { waypoints } = npc;
+      if (!waypoints || waypoints.length === 0 || npc.hasCollision) {
+        const finish = (npc.hasCollision && waypoints && waypoints.length)
+          ? waypoints[waypoints.length - 1]
+          : Characters.newDestination({ width, height, attack, player, npc: newNPC });
+        const start = {
+          x: Math.round(newNPC.x + newNPC.width / 2),
+          y: Math.round(newNPC.y + newNPC.height / 2),
         };
-      } else {
-        newNPC = {
-          ...newNPC,
-          destination: newNPC.waypoints,
-          waypoints: newNPC.waypoints.slice(1),
-        };
+        waypoints = PathFinding.aStar({ graph, start, finish });
       }
+      newNPC = {
+        ...newNPC,
+        destination: waypoints[0],
+        waypoints: waypoints.slice(1),
+      };
     }
-    if (!newNPC.destination) {
-      return newNPC;
-    }
+    if (newNPC.destination == null) { return npc; }
     const x = newNPC.x + Math.round(newNPC.width / 2);
     const y = newNPC.y + Math.round(newNPC.height / 2);
     const xdist = Math.abs(x - newNPC.destination.x);

@@ -151,9 +151,16 @@ describe('areNeighbors', () => {
     const result = PathFinding.areNeighbors(a, b, 4);
     expect(result).false;
   });
-  it('should return true for are beighbor with area below it', () => {
+  it('should return true for a neighbor below it', () => {
     const a = { x: 0, y: 0, width: 2, height: 2 };
     const b = { x: 0, y: 2, width: 2, height: 2 };
+
+    const result = PathFinding.areNeighbors(a, b, 2);
+    expect(result).true;
+  });
+  it('should return true for an offset neighbor to the side', () => {
+    const a = { x: 0, y: 0, width: 3, height: 3 };
+    const b = { x: 3, y: 1, width: 3, height: 3 };
 
     const result = PathFinding.areNeighbors(a, b, 2);
     expect(result).true;
@@ -212,14 +219,39 @@ describe('gridToGraph', () => {
     expect(graph[0].neighbors.length).to.eql(2);
   });
 
+  it('should should return the right neighbors for a semi-complex graph', () => {
+    const a = 0;
+    const b = 0;
+    const c = 0;
+    const d = 0;
+    const e = 0;
+    const grid = [
+      [a, b, b, d, d, d],
+      [c, 1, 1, d, d, d],
+      [c, 1, 1, d, d, d],
+      [e, e, e, f, f, f],
+      [e, e, e, f, f, f],
+      [e, e, e, f, f, f],
+    ];
+    const graph = PathFinding.gridToGraph({
+      grid,
+      width: 6,
+      height: 6,
+      actorSize: 1,
+    });
+    expect(graph.length).to.eql(6, 'Incorrect number of areas');
+    const aArea = graph.find((t) => t.x === 0 && t.y === 0);
+    expect(aArea.neighbors.length).to.eql(2, 'Incorrect number of neighbors');
+  });
+
   it('grid to graph using A*', () => {
     const grid = [
       [1, 0, 0, 0, f, f],
-      [0, 1, 0, 0, f, f],
-      [0, 0, 1, 0, 0, 0],
+      [0, 1, 0, 0, o, o],
+      [0, 0, 1, 0, o, o],
       [0, 0, 0, 0, 0, 0],
-      [s, s, 0, 0, 0, 0],
-      [s, s, 0, 0, 0, 0],
+      [s, s, 0, 0, o, o],
+      [s, s, 0, 0, o, o],
     ];
     const graph = PathFinding.gridToGraph({
       grid,
@@ -231,7 +263,11 @@ describe('gridToGraph', () => {
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(graph.length).gt(0);
-    expect(path).to.eql([{ x: 3, y: 3 }, { x: 3, y: 0 }, { x: 4, y: 0 }]);
+    expect(path).to.eql([
+      { x: 4, y: 4 },
+      { x: 4, y: 1 },
+      { x: 4, y: 0 },
+    ]);
   });
 });
 describe('hasBlock', () => {

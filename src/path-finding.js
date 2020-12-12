@@ -10,9 +10,9 @@ export const PathFinding = {
   aStar({ graph, start, finish }) {
     const startPlace = graph.find((t) => PathFinding.inArea(t, start));
     const finishPlace = graph.find((t) => PathFinding.inArea(t, finish));
-    if (!finishPlace) {
-      return [];
-    }
+    // Can't find a route
+    if (!finishPlace) { return []; }
+
     const nextPlaces = [];
     const been = [];
     let place = startPlace;
@@ -37,17 +37,20 @@ export const PathFinding = {
     // "place" is now the destination (and it has a "from" property), or undefined
     let lastDirection;
     const path = [];
-    if (place && (place.x !== finish.x || place.y !== finish.y)) {
-      path.push(finish);
-    }
     // Go backwards through the path using the "from"s that setup before:
     while (place && place.from) {
       const newDirection = PathFinding.getDirection(place, place.from);
       if (lastDirection !== newDirection) {
         lastDirection = newDirection;
-        path.push({ x: place.x, y: place.y });
+        path.push({
+          x: place.x + Math.floor(place.width / 2),
+          y: place.y + Math.floor(place.height / 2),
+        });
       }
       place = place.from;
+    }
+    if (!path[0] || (path[0].x !== finish.x || path[0].y !== finish.y)) {
+      path.unshift(finish);
     }
     // reverse the path before returning it
     path.reverse();
@@ -112,13 +115,15 @@ export const PathFinding = {
     const remainderHeight = height - subHeight;
 
     const isFree = !PathFinding.hasBlock({ grid, x, y, width, height });
-    if (width < actorSize && height < actorSize) {
-      return [];
-    }
+    if (width < actorSize && height < actorSize) { return []; }
     if (isFree) {
       const area = { x, y, width, height, neighbors: [] };
       return [area];
     }
+    if (subWidth === 0) {
+      return [];
+    }
+
     const topLeft = PathFinding.gridToSubgraph({
       grid,
       width: subWidth,
@@ -152,25 +157,29 @@ export const PathFinding = {
       y: y + subHeight,
     });
     /* eslint-disable no-param-reassign */
+    const topLeftPotentials = [...topRight, ...botLeft];
     topLeft.forEach((k) => {
-      k.neighbors = [...topRight, ...botLeft].filter(
-        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
-      );
+      k.neighbors = k.neighbors.concat(topLeftPotentials.filter(
+        (t) => PathFinding.areNeighbors(k, t, actorSize),
+      ));
     });
+    const topRightPotentials = [...topLeft, ...botRight];
     topRight.forEach((k) => {
-      k.neighbors = [...topLeft, ...botRight].filter(
-        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
-      );
+      k.neighbors = k.neighbors.concat(topRightPotentials.filter(
+        (t) => PathFinding.areNeighbors(k, t, actorSize),
+      ));
     });
+    const botLeftPotentials = [...topLeft, ...botRight];
     botLeft.forEach((k) => {
-      k.neighbors = [...topLeft, ...botRight].filter(
-        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
-      );
+      k.neighbors = k.neighbors.concat(botLeftPotentials.filter(
+        (t) => PathFinding.areNeighbors(k, t, actorSize),
+      ));
     });
+    const botRightPotentials = [...topRight, ...botLeft];
     botRight.forEach((k) => {
-      k.neighbors = [...topRight, ...botLeft].filter(
-        (t, i, self) => self.indexOf(t) === i && PathFinding.areNeighbors(k, t, actorSize),
-      );
+      k.neighbors = k.neighbors.concat(botRightPotentials.filter(
+        (t) => PathFinding.areNeighbors(k, t, actorSize),
+      ));
     });
     /* eslint-enable no-param-reassign */
     return [...topLeft, ...topRight, ...botLeft, ...botRight];
@@ -203,23 +212,16 @@ export const PathFinding = {
 
   areNeighbors(a, b, overlap) {
     if (a.x + a.width === b.x || b.x + b.width === a.x) {
-      let first = a;
-      let last = b;
-      if (a.y > b.y) {
-        first = b;
-        last = a;
-      }
-      return last.y - first.y <= first.height - overlap;
+      const lastStart = Math.max(a.y, b.y);
+      const firstEnd = Math.min(a.y + a.height, b.y + b.height);
+      return firstEnd - lastStart >= overlap;
     }
 
     if (a.y + a.height === b.y || b.y + b.height === a.y) {
-      let first = a;
-      let last = b;
-      if (a.x > b.x) {
-        first = b;
-        last = a;
-      }
-      return last.x - first.x <= first.width - overlap;
+      const lastStart = Math.max(a.x, b.x);
+      const firstEnd = Math.min(a.x + a.width, b.x + b.width);
+
+      return firstEnd - lastStart >= overlap;
     }
     return false;
   },

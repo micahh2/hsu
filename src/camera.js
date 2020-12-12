@@ -143,4 +143,51 @@ export const Camera = {
       });
     }
   },
+  /**
+   * drawGraph.
+   *
+   * @param {} args
+   * @param {} args.graph the graph
+   * @param {} args.context the context to draw to
+   */
+  drawGraph({ graph, context, viewport }) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context.fillStyle = 'black';
+    graph.forEach((area) => {
+      context.strokeStyle = 'black';
+      context.strokeRect(area.x - viewport.x, area.y - viewport.y, area.width, area.height);
+    });
+  },
+
+  drawDestinations({ characters, context, viewport }) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context.fillStyle = 'black';
+    const colors = ['lightblue', 'red', 'yellow', 'green', 'blue', 'brown', 'purple', 'pink', 'magenta'];
+    characters.forEach((c) => {
+      context.strokeStyle = 'black';
+      const dest = (c.waypoints && c.waypoints[c.waypoints.length - 1]) || c.destination;
+      if (!dest) { return; }
+      context.fillRect(
+        (dest.x - 5 - viewport.x) * viewport.scale,
+        (dest.y - 5 - viewport.y) * viewport.scale,
+        10 * viewport.scale,
+        10 * viewport.scale,
+      );
+      if (!c.waypoints) { return; }
+      context.strokeStyle = colors[c.waypoints.length % colors.length];
+      context.beginPath();
+      context.moveTo(
+        (Math.round(c.x + c.width / 2) - viewport.x) * viewport.scale,
+        (Math.round(c.y + c.height / 2) - viewport.y) * viewport.scale,
+      );
+      context.lineTo(
+        (c.destination.x - viewport.x) * viewport.scale,
+        (c.destination.y - viewport.y) * viewport.scale,
+      );
+      c.waypoints.forEach((t) => {
+        context.lineTo((t.x - viewport.x) * viewport.scale, (t.y - viewport.y) * viewport.scale);
+      });
+      context.stroke();
+    });
+  },
 };

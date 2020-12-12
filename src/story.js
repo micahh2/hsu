@@ -1,4 +1,5 @@
 import { Util } from './util.js';
+import { PathFinding } from './path-finding.js';
 
 /**
  * Story.
@@ -148,7 +149,7 @@ export const Story = {
    *
    * @param {}
    */
-  updateGameState({ gameState, now, timeSinceLast, flags, eventQueue = [] }) {
+  updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [] }) {
     const { player, areas } = gameState;
     const { enableConversation } = flags || { enableConversation: false };
     let { events } = gameState;
@@ -176,6 +177,7 @@ export const Story = {
         case 'set-destination':
           // Set destination
           current.characters = Story.setDestination({
+            graph,
             characters: current.characters,
             selector,
             destination: events[i].destination,
@@ -281,10 +283,20 @@ export const Story = {
    *
    * @param {}
    */
-  setDestination({ characters, destination, selector }) {
+  setDestination({ characters, destination, selector, graph }) {
     return characters.map((actor) => {
       if (selector(actor)) {
-        return { ...actor, destination };
+        const finish = destination;
+        const start = {
+          x: Math.round(actor.x + actor.width / 2),
+          y: Math.round(actor.y + actor.height / 2),
+        };
+        const waypoints = PathFinding.aStar({ graph, start, finish });
+        return {
+          ...actor,
+          destination: waypoints[0],
+          waypoints: waypoints.slice(1),
+        };
       }
       return actor;
     });
