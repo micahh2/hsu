@@ -5,6 +5,7 @@ import { Characters } from './characters.js';
 import { Camera } from './camera.js';
 import { Map } from './map.js';
 import { Music } from './music.js';
+import { Time } from './time.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -55,7 +56,6 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     zoomLevel: 1,
   });
-
   const pixels = Camera.getContextPixels({
     context: virtualCanvas.getContext('2d'),
     canvasWidth: mapDim.width,
@@ -220,7 +220,6 @@ window.addEventListener('load', async () => {
     clearStats();
     /* eslint-enable no-use-before-define */
   }, 1000);
-
   /* eslint-disable no-use-before-define */
 
   // Icons
@@ -230,17 +229,6 @@ window.addEventListener('load', async () => {
   overlay.addEventListener('click', toggleInventoryOverlay);
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
   inventory.addEventListener('click', (e) => { e.preventDefault(); });
-
-  // Time
-  tim();
-
-  /**
-   *  just added these here for testing, uncomment to test -Eetu
-   */
-  setTimer(4);
-  ingameTime(0);
-
-  playMusic();
 
   /* eslint-enable no-use-before-define */
 });
@@ -323,9 +311,7 @@ window.addEventListener('keyup', (e) => {
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
-  playMusic(); // eslint-disable-line no-use-before-define
 });
-window.addEventListener('click', () => { playMusic(); }); // eslint-disable-line no-use-before-define
 
 /**
  * canvasProvider.
@@ -392,79 +378,6 @@ function renderConversation(conversation, updateConvo) {
   if (!conversation.active) {
     el.style.display = 'none';
   }
-}
-
-/**
- * tim, because I wasted 30 odd minutes trying to figure out
- * what's wrong and turns out I named it tim() as opposed to time().
- * Calls itself recursively and updates the #time element in `index.html`.
- * Only ever call this once.
- */
-function tim() {
-  const date = new Date();
-
-  let tHour = date.getHours();
-  let tMin = date.getMinutes();
-  let tSec = date.getSeconds();
-
-  if (tHour < 10) { tHour = `0${tHour}`; }
-  if (tMin < 10) { tMin = `0${tMin}`; }
-  if (tSec < 10) { tSec = `0${tSec}`; }
-
-  setTimeout(tim, 500); // so tim can keep updating
-
-  document.getElementById('time').innerHTML = `${tHour}:${tMin}:${tSec}`;
-}
-
-/*
-* this function formats time (in seconds) into a nice looking
-* time with hours, minutes and seconds
-*/
-function formatTime(time) {
-  const hrs = Math.floor(time / 60 / 60);
-  const mins = Math.floor((time / 60) % 60);
-  const secs = Math.floor(time % 60);
-
-  let ret = '';
-  if (hrs > 0) {
-    ret += `${hrs}:${mins < 10 ? '0' : ''}`;
-  }
-  ret += `${mins}:${secs < 10 ? '0' : ''}`;
-  ret += `${secs}`;
-  return ret;
-}
-
-// counts time from the moment of calling the function, can be set to 0 to reset
-function ingameTime(seconds) {
-  let time = seconds;
-  setInterval(() => {
-    document.getElementById('ingameTime').innerHTML = formatTime(time);
-    time++;
-  }, 1000);
-}
-// sets a timer that counts down to 0. Time must be specified in seconds.
-// To stop the timer, use "stopTimer(intervalName)" function
-function setTimer(seconds) {
-  let time = seconds;
-  // sets the interval in which the time will tick, 1000 = 1s
-  const timer = setInterval(() => {
-    if (seconds < 0) {
-      clearInterval(timer);
-      document.getElementById('timer').innerHTML = '';
-    }
-    document.getElementById('timer').innerHTML = formatTime(time);
-
-    // if timer runs out, this function returns a 1
-    if (time <= 0) {
-      document.getElementById('timer').innerHTML = '';
-      clearTimeout(timer);
-    }
-    // if timer didnt run out, decrease time by 1
-    if (!pause) {
-      time -= 1;
-    }
-  // the interval in which the time gets updated (1000 = 1 second)
-  }, 1000);
 }
 
 /* eslint-disable no-shadow */
@@ -613,17 +526,9 @@ function toggleInventoryOverlay(e) {
     overlayOpen = false;
   }
 }
-
-let started = false;
-function playMusic() {
-  if (started) { return; }
-  // plays a sound of a waterdroplet, does not loop
-  Music.playTrack('#waterdrop', 0.2, false).catch(() => {
-    started = false;
-  });
-  // plays background music and loops it
-  Music.playTrack('#backgroundchill', 0.3, true).catch(() => {
-    started = false;
-  });
-  started = true;
-}
+// play background music
+Music.playTrack('#backgroundchill', 0.2, true);
+// start ingameTime
+Time.ingameTime(0);
+// timer of 3 seconds, for testing
+Time.setTimer(3);
