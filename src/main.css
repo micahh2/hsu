@@ -1,6 +1,7 @@
 * {
-  font-family: sans-serif;
+  font-family: 'Press start 2P';
 }
+
 html {
   overflow: hidden;
 }
@@ -69,7 +70,7 @@ body {
   display: none;
 }
 
-#icon {
+.icon {
   width: 4em;
   height: 4em;
   animation: spin 128s linear infinite;
@@ -158,7 +159,7 @@ body {
   margin: 0 auto;
 }
 
-#ingameTime{
+#ingameTime {
     margin-left: -36.5px;
     width: 78px;
     align-items: center;
@@ -187,6 +188,7 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
+}
 
 #message-overlay {
   width: 400px;
@@ -206,7 +208,7 @@ body {
   margin-bottom: 1px;
   padding: 5px;
   display: flex;
-  justify-content: Left;
+  justify-content: left;
   font-weight: bold;
 }
 
@@ -225,5 +227,24 @@ body {
   color: black;
   margin-bottom: 1px;
   display: none;
-  justify-content: Left;
+  justify-content: left;
+}
+
+.start-page-container {
+  width: 550px;
+  height: 700px;
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  margin-top: -350px;
+  margin-left: -225px;
+  background-color: gray;
+  z-index: 4;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.start-page-container > * {
+  width: 100%;
 }
