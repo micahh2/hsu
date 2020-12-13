@@ -7,6 +7,7 @@ import { Map } from './map.js';
 import { Music } from './music.js';
 import { Time } from './time.js';
 import { PathFinding } from './path-finding.js';
+import { StartPageUI } from './ui/start-page-ui.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -101,6 +102,42 @@ window.addEventListener('load', async () => {
     zoomLevels: [1, 2],
     canvasProvider, // eslint-disable-line no-use-before-define
   });
+  // Wait for start
+  const startPage = document.getElementById('start-page');
+  const readyToStart = new Promise((resolve) => {
+    StartPageUI.renderStartButton(startPage, resolve);
+  });
+  await readyToStart;
+
+  /* eslint-disable no-use-before-define */
+  // Icons
+  inventoryIcon = document.getElementById('inventory');
+  overlay = document.getElementById('overlay');
+  inventory = document.querySelector('.inventory');
+  overlay.addEventListener('click', toggleInventoryOverlay);
+  inventoryIcon.addEventListener('click', toggleInventoryOverlay);
+  inventory.addEventListener('click', (e) => { e.preventDefault(); });
+
+  /**
+   *  just added these here for testing, uncomment to test -Eetu
+   */
+  Time.ingameTime(0);
+  Time.setTimer(4);
+
+  // Music - Might not work the first time
+  playMusic();
+
+  const emailIcon = document.getElementById('email');
+  const messageOverlay = document.getElementById('message-overlay-container');
+  emailIcon.addEventListener('click', () => {
+    renderMessageOverlay(messageOverlay);
+  });
+
+  /* eslint-enable no-use-before-define */
+
+
+
+
 
   // Add some random characters
   const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
@@ -233,32 +270,7 @@ window.addEventListener('load', async () => {
     clearStats();
     /* eslint-enable no-use-before-define */
   }, 1000);
-  /* eslint-disable no-use-before-define */
 
-  // Icons
-  inventoryIcon = document.getElementById('inventory');
-  overlay = document.getElementById('overlay');
-  inventory = document.querySelector('.inventory');
-  overlay.addEventListener('click', toggleInventoryOverlay);
-  inventoryIcon.addEventListener('click', toggleInventoryOverlay);
-  inventory.addEventListener('click', (e) => { e.preventDefault(); });
-
-  /**
-   *  just added these here for testing, uncomment to test -Eetu
-   */
-  Time.ingameTime(0);
-  Time.setTimer(4);
-
-  // Music - Might not work the first time
-  playMusic();
-
-  const emailIcon = document.getElementById('email');
-  const messageOverlay = document.getElementById('message-overlay-container');
-  emailIcon.addEventListener('click', () => {
-    renderMessageOverlay(messageOverlay);
-  });
-
-  /* eslint-enable no-use-before-define */
 });
 
 // Modified by the eventListener

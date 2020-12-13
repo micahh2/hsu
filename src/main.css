@@ -1,10 +1,8 @@
 * {
-  font-family: sans-serif;
+  font-family: 'Press start 2P';
 }
+
 html {
-  overflow: hidden;
-}
-body {
   color: white;
   height: 100%;
   width: 100%;
@@ -13,10 +11,10 @@ body {
   background-repeat: no-repeat;
   background-size: contain;
   background-color: rgb(100, 100, 100);
+  overflow: hidden;
 }
 
 #logo {
-  position: absolute;
   top: 20px;
   left: 20px;
   margin: 0;
@@ -69,7 +67,7 @@ body {
   display: none;
 }
 
-#icon {
+.icon {
   width: 4em;
   height: 4em;
   animation: spin 128s linear infinite;
@@ -158,9 +156,8 @@ body {
   margin: 0 auto;
 }
 
-#ingameTime{
+#ingameTime {
     margin-left: -36.5px;
-    width: 78px;
     align-items: center;
     text-align: center;
     background-color: rgba(55, 55, 55, 0.5);
@@ -187,10 +184,10 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
+}
 
 #message-overlay {
-  width: 400px;
-  margin-left: -200px;
+   -200px;
   background-color: grey;
   z-index: 3;
   position: relative;
@@ -206,11 +203,11 @@ body {
   margin-bottom: 1px;
   padding: 5px;
   display: flex;
-  justify-content: Left;
+  justify-content: left;
   font-weight: bold;
 }
 
-.accHead:hover {
+.acccHead:hover {
   background: grey;
 }
 
@@ -225,5 +222,26 @@ body {
   color: black;
   margin-bottom: 1px;
   display: none;
-  justify-content: Left;
+  justify-content: left;
+}
+
+.start-page-container {
+  width: 550px;
+  height: 700px;
+  left: 5;
+  height: 700px;
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  margin-top: -350px;
+  margin-left: -225px;
+  background-color: gray;
+  z-index: 4;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.start-page-container > * {
+  width: 100%;
 }
