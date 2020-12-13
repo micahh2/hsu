@@ -189,7 +189,8 @@ body {
     font-size: 10px;
 
 #message-overlay {
-  width: 400gin-:;  margin-left: -200px;
+  width: 400px;
+  margin-left: -200px;
   background-color: grey;
   z-index: 3;
   position: relative;
