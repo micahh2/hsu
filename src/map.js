@@ -160,7 +160,7 @@ export const Map = {
    */
   drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only }) {
     for (const layer of tilemap.layers) {
-      if (layer.type !== 'tilelayer') { continue; }
+      if (!layer.visible || layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
       Map.drawTileLayerToContext({
         layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,

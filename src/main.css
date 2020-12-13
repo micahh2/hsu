@@ -63,7 +63,7 @@ body {
   bottom: 0;
   right: 0;
   width: 100%;
-  height: 20%;
+  min-height: 20%;
   background: grey;
   padding: 30px;
   box-sizing: border-box;

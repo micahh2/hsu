@@ -18,6 +18,7 @@ const fetchTilesetData = new Promise((res) => {
     .then((response) => res(response.json()));
 });
 
+const zoomLevels = [1, 4];
 let eventQueue = [];
 window.addEventListener('load', async () => {
   const start = new Date(); // Save the start time
@@ -31,7 +32,7 @@ window.addEventListener('load', async () => {
   const tileSprites = Map.loadTileMapSprites({
     loadedTilesets,
     canvasProvider, // eslint-disable-line no-use-before-define
-    zoomLevels: [1, 2],
+    zoomLevels,
   });
 
   // Load elements from DOM (look in index.html)
@@ -58,7 +59,7 @@ window.addEventListener('load', async () => {
     tilemap,
     only: ['Buildings'],
     sprites: tileSprites,
-    zoomLevel: 1,
+    zoomLevel: zoomLevels[0],
   });
   const pixels = Camera.getContextPixels({
     context: virtualCanvas.getContext('2d'),
@@ -89,7 +90,7 @@ window.addEventListener('load', async () => {
       rows: 5, // How many rows
       padding: 60, // How much whitespace to ignore
       // How big should the cached tile versions be - we just have two sizes
-      scales: [gameState.player.width, gameState.player.width * 2],
+      scales: [gameState.player.width * zoomLevels[0], gameState.player.width * zoomLevels[1]],
     },
   }, canvasProvider); // eslint-disable-line no-use-before-define
   // set background
@@ -99,7 +100,7 @@ window.addEventListener('load', async () => {
     setCanvasResolution: Camera.setCanvasResolution,
     sprites: tileSprites,
     canvasWidth,
-    zoomLevels: [1, 2],
+    zoomLevels,
     canvasProvider, // eslint-disable-line no-use-before-define
   });
   // Wait for start
@@ -134,10 +135,6 @@ window.addEventListener('load', async () => {
   });
 
   /* eslint-enable no-use-before-define */
-
-
-
-
 
   // Add some random characters
   const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
@@ -197,7 +194,7 @@ window.addEventListener('load', async () => {
       mapHeight: physicsState.height,
       canvasWidth,
       canvasHeight,
-      scale: zoom ? 2 : 1, // eslint-disable-line no-use-before-define
+      scale: zoom ? zoomLevels[1] : zoomLevels[0], // eslint-disable-line no-use-before-define
     });
     Camera.drawScene({
       player: physicsState.player,
@@ -270,7 +267,6 @@ window.addEventListener('load', async () => {
     clearStats();
     /* eslint-enable no-use-before-define */
   }, 1000);
-
 });
 
 // Modified by the eventListener
