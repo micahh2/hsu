@@ -17,15 +17,10 @@ export const Music = {
     * */
   playTrack(trackId, volume, loop) {
     const song = document.querySelector(trackId);
-    if (volume) {
+    if (volume != null) {
       song.volume = volume;
     }
-    // check whether to loop the track
-    if (loop) {
-      song.loop = true;
-    } else {
-      song.loop = false;
-    }
+    song.loop = !!loop;
     // plays the selected track
     return song.play();
   },

@@ -243,6 +243,21 @@ window.addEventListener('load', async () => {
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
   inventory.addEventListener('click', (e) => { e.preventDefault(); });
 
+  /**
+   *  just added these here for testing, uncomment to test -Eetu
+   */
+  Time.ingameTime(0);
+  Time.setTimer(4);
+
+  // Music - Might not work the first time
+  playMusic();
+
+  const emailIcon = document.getElementById('email');
+  const messageOverlay = document.getElementById('message-overlay-container');
+  emailIcon.addEventListener('click', () => {
+    renderMessageOverlay(messageOverlay);
+  });
+
   /* eslint-enable no-use-before-define */
 });
 
@@ -324,6 +339,7 @@ window.addEventListener('keyup', (e) => {
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
+  playMusic(); // eslint-disable-line no-use-before-define
 });
 
 /**
@@ -539,9 +555,56 @@ function toggleInventoryOverlay(e) {
     overlayOpen = false;
   }
 }
-// play background music
-Music.playTrack('#backgroundchill', 0.2, true);
-// start ingameTime
-Time.ingameTime(0);
-// timer of 3 seconds, for testing
-Time.setTimer(3);
+
+function renderMessageOverlay(element) {
+  const innerEl = element.querySelector('#message-overlay');
+  const background = element.querySelector('.overlay');
+  const html = `
+    <button class="accHead">Course Schedule</button>
+    <div class="accBody">Unavilable.</div>
+
+    <button class="accHead">Reregistration for Next Semester</button>
+    <div class="accBody">Gib Money.</div>
+
+    <button class="accHead">Greetings from a Nigerian Prince</button>
+    <div class="accBody">Need help, send money and get money.</div>
+
+    <button class="accHead">Maultaschen?</button>
+    <div class="accBody">Maultaschen!</div>
+  `;
+  innerEl.innerHTML = html; // eslint-disable-line
+
+  let isOpen = true;
+  background.style.display = 'block';
+  innerEl.style.display = 'block';
+  background.addEventListener('click', () => {
+    if (isOpen) {
+      innerEl.style.display = 'none';
+      background.style.display = 'none';
+    } else {
+      innerEl.style.display = 'block';
+      background.style.display = 'block';
+    }
+    isOpen = !isOpen;
+  });
+
+  const accHeadList = innerEl.querySelectorAll('.accHead');
+  for (let i = 0; i < accHeadList.length; i++) {
+    accHeadList[i].addEventListener('click', (e) => {
+      e.preventDefault();
+      const accBodyList = e.target.nextElementSibling;
+      if (accBodyList.style.display === 'block') {
+        accBodyList.style.display = 'none';
+      } else {
+        accBodyList.style.display = 'block';
+      }
+    });
+  }
+}
+
+let playing = false;
+function playMusic() {
+  if (playing) { return; }
+  Music.playTrack('#backgroundchill', null, true).catch(() => { playing = false; });
+  playing = true;
+}
