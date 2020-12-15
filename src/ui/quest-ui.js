@@ -4,19 +4,23 @@ export const QuestUI = {
     overlay,
     quests,
   }) {
-  	const questHTMquest.L = quests.map((quest) => {
-  		const { title, tasks } = quest;  // TODO try to understand
-  		const taskHTML = tasks
-  			.filter((k) => !k.hidden)
-  			.map((k) => `<li>${k.description}</li>`)
-  			.join('');
-  		return `
+    const questHTMquest = quests.map((quest) => {
+      const {
+        title,
+        tasks
+      } = quest;  // TODO try to understand
+      const taskHTML = tasks
+        .filter((k) => !k.hidden)
+        .map((k) => `<li>${k.description}</li>`)
+        .join('');
+      return `
   			<input type="button" class="accordion-toggle" value="${title}">
   			<div class="accordion-expandable">
   				<ol>${taskHTML}</ol>
   			</div>
   		`;
-  	}).join('');
+    })
+      .join('');
 
     overlay.innerHTML = ` <div class="container">
   		 <div class="overlay"></div>
@@ -29,28 +33,34 @@ export const QuestUI = {
 
     const background = overlay.querySelector('.overlay');
     QuestUI.show(background);
-    background.addEventListener('click', () => { QuestUI.hide(overlay); });
+    background.addEventListener('click', () => {
+      QuestUI.hide(overlay);
+    });
 
     const toggles = overlay.querySelectorAll('.accordion-toggle');
     toggles.forEach((toggle) => {
       const sibling = toggle.nextElementSibling;
       QuestUI.hide(sibling);
-      toggle.addEventListener('click', () => { QuestUI.toggle(sibling); });
+      toggle.addEventListener('click', () => {
+        QuestUI.toggle(sibling);
+      });
     });
 
-    icon.addEventListener('click', () => { QuestUI.toggle(overlay); });
+    icon.addEventListener('click', () => {
+      QuestUI.toggle(overlay);
+    });
   },
   show(element) {
-  	element.style.display = 'block';
+    element.style.display = 'block';
   },
   hide(element) {
-  	element.style.display = 'none';
+    element.style.display = 'none';
   },
   toggle(element) {
-  	if (element.style.display === 'none') {
-  		QuestUI.show(element);
-  	} else {
-  		QuestUI.hide(element);
-  	}
+    if (element.style.display === 'none') {
+      QuestUI.show(element);
+    } else {
+      QuestUI.hide(element);
+    }
   },
 };

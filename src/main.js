@@ -42,7 +42,10 @@ window.addEventListener('load', async () => {
 
   // Get bounds pixels and context
   const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
-  const { canvasWidth, canvasHeight } = layoutCanvasData;
+  const {
+    canvasWidth,
+    canvasHeight
+  } = layoutCanvasData;
 
   // mapDim.width, mapDim.height
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
@@ -95,13 +98,19 @@ window.addEventListener('load', async () => {
   });
 
   // Add some random characters
-  const newCharacters = new Array(4).fill(gameState.characters[0]).map((t, i) => {
-    let spriteIndex = 8;
-    while (spriteIndex === 8) { spriteIndex = Math.floor(Math.random() * 13); }
-    return {
-      ...t, id: i + gameState.characters.length + 1, spriteIndex, type: '',
-    }; // other NPCs' IDs follow the 'vip' NPCs'
-  });
+  const newCharacters = new Array(4).fill(gameState.characters[0])
+    .map((t, i) => {
+      let spriteIndex = 8;
+      while (spriteIndex === 8) {
+        spriteIndex = Math.floor(Math.random() * 13);
+      }
+      return {
+        ...t,
+        id: i + gameState.characters.length + 1,
+        spriteIndex,
+        type: '',
+      }; // other NPCs' IDs follow the 'vip' NPCs'
+    });
 
   let storyChanges;
   let oldViewport;
@@ -216,7 +225,11 @@ window.addEventListener('load', async () => {
   setInterval(() => {
     /* eslint-disable no-use-before-define */
     updateDiagnostDisp({
-      fps: frames, mapMakingTime, collisionTime, collisionChecks, collisionCalls,
+      fps: frames,
+      mapMakingTime,
+      collisionTime,
+      collisionChecks,
+      collisionCalls,
     });
     clearStats();
     /* eslint-enable no-use-before-define */
@@ -229,7 +242,9 @@ window.addEventListener('load', async () => {
   inventory = document.querySelector('.inventory');
   overlay.addEventListener('click', toggleInventoryOverlay);
   inventoryIcon.addEventListener('click', toggleInventoryOverlay);
-  inventory.addEventListener('click', (e) => { e.preventDefault(); });
+  inventory.addEventListener('click', (e) => {
+    e.preventDefault();
+  });
 
   // Quest UI
   const quests = [{
@@ -239,12 +254,19 @@ window.addEventListener('load', async () => {
     title: 'Find your notebook',
     tasks: [
       { description: 'You last left your notebook in a classroom. Talk to your teachers.' },
-      { description: 'Frau Kold says another student picked it up!', hidden: true },
+      {
+        description: 'Frau Kold says another student picked it up!',
+        hidden: true
+      },
     ],
   }];
   const questIcon = document.getElementById('quest'); // HTMLElement
   const questOverlay = document.getElementById('quest-overlay'); // HTMLElement
-  QuestUI.renderOverlay({ icon: questIcon, overlay: questOverlay, quests });
+  QuestUI.renderOverlay({
+    icon: questIcon,
+    overlay: questOverlay,
+    quests
+  });
   /* eslint-enable no-use-before-define */
 });
 
@@ -259,7 +281,9 @@ let zoom = false;
 let enableConversation = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
 
   switch (e.code) {
     case 'KeyS':
@@ -288,7 +312,9 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => {
   // Do nothing if event already handled
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
 
   switch (e.code) {
     case 'KeyS':
@@ -345,7 +371,7 @@ function canvasProvider() {
  * @param {Character} conversation.character
  * @param {currentDialog} conversation.currentDialog
  * @example
-      renderConversation(gameState.conversation);
+ renderConversation(gameState.conversation);
  */
 function renderConversation(conversation, updateConvo) {
   const el = document.getElementById('conversation');
@@ -353,7 +379,10 @@ function renderConversation(conversation, updateConvo) {
     el.style.display = 'none';
     return;
   }
-  const { character, currentDialog } = conversation;
+  const {
+    character,
+    currentDialog
+  } = conversation;
   const { response } = currentDialog;
   const goodbye = { query: 'Goodbye' };
   const options = (currentDialog.options || []).concat(goodbye);
@@ -361,9 +390,11 @@ function renderConversation(conversation, updateConvo) {
   el.style.display = 'block';
 
   // add multiple conversation options
-  const optionHTML = Object.keys(options).map(
-    (i) => `<button class="option_button">${options[i].query}</button><br>`,
-  ).join('');
+  const optionHTML = Object.keys(options)
+    .map(
+      (i) => `<button class="option_button">${options[i].query}</button><br>`,
+    )
+    .join('');
 
   const html = `<p>
                  <b>${character.name}:</b>
@@ -378,17 +409,24 @@ function renderConversation(conversation, updateConvo) {
 
   // add onclick functions to all buttons
   const buttons = el.querySelectorAll('button');
-  Object.keys(options).forEach((i) => {
-    const button = buttons[i];
-    button.addEventListener('click', () => {
-      const option = options[i];
-      if (option === goodbye || option.response == null) {
-        updateConvo({ ...conversation, active: false });
-        return;
-      }
-      updateConvo({ ...conversation, currentDialog: option });
+  Object.keys(options)
+    .forEach((i) => {
+      const button = buttons[i];
+      button.addEventListener('click', () => {
+        const option = options[i];
+        if (option === goodbye || option.response == null) {
+          updateConvo({
+            ...conversation,
+            active: false
+          });
+          return;
+        }
+        updateConvo({
+          ...conversation,
+          currentDialog: option
+        });
+      });
     });
-  });
 
   if (!conversation.active) {
     el.style.display = 'none';
@@ -412,9 +450,15 @@ function renderConversation(conversation, updateConvo) {
  *    movePlayer({ player, width, height, up, down, left, right });
  */
 function movePlayer({
-  player, width, height, up, down, left, right,
+  player,
+  width,
+  height,
+  up,
+  down,
+  left,
+  right,
 }) {
-/* eslint-enable no-shadow */
+  /* eslint-enable no-shadow */
   let newPlayer = player;
   let prefix = '';
   if (up && !down) {
@@ -462,7 +506,7 @@ let collisionCalls = 0;
  * This clears all of the statistics/metrics that we've been keeping track of,
  * at somepoint it will be rewritten to be more flexible
  * @example
-    clearStats();
+ clearStats();
  */
 function clearStats() {
   frames = 0;
@@ -515,7 +559,11 @@ function updateStats(key, value) {
  * @param {number} args.collisionCalls
  */
 function updateDiagnostDisp({
-  fps, collisionTime, mapMakingTime, collisionChecks, collisionCalls,
+  fps,
+  collisionTime,
+  mapMakingTime,
+  collisionChecks,
+  collisionCalls,
 }) {
   /* eslint-enable no-shadow */
   const el = document.getElementById('fps');
@@ -531,8 +579,11 @@ let overlayOpen = false;
 let inventoryIcon;
 let overlay;
 let inventory;
+
 function toggleInventoryOverlay(e) {
-  if (e.defaultPrevented) { return; }
+  if (e.defaultPrevented) {
+    return;
+  }
   if (!overlayOpen) {
     overlay.style.display = 'block';
     overlayOpen = true;
@@ -541,6 +592,7 @@ function toggleInventoryOverlay(e) {
     overlayOpen = false;
   }
 }
+
 // play background music
 Music.playTrack('#backgroundchill', 0.2, true);
 // start ingameTime
