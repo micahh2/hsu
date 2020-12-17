@@ -46,12 +46,13 @@ describe('aStar', () => {
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).to.eql([
+      { x: 2, y: 4 },
       { x: 3, y: 4 },
       { x: 4, y: 3 },
-      { x: 3, y: 2 },
+      { x: 2, y: 2 },
       { x: 1, y: 2 },
       { x: 0, y: 1 },
-      { x: 1, y: 0 },
+      { x: 3, y: 0 },
       finish,
     ]);
   });
@@ -68,7 +69,12 @@ describe('aStar', () => {
     ]);
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([{ x: 0, y: 1 }, { x: 1, y: 0 }, finish]);
+    expect(path).to.eql([
+      { x: 0, y: 2 },
+      { x: 0, y: 1 },
+      { x: 3, y: 0 },
+      finish,
+    ]);
   });
 
   it('should generate a diagonal path', () => {
@@ -83,7 +89,10 @@ describe('aStar', () => {
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([finish]);
+    expect(path).to.eql([
+      { x: 3, y: 1 },
+      finish,
+    ]);
   });
 
   it('should go straight over a wall, then diagonal to the right', () => {
@@ -98,7 +107,12 @@ describe('aStar', () => {
     const finish = { x: 4, y: 3 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([{ x: 0, y: 1 }, { x: 1, y: 0 }, finish]);
+    expect(path).to.eql([
+      { x: 0, y: 2 },
+      { x: 0, y: 1 },
+      { x: 3, y: 2 },
+      finish,
+    ]);
   });
 
   it('should go straight up, diagonal over the wall, and straight down', () => {
@@ -113,7 +127,11 @@ describe('aStar', () => {
     const finish = { x: 4, y: 2 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([{ x: 2, y: 0 }, finish]);
+    expect(path).to.eql([
+      { x: 1, y: 1 },
+      { x: 3, y: 1 },
+      finish,
+    ]);
   });
 
   it('should first go up-right (diagonal), then down a corridor', () => {
@@ -128,15 +146,14 @@ describe('aStar', () => {
     const finish = { x: 4, y: 4 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).to.eql([
-      { x: 2, y: 2 },
       { x: 2, y: 1 },
       { x: 3, y: 0 },
-      { x: 4, y: 1 },
+      { x: 4, y: 3 },
       finish,
     ]);
   });
 });
-
+// TODO Check from line this downwards
 describe('areNeighbors', () => {
   it('should return true for two areas are neighbors', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
