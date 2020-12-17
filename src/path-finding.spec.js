@@ -30,7 +30,7 @@ function toObjectGraph(arrayGraph) {
       objectGraph.push(area);
     });
   });
-  return objectGraph;
+  return PathFinding.splitGraphIntoPoints(objectGraph, 1);
 }
 
 describe('aStar', () => {
@@ -119,16 +119,17 @@ describe('aStar', () => {
   it('should first go up-right (diagonal), then down a corridor', () => {
     const graph = toObjectGraph([
       [0, 0, 0, u, 0],
-      [0, 0, o, 1, u],
+      [0, 0, u, 1, u],
+      [0, 0, u, 1, o],
       [0, o, 0, 1, o],
-      [u, 0, 0, 1, o],
       [s, 0, 0, 1, f],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 4 };
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).to.eql([
-      { x: 0, y: 3 },
+      { x: 2, y: 2 },
+      { x: 2, y: 1 },
       { x: 3, y: 0 },
       { x: 4, y: 1 },
       finish,
@@ -182,7 +183,14 @@ describe('gridToGraph', () => {
       height: 5,
       actorSize: 2,
     });
-    expect(graph).to.eql([{ x: 0, y: 0, width: 5, height: 5, neighbors: [] }]);
+    expect(graph).to.eql([{
+      x: 0,
+      y: 0,
+      width: 5,
+      height: 5,
+      neighbors: [],
+      points: [],
+    }]);
   });
 
   it('should receive a blocked grid and return an empty graph', () => {
@@ -245,13 +253,15 @@ describe('gridToGraph', () => {
   });
 
   it('grid to graph using A*', () => {
+    const m = 0;
+    const n = 0;
     const grid = [
       [1, 0, 0, 0, f, f],
-      [0, 1, 0, 0, o, o],
-      [0, 0, 1, 0, o, o],
-      [0, 0, 0, 0, 0, 0],
-      [s, s, 0, 0, o, o],
-      [s, s, 0, 0, o, o],
+      [0, 1, 0, 0, f, f],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 1, o, 0],
+      [s, s, 0, m, n, 0],
+      [s, s, 0, 0, 0, 0],
     ];
     const graph = PathFinding.gridToGraph({
       grid,
@@ -264,9 +274,11 @@ describe('gridToGraph', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(graph.length).gt(0);
     expect(path).to.eql([
-      { x: 4, y: 4 },
-      { x: 4, y: 1 },
-      { x: 4, y: 0 },
+      { x: 3, y: 4 },
+      { x: 5, y: 5 },
+      { x: 4, y: 3 },
+      { x: 5, y: 2 },
+      finish,
     ]);
   });
 });
@@ -293,5 +305,119 @@ describe('hasBlock', () => {
 
     const res = PathFinding.hasBlock({ grid, x: 2, y: 2, width: 2, height: 2 });
     expect(res).true;
+  });
+});
+
+describe('getGatewayPoint', () => {
+  it('should pick the mid-point between two neighboring areas (x dir)', () => {
+    const a = { x: 0, y: 0, width: 10, height: 10 };
+    const b = { x: 10, y: 0, width: 10, height: 10 };
+    const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).to.eql({ x: 10, y: 5 });
+  });
+  it('should pick the mid-point between two neighboring areas (y dir)', () => {
+    const a = { x: 0, y: 0, width: 10, height: 10 };
+    const b = { x: 0, y: 10, width: 10, height: 10 };
+    const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).to.eql({ x: 5, y: 10 });
+  });
+  it('should pick the mid-point between two neighboring areas with a partial overlap', () => {
+    const a = { x: 0, y: 0, width: 10, height: 10 };
+    const b = { x: 4, y: 10, width: 10, height: 10 };
+    const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).to.eql({ x: 7, y: 10 });
+  });
+});
+
+describe('graphToForest', () => {
+  it('should split a graph into a forest of trees', () => {
+    const a = {};
+    const b = {};
+    const c = {};
+    a.neighbors = [b, c];
+    b.neighbors = [a, c];
+    c.neighbors = [a, b];
+    const graph = [a, b, c];
+    const forest = PathFinding.graphToForest(graph);
+    const leaf = { neighbors: [] };
+    expect(forest).to.eql([
+      { neighbors: [leaf, leaf] },
+      { neighbors: [leaf, leaf] },
+      { neighbors: [leaf, leaf] },
+    ]);
+  });
+  it('should work in a cycle', () => {
+    const a = {};
+    const b = {};
+    const c = {};
+    a.neighbors = [b];
+    b.neighbors = [c];
+    c.neighbors = [a];
+    const graph = [a, b, c];
+    const forest = PathFinding.graphToForest(graph);
+    const n = (t) => ({ neighbors: t });
+    expect(forest).to.eql([
+      n([n([n([])])]),
+      n([n([n([])])]),
+      n([n([n([])])]),
+    ]);
+  });
+  it('should work on a large graph', () => {
+    let a = {};
+    let graph = [a];
+    const n = 12;
+    for (let i = 0; i < n; i++) {
+      const b = {};
+      const c = {};
+      a.neighbors = [b];
+      b.neighbors = [c];
+      c.neighbors = [a];
+      graph = graph.concat([b, c]);
+      a = c;
+    }
+    const forest = PathFinding.graphToForest(graph);
+    expect(forest.length).to.equal(n * 2 + 1);
+    let count = 0;
+    let current = forest[0];
+    while (current.neighbors.length > 0) {
+      [current] = current.neighbors;
+      count++;
+    }
+    expect(count).to.equal(n * 2);
+  });
+});
+describe('splitGraphIntoPoints', () => {
+  it('should return a new graph with points', () => {
+    const a = { x: 0, y: 0, width: 10, height: 10 };
+    const b = { x: 10, y: 0, width: 10, height: 10 };
+    const c = { x: 0, y: 10, width: 10, height: 10 };
+    const d = { x: 10, y: 10, width: 10, height: 10 };
+    a.neighbors = [b, c];
+    b.neighbors = [a, d];
+    c.neighbors = [a, d];
+    d.neighbors = [b, c];
+    const graph = [a, b, c, d];
+    const newGraph = PathFinding.splitGraphIntoPoints(graph, 1);
+    expect(newGraph[0].points.map((t) => ({ x: t.x, y: t.y }))).to.eql([
+      { x: 10, y: 5 },
+      { x: 5, y: 10 },
+    ]);
+  });
+  it('should return a new graph with points when areas overlap', () => {
+    const a = { x: 0, y: 0, width: 10, height: 10 };
+    const b = { x: 10, y: 0, width: 10, height: 10 };
+    const c = { x: 0, y: 10, width: 20, height: 10 };
+    const d = { x: 20, y: 5, width: 10, height: 30 };
+    a.neighbors = [b, c];
+    b.neighbors = [a, c, d];
+    c.neighbors = [a, b, d];
+    d.neighbors = [b, c];
+    const graph = [a, b, c, d];
+    const newGraph = PathFinding.splitGraphIntoPoints(graph, 1);
+    expect(newGraph[1].points.map((t) => ({ x: t.x, y: t.y }))).to.eql([
+      { x: 10, y: 5 },
+      { x: 15, y: 10 },
+      { x: 20, y: 7 },
+    ]);
   });
 });

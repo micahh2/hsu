@@ -306,8 +306,8 @@ export const Story = {
       if (selector(actor)) {
         const finish = destination;
         const start = {
-          x: Math.round(actor.x + actor.width / 2),
-          y: Math.round(actor.y + actor.height / 2),
+          x: actor.x, // Math.round(actor.x + actor.width / 2),
+          y: actor.y, // Math.round(actor.y + actor.height / 2),
         };
         const waypoints = PathFinding.aStar({ graph, start, finish });
         return {

@@ -222,9 +222,22 @@ window.addEventListener('load', async () => {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
-    // Camera.drawDestinations({
-    //  viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d')
-    // });
+    if (debugPathfinding) {
+      Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
+      Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
+    }
+
+    oldViewport = viewport;
+    window.requestAnimationFrame(physicsLoop);
+  };
+  // Start main game loop
+  physicsLoop(performance.now());
+
+  // Update game state periodically (100ms)
+  let last = new Date();
+  setInterval(() => {
+    const timeSinceLast = new Date() - last;
+    // Update game state with the latest from physics
     gameState = {
       ...gameState,
       player: physicsState.player,
@@ -314,6 +327,7 @@ let attack = false;
 let pause = false;
 let zoom = false;
 let enableConversation = false;
+let debugPathfinding = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
   if (e.defaultPrevented) {
@@ -382,6 +396,9 @@ window.addEventListener('keyup', (e) => {
       break;
     case 'KeyC':
       enableConversation = !enableConversation; // eslint-disable-line no-use-before-define
+      break;
+    case 'Digit0':
+      debugPathfinding = !debugPathfinding;
       break;
     default:
       console.log(e.code); // eslint-disable-line no-console
