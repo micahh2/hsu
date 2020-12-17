@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding.js';
 
+const W = 0; // checking points
 const o = 0; // intermediate points when going without turn (the forward trace)
 const u = 0; // turning "u-points"
 const s = 0; // start point
@@ -12,16 +13,16 @@ function toObjectGraph(arrayGraph) {
   arrayGraph.forEach((a, i) => {
     a.forEach((b, j) => {
       if (arrayGraph[i][j] > 0) { return; }
-      const area = { x: j, y: i, width: 1, height: 1, neighbors: [] };
-      for (let l = 0; l < maxNumberOfNeighbors; l++) {
-        const offsetX = 1 - (l % 3);
-        const offsetY = 1 - Math.floor(l / 3);
+      const area = { x: j, y: i, width: 1, height: 1, neighbors: [] }; // TODO x: j, y: i,: verse-versa?
+      for (let l = 0; l < maxNumberOfNeighbors; l++) { // TODO can it be done by 2 loops?
+        const offsetX = 1 - (l % 3);              // 1  0 -1  1  0 -1  1  0 -1
+        const offsetY = 1 - Math.floor(l / 3); // 1  1  1  0  0  0 -1 -1 -1
         const newX = j + offsetX;
         const newY = i + offsetY;
-        if (offsetX === 0 && offsetY === 0) { continue; }
-        if (newY < 0 || newX < 0) { continue; }
-        if (newY >= arrayGraph.length || newX >= arrayGraph[0].length) { continue; }
-        if (arrayGraph[newY][newX] > 0) { continue; }
+        if (offsetX === 0 && offsetY === 0) { continue; } // no moving: no reason
+        if (newX < 0 || newY < 0) { continue; } // out of the borders: not allowed
+        if (newX >= arrayGraph[0].length || newY >= arrayGraph.length) { continue; } // out of the borders: not allowed
+        if (arrayGraph[newY][newX] > 0) { continue; } // no need to change anything in the objectGraph
         const neighbor = objectGraph.find((t) => t.x === newX && t.y === newY);
         if (!neighbor) { continue; }
         area.neighbors.push(neighbor);
@@ -34,24 +35,48 @@ function toObjectGraph(arrayGraph) {
 }
 
 describe('aStar', () => {
-  it('should find a valid path', () => {
+  it('should generate no path', () => {
     const graph = toObjectGraph([
-      [0, u, o, o, f],
-      [u, 1, 1, 1, 1],
-      [0, u, o, u, 0],
-      [1, 1, 1, 1, u],
-      [s, o, o, u, 0],
+      [0, 0, 1, 1, f],
+      [0, 1, 1, 1, 1],
+      [1, 1, 0, 1, 1],
+      [1, 0, 1, 1, 0],
+      [s, 1, 1, 0, 0],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
     expect(path).to.eql([
+      // { x: 1, y: 3 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 2 }, // TODO Why is this point not in the rout?
+      // finish, // the finish is not reachable => the empty array is generated
+    ]);
+  });
+
+  it('should find a valid path', () => {
+    const graph = toObjectGraph([
+      [0, u, o, W, f],
+      [W, 1, 1, 1, 1],
+      [0, W, W, u, 0],
+      [1, 1, 1, 1, W],
+      [s, o, W, W, 0],
+    ]);
+    const start = { x: 0, y: 4 };
+    const finish = { x: 4, y: 0 };
+    const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
+    expect(path).to.eql([
+      // { x: 1, y: 4 }, // TODO Why is this point not in the rout?
       { x: 2, y: 4 },
       { x: 3, y: 4 },
       { x: 4, y: 3 },
+      // { x: 3, y: 2 }, // TODO Why is this point not in the rout?
       { x: 2, y: 2 },
       { x: 1, y: 2 },
       { x: 0, y: 1 },
+      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 0 }, // TODO Why is this point not in the rout?
       { x: 3, y: 0 },
       finish,
     ]);
@@ -61,17 +86,20 @@ describe('aStar', () => {
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const graph = toObjectGraph([
-      [0, o, 0, 0, f],
-      [o, 1, 1, 1, 1],
-      [0, 1, 0, 0, 0],
+      [0, o, 0, W, f],
+      [W, 1, 1, 1, 1],
+      [W, 1, 0, 0, 0],
       [0, 1, 0, 0, 0],
       [s, 1, 0, 0, 0],
     ]);
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
+      // { x: 0, y: 3 }, // TODO Why is this point not in the rout?
       { x: 0, y: 2 },
       { x: 0, y: 1 },
+      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 0 }, // TODO Why is this point not in the rout?
       { x: 3, y: 0 },
       finish,
     ]);
@@ -80,7 +108,7 @@ describe('aStar', () => {
   it('should generate a diagonal path', () => {
     const graph = toObjectGraph([
       [0, 0, 1, 1, f],
-      [0, 1, 1, o, 1],
+      [0, 1, 1, W, 1],
       [1, 1, o, 1, 1],
       [1, o, 1, 1, 0],
       [s, 1, 1, 0, 0],
@@ -90,6 +118,8 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
+      // { x: 1, y: 3 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 2 }, // TODO Why is this point not in the rout?
       { x: 3, y: 1 },
       finish,
     ]);
@@ -98,8 +128,8 @@ describe('aStar', () => {
   it('should go straight over a wall, then diagonal to the right', () => {
     const graph = toObjectGraph([
       [0, u, 0, 0, 0],
-      [u, 1, o, 0, 0],
-      [o, 1, 0, o, 0],
+      [W, 1, o, 0, 0],
+      [W, 1, 0, W, 0],
       [o, 1, 0, 0, f],
       [s, 1, 0, 0, 0],
     ]);
@@ -108,8 +138,11 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
+      // { x: 0, y: 3 }, // TODO Why is this point not in the rout?
       { x: 0, y: 2 },
       { x: 0, y: 1 },
+      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 1 }, // TODO Why is this point not in the rout?
       { x: 3, y: 2 },
       finish,
     ]);
@@ -118,7 +151,7 @@ describe('aStar', () => {
   it('should go straight up, diagonal over the wall, and straight down', () => {
     const graph = toObjectGraph([
       [0, 0, u, 0, 0],
-      [0, o, 1, o, 0],
+      [0, W, 1, W, 0],
       [s, 0, 1, 0, f],
       [0, 0, 1, 0, 0],
       [0, 0, 1, 0, 0],
@@ -129,6 +162,7 @@ describe('aStar', () => {
     expect(path).not.null;
     expect(path).to.eql([
       { x: 1, y: 1 },
+      // { x: 2, y: 1 }, // TODO Why is this point not in the rout?
       { x: 3, y: 1 },
       finish,
     ]);
@@ -136,18 +170,23 @@ describe('aStar', () => {
 
   it('should first go up-right (diagonal), then down a corridor', () => {
     const graph = toObjectGraph([
-      [0, 0, 0, u, 0],
-      [0, 0, u, 1, u],
-      [0, 0, u, 1, o],
-      [0, o, 0, 1, o],
+      [0, 0, 0, W, 0],
+      [0, 0, W, 1, u],
+      [0, 0, W, 1, o],
+      [0, W, 0, 1, W],
       [s, 0, 0, 1, f],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 4 };
     const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
     expect(path).to.eql([
+      { x: 1, y: 3 },
+      { x: 2, y: 2 },
       { x: 2, y: 1 },
       { x: 3, y: 0 },
+      // { x: 4, y: 1 }, // TODO Why is this point not in the rout?
+      // { x: 4, y: 2 }, // TODO Why is this point not in the rout?
       { x: 4, y: 3 },
       finish,
     ]);
@@ -160,6 +199,7 @@ describe('areNeighbors', () => {
     const b = { x: 10, y: 0, width: 10, height: 10 };
 
     const result = PathFinding.areNeighbors(a, b, 4);
+    expect(result).not.null;
     expect(result).true;
   });
   it('should return false for two areas which are not neighbors', () => {
@@ -167,6 +207,7 @@ describe('areNeighbors', () => {
     const b = { x: 10, y: 10, width: 10, height: 10 };
 
     const result = PathFinding.areNeighbors(a, b, 4);
+    expect(result).not.null;
     expect(result).false;
   });
   it('should return true for a neighbor below it', () => {
@@ -174,6 +215,7 @@ describe('areNeighbors', () => {
     const b = { x: 0, y: 2, width: 2, height: 2 };
 
     const result = PathFinding.areNeighbors(a, b, 2);
+    expect(result).not.null;
     expect(result).true;
   });
   it('should return true for an offset neighbor to the side', () => {
@@ -181,13 +223,14 @@ describe('areNeighbors', () => {
     const b = { x: 3, y: 1, width: 3, height: 3 };
 
     const result = PathFinding.areNeighbors(a, b, 2);
+    expect(result).not.null;
     expect(result).true;
   });
 });
 
 describe('gridToGraph', () => {
   it('should receive a grid and return a graph', () => {
-    const grid = [
+    const grid = [ // TODO 0-grid
       [0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0],
@@ -200,7 +243,8 @@ describe('gridToGraph', () => {
       height: 5,
       actorSize: 2,
     });
-    expect(graph).to.eql([{
+    expect(graph).not.null;
+    expect(graph).to.eql([{ // TODO with the non-empty object {...}
       x: 0,
       y: 0,
       width: 5,
@@ -211,7 +255,7 @@ describe('gridToGraph', () => {
   });
 
   it('should receive a blocked grid and return an empty graph', () => {
-    const grid = [
+    const grid = [ // TODO 0-grid
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
@@ -224,11 +268,12 @@ describe('gridToGraph', () => {
       height: 5,
       actorSize: 2,
     });
-    expect(graph).to.eql([]);
+    expect(graph).not.null;
+    expect(graph).to.eql([]); // TODO with the non-empty object {}
   });
 
   it('should receive a mixed grid and return a graph with neighbors', () => {
-    const grid = [
+    const grid = [ // TODO 0,1-mixed-grid
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 1, 1],
@@ -240,6 +285,7 @@ describe('gridToGraph', () => {
       height: 4,
       actorSize: 2,
     });
+    expect(graph).not.null;
     expect(graph.length).to.eql(3);
     expect(graph[0].neighbors.length).to.eql(2);
   });
@@ -264,6 +310,7 @@ describe('gridToGraph', () => {
       height: 6,
       actorSize: 1,
     });
+    expect(graph).not.null;
     expect(graph.length).to.eql(6, 'Incorrect number of areas');
     const aArea = graph.find((t) => t.x === 0 && t.y === 0);
     expect(aArea.neighbors.length).to.eql(2, 'Incorrect number of neighbors');
@@ -286,9 +333,11 @@ describe('gridToGraph', () => {
       height: 6,
       actorSize: 2,
     });
+    expect(graph).not.null;
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const path = PathFinding.aStar({ graph, start, finish });
+    expect(path).not.null;
     expect(graph.length).gt(0);
     expect(path).to.eql([
       { x: 3, y: 4 },
@@ -308,8 +357,8 @@ describe('hasBlock', () => {
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
     ];
-
     const res = PathFinding.hasBlock({ grid, x: 0, y: 0, width: 5, height: 5 });
+    expect(res).not.null;
     expect(res).true;
   });
   it('should receive a partially blocked grid and return true', () => {
@@ -319,8 +368,8 @@ describe('hasBlock', () => {
       [0, 0, 1, 1],
       [0, 0, 1, 1],
     ];
-
     const res = PathFinding.hasBlock({ grid, x: 2, y: 2, width: 2, height: 2 });
+    expect(res).not.null;
     expect(res).true;
   });
 });
@@ -330,18 +379,21 @@ describe('getGatewayPoint', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
     const b = { x: 10, y: 0, width: 10, height: 10 };
     const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).not.null;
     expect(gatewayPoint).to.eql({ x: 10, y: 5 });
   });
   it('should pick the mid-point between two neighboring areas (y dir)', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
     const b = { x: 0, y: 10, width: 10, height: 10 };
     const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).not.null;
     expect(gatewayPoint).to.eql({ x: 5, y: 10 });
   });
   it('should pick the mid-point between two neighboring areas with a partial overlap', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
     const b = { x: 4, y: 10, width: 10, height: 10 };
     const gatewayPoint = PathFinding.getGatewayPoint(a, b, 1);
+    expect(gatewayPoint).not.null;
     expect(gatewayPoint).to.eql({ x: 7, y: 10 });
   });
 });
@@ -356,6 +408,7 @@ describe('graphToForest', () => {
     c.neighbors = [a, b];
     const graph = [a, b, c];
     const forest = PathFinding.graphToForest(graph);
+    expect(forest).not.null;
     const leaf = { neighbors: [] };
     expect(forest).to.eql([
       { neighbors: [leaf, leaf] },
@@ -372,6 +425,7 @@ describe('graphToForest', () => {
     c.neighbors = [a];
     const graph = [a, b, c];
     const forest = PathFinding.graphToForest(graph);
+    expect(forest).not.null;
     const n = (t) => ({ neighbors: t });
     expect(forest).to.eql([
       n([n([n([])])]),
@@ -393,6 +447,7 @@ describe('graphToForest', () => {
       a = c;
     }
     const forest = PathFinding.graphToForest(graph);
+    expect(forest).not.null;
     expect(forest.length).to.equal(n * 2 + 1);
     let count = 0;
     let current = forest[0];
@@ -415,6 +470,7 @@ describe('splitGraphIntoPoints', () => {
     d.neighbors = [b, c];
     const graph = [a, b, c, d];
     const newGraph = PathFinding.splitGraphIntoPoints(graph, 1);
+    expect(newGraph).not.null;
     expect(newGraph[0].points.map((t) => ({ x: t.x, y: t.y }))).to.eql([
       { x: 10, y: 5 },
       { x: 5, y: 10 },
@@ -431,6 +487,7 @@ describe('splitGraphIntoPoints', () => {
     d.neighbors = [b, c];
     const graph = [a, b, c, d];
     const newGraph = PathFinding.splitGraphIntoPoints(graph, 1);
+    expect(newGraph).not.null;
     expect(newGraph[1].points.map((t) => ({ x: t.x, y: t.y }))).to.eql([
       { x: 10, y: 5 },
       { x: 15, y: 10 },

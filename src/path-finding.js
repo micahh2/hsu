@@ -8,7 +8,7 @@ export const PathFinding = {
    * A* Path Finding
    */
   aStar({ graph, start, finish }) {
-    let startPlace = graph.find((t) => PathFinding.inArea(t, start))
+    let startPlace = graph.find((t) => PathFinding.inArea(t, start));
     if (startPlace == null) {
       startPlace = graph.map((t) => ({
         node: t,
@@ -32,7 +32,9 @@ export const PathFinding = {
       // Don't go in a cycle/loop
       const { points } = place;
       if (points == null) {
+        // eslint-disable-next-line no-console
         console.log('Place', place);
+        // eslint-disable-next-line no-debugger
         debugger;
       }
       for (let i = 0; i < points.length; i++) {
@@ -41,7 +43,7 @@ export const PathFinding = {
         const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };
         newPlace.runningCost = (place.runningCost || 0)
           + PathFinding.moveCost(place.from || place, point);
-        newPlace.cost = newPlace.runningCost;
+        newPlace.cost = newPlace.runningCost // TODO Do we need ";" here ?
           + PathFinding.distanceCost(point, finish);
 
         nextPlaces.push(newPlace);
@@ -290,12 +292,14 @@ export const PathFinding = {
     const key = (t) => `${t.x}:${t.y}`;
     return graph.map((t) => {
       const node = { ...t };
+      // eslint-disable-next-line no-param-reassign
       replace[key(node)] = node;
       node.points = node.neighbors.map((k) => {
         const neighborKey = key(k);
         const neighbor = replace[neighborKey] != null
           ? replace[neighborKey]
           : PathFinding.splitGraphIntoPoints([k], minSize, replace)[0];
+        // eslint-disable-next-line no-param-reassign
         replace[neighborKey] = neighbor;
         return {
           ...PathFinding.getGatewayPoint(k, node, minSize),
