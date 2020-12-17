@@ -31,9 +31,7 @@ export const Music = {
 
   updateVolume() {
     const newVolume = document.getElementById('rangeSlider').value;
-    document.querySelectorAll('audio').forEach((element) => {
-      element.volume = newVolume; // eslint-disable-line no-param-reassign
-    });
+    document.querySelectorAll('audio').forEach((element) => element.volume = newVolume);
     document.getElementById('range_value').innerText = `${parseInt((`${newVolume * 100}`), 10)}%`;
   },
 };

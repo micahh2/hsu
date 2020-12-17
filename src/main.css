@@ -16,12 +16,6 @@ body {
   background-color: rgb(100, 100, 100);
 }
 
-button,
-input[type="button"]
-{
-    padding: 5px;
-}
-
 #logo {
   position: absolute;
   top: 20px;
@@ -198,10 +192,9 @@ input[type="button"]
 
 .music {
   position: fixed;
-  top: 0;
-  left: 63%;
+  top: 1%;
+  left: 60%;
   text-align: center;
-  display: flex;
 }
 
 .slider {
@@ -211,9 +204,11 @@ input[type="button"]
   border: 2px solid black;
   outline: none;
   background-color: rgba(55, 55, 55, 0.5);
-  -webkit-appearance: none;
 }
 #musicnote {
+  position: fixed;
+  top: 0;
+  left: 57%;
   padding: 5px;
   background-color: rgba(55, 55, 55, 0.5);
   border-radius: 0 0 5px 5px;
@@ -226,11 +221,8 @@ input[type="button"]
   opacity: 1.0;
 }
 #volumeslider {
-  margin-top: 10px;
-  margin-left: 10px;
   visibility: hidden;
 }
-
 .rangevalue {
   position: relative;
   top: 8px;
@@ -242,33 +234,27 @@ input[type="button"]
   border-radius: 5px;
   border: 2px solid black;
 }
-
 /*
 * For some reason the styling doesn't work on other browsers than firefox,
 * maybe someone more knowledgeable than me can fix it
 */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 6px;
   height: 16px;
   border-radius: 5px;
   border: 2px solid black;
   background: #ffffff;
   cursor: pointer;
-  padding: 2px;
 }
 .slider::-moz-range-thumb {
-  -moz-appearance: none;
-  appearance: none;
+  -webkit-appearance: none;
   width: 6px;
   height: 16px;
   border-radius: 5px;
   border: 2px solid black;
   background: #ffffff;
   cursor: pointer;
-
-
 }
 
 #message-overlay {
@@ -313,12 +299,11 @@ input[type="button"]
 
 .start-page-container {
   width: 550px;
-  height: 80%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  top: 10%;
+  height: 700px;
+  top: 50%;
   left: 50%;
   position: absolute;
+  margin-top: -350px;
   margin-left: -225px;
   background-color: gray;
   z-index: 4;
