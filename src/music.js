@@ -15,11 +15,8 @@ export const Music = {
     * for it in index.html like the following:
     * <audio src="assets/music/yourfile.extension" id="yourID"></audio>
     * */
-  playTrack(trackId, volume, loop) {
+  playTrack(trackId, loop) {
     const song = document.querySelector(trackId);
-    if (volume != null) {
-      song.volume = volume;
-    }
     song.loop = !!loop;
     // plays the selected track
     return song.play();
@@ -30,5 +27,11 @@ export const Music = {
   stopTrack(trackId) {
     const song = document.querySelector(trackId);
     return song.pause();
+  },
+
+  updateVolume() {
+    const newVolume = document.getElementById('rangeSlider').value;
+    document.querySelectorAll('audio').forEach((element) => element.volume = newVolume);
+    document.getElementById('range_value').innerText = `${parseInt((`${newVolume * 100}`), 10)}%`;
   },
 };

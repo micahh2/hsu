@@ -690,6 +690,23 @@ function renderMessageOverlay(element) {
 let playing = false;
 function playMusic() {
   if (playing) { return; }
-  Music.playTrack('#backgroundchill', null, true).catch(() => { playing = false; });
+  Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
   playing = true;
 }
+
+// updates the volume based on where the volumeslider is
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('rangeSlider').addEventListener('input', Music.updateVolume);
+});
+
+const musicnote = document.getElementById('musicnote');
+let currentstate = false;
+const volumeslider = document.getElementById('volumeslider');
+musicnote.addEventListener('click', () => {
+  if (currentstate) {
+    volumeslider.style.visibility = 'hidden';
+  } else {
+    volumeslider.style.visibility = 'visible';
+  }
+  currentstate = !currentstate;
+});

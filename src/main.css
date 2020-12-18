@@ -16,6 +16,12 @@ body {
   background-color: rgb(100, 100, 100);
 }
 
+button,
+input[type="button"]
+{
+    padding: 5px;
+}
+
 #logo {
   position: absolute;
   top: 20px;
@@ -188,6 +194,81 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
+}
+
+.music {
+  position: fixed;
+  top: 0;
+  left: 63%;
+  text-align: center;
+  display: flex;
+}
+
+.slider {
+  width: 150px;
+  height: 10px;
+  border-radius: 5px;
+  border: 2px solid black;
+  outline: none;
+  background-color: rgba(55, 55, 55, 0.5);
+  -webkit-appearance: none;
+}
+#musicnote {
+  padding: 5px;
+  background-color: rgba(55, 55, 55, 0.5);
+  border-radius: 0 0 5px 5px;
+  border: 2px solid black;
+  border-top: none;
+
+  opacity: 0.9;
+}
+#musicnote:hover {
+  opacity: 1.0;
+}
+#volumeslider {
+  margin-top: 10px;
+  margin-left: 10px;
+  visibility: hidden;
+}
+
+.rangevalue {
+  position: relative;
+  top: 8px;
+  font-family: 'Press Start 2P';
+  color:#00dd3c;
+  font-size: 10px;
+  padding: 4px;
+  background-color: rgba(55, 55, 55, 0.5);
+  border-radius: 5px;
+  border: 2px solid black;
+}
+
+/*
+* For some reason the styling doesn't work on other browsers than firefox,
+* maybe someone more knowledgeable than me can fix it
+*/
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 6px;
+  height: 16px;
+  border-radius: 5px;
+  border: 2px solid black;
+  background: #ffffff;
+  cursor: pointer;
+  padding: 2px;
+}
+.slider::-moz-range-thumb {
+  -moz-appearance: none;
+  appearance: none;
+  width: 6px;
+  height: 16px;
+  border-radius: 5px;
+  border: 2px solid black;
+  background: #ffffff;
+  cursor: pointer;
+
+
 }
 
 #message-overlay {
