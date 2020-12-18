@@ -13,8 +13,7 @@ toc:
         - updateDiagnostDisp
         - renderConversation
         - canvasProvider
-        - tim
-        - setTimer
+        - ingameTime
   - name: Modules
     children:
         - Camera
@@ -25,6 +24,7 @@ toc:
         - Story
         - Util
         - Music
+        - PathFinding
   - name: Tests
     file: test-report.md
   - name: Roadmap
