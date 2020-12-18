@@ -15,7 +15,7 @@ function toObjectGraph(arrayGraph) {
       if (arrayGraph[i][j] > 0) { return; }
       const area = { x: j, y: i, width: 1, height: 1, neighbors: [] }; // TODO x: j, y: i,: verse-versa?
       for (let l = 0; l < maxNumberOfNeighbors; l++) { // TODO can it be done by 2 loops?
-        const offsetX = 1 - (l % 3);              // 1  0 -1  1  0 -1  1  0 -1
+        const offsetX = 1 - (l % 3); // 1  0 -1  1  0 -1  1  0 -1
         const offsetY = 1 - Math.floor(l / 3); // 1  1  1  0  0  0 -1 -1 -1
         const newX = j + offsetX;
         const newY = i + offsetY;
