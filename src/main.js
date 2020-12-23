@@ -8,6 +8,7 @@ import { Music } from './music.js';
 import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
+import { Util } from './util.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -18,10 +19,7 @@ const fetchTilesetData = new Promise((res) => {
     .then((response) => res(response.json()));
 });
 
-const storyWorker = new Worker(
-  new URL('./workers/story-worker.js', import.meta.url),
-  { type: 'module' },
-);
+const storyWorker = new Worker('./workers/story-worker.js');
 
 function sendStoryEvent(event) {
   storyWorker.postMessage({ type: 'add-event', event });
@@ -226,28 +224,12 @@ window.addEventListener('load', async () => {
       Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
       Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
     }
-
-    oldViewport = viewport;
-    window.requestAnimationFrame(physicsLoop);
-  };
-  // Start main game loop
-  physicsLoop(performance.now());
-
-  // Update game state periodically (100ms)
-  let last = new Date();
-  setInterval(() => {
-    const timeSinceLast = new Date() - last;
-    // Update game state with the latest from physics
     gameState = {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
     };
-    storyWorker.postMessage({
-      type: 'update-game-state',
-      gameState,
-      flags: { attack, enableConversation }, // eslint-disable-line no-use-before-define
-    });
+    storyWorker.postMessage({ type: 'update-game-state', gameState })
 
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
@@ -255,9 +237,14 @@ window.addEventListener('load', async () => {
   // Start main game loop
   physicsLoop(performance.now());
 
-  /// / Update game state with the latest from physics
+  storyWorker.postMessage({
+    type: 'load-modules',
+    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t))
+  });
+  //// Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
-    storyChanges = e.data;
+    const newGameState = e.data;
+    storyChanges = Story.getChanges(gameState, newGameState);
     /* eslint-disable no-use-before-define */
     if (storyChanges.conversation != null) {
       const updateConvo = (newConvo) => {
@@ -267,6 +254,7 @@ window.addEventListener('load', async () => {
       enableConversation = false;
     }
     /* eslint-enable no-use-before-define */
+    gameState = newGameState;
   };
 
   // Update FPS/other stats every 1000ms

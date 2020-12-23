@@ -1,0 +1,4 @@
+export Worker = {
+  spawn('worker', ) {
+  }
+};
