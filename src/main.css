@@ -313,11 +313,12 @@ input[type="button"]
 
 .start-page-container {
   width: 550px;
-  height: 700px;
-  top: 50%;
+  height: 80%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  top: 10%;
   left: 50%;
   position: absolute;
-  margin-top: -350px;
   margin-left: -225px;
   background-color: gray;
   z-index: 4;
