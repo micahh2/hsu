@@ -1,4 +1,5 @@
-// importScripts('../story.js');
+//importScripts('../story.js');
+import { Story } from '../story.js';
 
 const importLine = /^import.*$/gi;
 let gameState;
@@ -7,15 +8,15 @@ let changes = false;
 onmessage = (e) => {
   switch (e.data.type) {
     case 'load-modules':
-      const modules = e.data.modules;
-      const moduleNames = Object.keys(e.data.modules);
-      moduleNames.forEach((t) => {
-        let moduleText = modules[t].replace('export const', 'const');
-        moduleText = modules[t].replace('export class', 'class');
-        moduleText = modules[t].replace(importLine, '');
-        self[t] = eval(moduleText);
-      });
-      gameState = e.data.gameState;
+      //const modules = e.data.modules;
+      //const moduleNames = Object.keys(e.data.modules);
+      //moduleNames.forEach((t) => {
+      //  let moduleText = modules[t].replace('export const', 'const');
+      //  moduleText = modules[t].replace('export class', 'class');
+      //  moduleText = modules[t].replace(importLine, '');
+      //  self[t] = eval(moduleText);
+      //});
+      //gameState = e.data.gameState;
       break;
     case 'update-game-state':
       gameState = e.data.gameState;
