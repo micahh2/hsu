@@ -51,7 +51,7 @@ Start local http server
 
     npm start
 
-Open your browser to http://localhost:8080
+The dev server opens a browser new tab when it starts, pointing to: http://localhost:8080
 
 ## Development
 
@@ -66,7 +66,7 @@ Open your browser to http://localhost:8080
 ### Developing your code
 1. Identify changes to make
 1. *(Optional)* Create tests that don't pass, but will when you've made the next step ([TDD](https://en.wikipedia.org/wiki/Test-driven_development))
-1. Implement changes; check the unit test runner; reload your browser to see the changes
+1. Implement changes, then check the unit test runner
 1. Repeat creating tests, and implementing functionality until the card is complete, or until you need to redefine the card to match how the feature will be implemented (e.g. break it up)
 
 ### Contributing your code

@@ -9,6 +9,7 @@ import { Time } from './time.js';
 import { PathFinding } from './path-finding.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
+import { Util } from './util.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -19,10 +20,17 @@ const fetchTilesetData = new Promise((res) => {
     .then((response) => res(response.json()));
 });
 
+const storyWorker = new Worker(
+  new URL('./workers/story-worker.js', import.meta.url),
+  { type: 'module' },
+);
+
+function sendStoryEvent(event) {
+  storyWorker.postMessage({ type: 'add-event', event });
+}
+
 const zoomLevels = [1, 4];
-let eventQueue = [];
 window.addEventListener('load', async () => {
-  const start = new Date(); // Save the start time
   const [gameData, tilemap] = await Promise.all([
     fetchGameData,
     fetchTilesetData,
@@ -51,7 +59,6 @@ window.addEventListener('load', async () => {
     canvasHeight,
   } = layoutCanvasData;
 
-  // mapDim.width, mapDim.height
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
@@ -84,6 +91,8 @@ window.addEventListener('load', async () => {
     width: mapDim.width,
     height: mapDim.height,
     actorSize: gameState.player.width });
+
+  storyWorker.postMessage({ type: 'update-graph', graph, mapDim });
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite'); // TODO duplicated code
@@ -167,7 +176,6 @@ window.addEventListener('load', async () => {
     updateStats, // eslint-disable-line no-use-before-define
     moveNPC: Characters.moveNPC,
     movePlayer, // eslint-disable-line no-use-before-define
-    graph,
   };
 
   /**
@@ -190,7 +198,6 @@ window.addEventListener('load', async () => {
       left,
       right,
       paused: pause,
-      attack, // game state
     });
     /* eslint-enable no-use-before-define */
     if (storyChanges != null && Object.keys(storyChanges).length > 0) {
@@ -218,7 +225,19 @@ window.addEventListener('load', async () => {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
-    Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
+    // Camera.drawDestinations({
+    //  viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d')
+    // });
+    gameState = {
+      ...gameState,
+      player: physicsState.player,
+      characters: physicsState.characters,
+    };
+    storyWorker.postMessage({
+      type: 'update-game-state',
+      gameState,
+      flags: { attack, enableConversation }, // eslint-disable-line no-use-before-define
+    });
 
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
@@ -226,47 +245,23 @@ window.addEventListener('load', async () => {
   // Start main game loop
   physicsLoop(performance.now());
 
-  // Update game state periodically (100ms)
-  let last = new Date();
-  setInterval(() => {
-    const timeSinceLast = new Date() - last;
-    // Update game state with the latest from physics
-    gameState = {
-      ...gameState,
-      player: physicsState.player,
-      characters: physicsState.characters,
-    };
-    const now = new Date() - start;
-    const flags = { enableConversation }; // eslint-disable-line no-use-before-define
-    const callingEventQueue = eventQueue;
-    const newGameState = Story.updateGameState({
-      graph,
-      gameState,
-      now,
-      timeSinceLast,
-      flags,
-      eventQueue: callingEventQueue,
-    });
-    eventQueue = eventQueue.filter((t) => !callingEventQueue.includes(t));
-    last = new Date();
-    if (newGameState !== gameState) {
-      storyChanges = Story.getChanges(gameState, newGameState);
-    }
-
+  storyWorker.postMessage({
+    type: 'load-modules',
+    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t)),
+  });
+  /// / Update game state with the latest from physics
+  storyWorker.onmessage = (e) => {
+    storyChanges = e.data;
     /* eslint-disable no-use-before-define */
-    if (gameState.conversation !== newGameState.conversation) {
+    if (storyChanges.conversation != null) {
       const updateConvo = (newConvo) => {
-        eventQueue = eventQueue.concat({
-          type: 'update-conversation',
-          conversation: newConvo,
-        });
+        sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
-      renderConversation(newGameState.conversation, updateConvo);
+      renderConversation(storyChanges.conversation, updateConvo);
       enableConversation = false;
     }
     /* eslint-enable no-use-before-define */
-    gameState = newGameState;
-  }, 100);
+  };
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {

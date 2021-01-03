@@ -149,9 +149,10 @@ export const Story = {
    *
    * @param {}
    */
-  updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [] }) {
+  updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
     const { player, areas } = gameState;
-    const { enableConversation } = flags || { enableConversation: false };
+    const { width, height } = mapDim;
+    const { enableConversation, attack } = flags || { enableConversation: false, attack: false };
     let { events } = gameState;
     events = events.concat(eventQueue);
     let expired = [];
@@ -207,6 +208,23 @@ export const Story = {
     }
     // Update Events
     events = events.filter((t) => !expired.includes(t));
+
+    current.characters = current.characters.map((npc) => {
+      const { destination } = npc;
+      let { waypoints } = npc;
+      if (!destination || npc.hasCollision) {
+        const finish = (npc.hasCollision && waypoints && waypoints.length)
+          ? waypoints[waypoints.length - 1]
+          : Story.newDestination({ areas, width, height, attack, player, npc });
+        const start = {
+          x: Math.round(npc.x + npc.width / 2),
+          y: Math.round(npc.y + npc.height / 2),
+        };
+        waypoints = PathFinding.aStar({ graph, start, finish });
+        return { ...npc, destination: waypoints[0], waypoints: waypoints.slice(1) };
+      }
+      return npc;
+    });
 
     return {
       ...gameState,
@@ -309,5 +327,28 @@ export const Story = {
    */
   newId(collection) {
     return collection.reduce((a, b) => Math.max(a, b.id), -1) + 1;
+  },
+
+  /**
+   * newDestination.
+   *
+   * @param {}
+   */
+  newDestination({ areas, width, height, player, attack, npc }) {
+    let area = {
+      x: 0, y: 0, width, height,
+    };
+
+    if (player && attack) {
+      return { x: player.x, y: player.y };
+    }
+
+    if (npc.attachedAreaId != null) {
+      area = areas.find((t) => t.id === npc.attachedAreaId);
+    }
+    return {
+      x: Math.floor(Math.random() * area.width) + area.x,
+      y: Math.floor(Math.random() * area.height) + area.y,
+    };
   },
 };
