@@ -285,7 +285,12 @@ describe('updateGameState', () => {
       events: [gameData.events[2]], // Just one for now
     };
     const flags = { enableConversation: true };
-    const newGameState = Story.updateGameState({ gameState: gs, flags });
+    const newGameState = Story.updateGameState({
+      gameState: gs,
+      flags,
+      mapDim: { width: 1000, height: 1000 },
+      graph: [{ x: 0, y: 0, width: 1000, height: 1000 }],
+    });
     expect(newGameState.conversation.currentDialog).to.eql(character.dialog);
   });
   it('should set destination on time', () => {
@@ -298,7 +303,12 @@ describe('updateGameState', () => {
       characters: [character],
       events: [e], // Just one for now
     };
-    const newGameState = Story.updateGameState({ graph, gameState, now: 100090 });
+    const newGameState = Story.updateGameState({
+      graph,
+      gameState,
+      now: 100090,
+      mapDim: { width: 100, height: 100 },
+    });
     expect(newGameState.conversation).null;
     expect(newGameState.characters[0].destination).to.eql(e.destination);
   });

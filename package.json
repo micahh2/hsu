@@ -1,6 +1,6 @@
 {
   "name": "hsu",
-  "version": "0.6.0",
+  "version": "0.8.5",
   "description": "Hochschule Ulm, The Game",
   "main": "main.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "fix-lint": "eslint --fix src",
     "serve-docs": "documentation serve --config documentation.yml --watch src/main.js src/editor/editor.js extra README.md documentation.yml",
     "build-docs": "documentation build --config documentation.yml src/main.js src/editor/editor.js -f html -o docs && cp -r coverage extra docs/",
-    "prep-release": "npm run lint && npm run test-report && npm run build-docs",
+    "prep-release": "npm run lint && npm run test-report && npm run build && npm run build-docs",
     "test-coverage": "c8 --reporter html --all --include src --exclude src/**/*.spec.js mocha --require esm src/**/*.spec.js && rm -r coverage/tmp"
   },
   "repository": {
@@ -26,15 +26,15 @@
   },
   "homepage": "https://github.com/micahh2/hsu#readme",
   "dependencies": {
-    "@snowpack/plugin-webpack": "^2.2.0",
     "c8": "^7.3.5",
     "chai": "^4.2.0",
-    "documentation": "^13.1.0",
+    "documentation": "github:arlac77/documentation",
     "eslint-plugin-mocha": "^8.0.0",
     "esm": "^3.2.25",
     "mocha": "^8.2.0",
     "nyc": "^15.1.0",
-    "webpack": "^5.11.0"
+    "rollup": "^2.35.1",
+    "snowpack": "^3.0.0-rc.2"
   },
   "devDependencies": {
     "eslint": "^7.12.1",

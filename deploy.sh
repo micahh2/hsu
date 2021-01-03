@@ -1,6 +1,6 @@
 #!/bin/bash
 
-fromSrc="$1/src/"
+fromSrc="$1/build/"
 fromDocs="$1/docs"
 
 echo "Syncing $fromSrc to $2"

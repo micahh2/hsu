@@ -1,4 +1,3 @@
-import { PathFinding } from './path-finding.js';
 import { Util } from './util.js';
 
 /** A class containing methods for dealing with characters  */
@@ -11,7 +10,7 @@ export const Characters = {
    * @param {number} state.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
-  moveNPC({ npc, width, height, player, attack, graph }) {
+  moveNPC({ npc, width, height }) {
     let newNPC = npc;
 
     // Allow for spawn points
@@ -24,16 +23,7 @@ export const Characters = {
     // If we're near to destination, or have a collision pick a new destination
     if (!npc.destination || Util.dist(npc, npc.destination) <= npc.speed || npc.hasCollision) {
       let { waypoints } = npc;
-      if (!waypoints || waypoints.length === 0 || npc.hasCollision) {
-        const finish = (npc.hasCollision && waypoints && waypoints.length)
-          ? waypoints[waypoints.length - 1]
-          : Characters.newDestination({ width, height, attack, player, npc: newNPC });
-        const start = {
-          x: Math.round(newNPC.x + newNPC.width / 2),
-          y: Math.round(newNPC.y + newNPC.height / 2),
-        };
-        waypoints = PathFinding.aStar({ graph, start, finish });
-      }
+      waypoints = waypoints || [];
       newNPC = {
         ...newNPC,
         destination: waypoints[0],
@@ -74,32 +64,5 @@ export const Characters = {
     }
 
     return newNPC;
-  },
-
-  // This is what NPCs use right now to find a new place to go
-  newDestination({
-    width, height, player, attack, npc,
-  }) {
-    // TODO: This should be linked to from the list of areas
-    let area = {
-      x: 0, y: 0, width, height,
-    };
-
-    if (player && attack) {
-      return { x: player.x, y: player.y };
-    }
-
-    if (npc.type === 'vip') {
-      area = {
-        x: npc.maxLeft * width,
-        y: npc.maxUp * width,
-        width: npc.maxRight * width,
-        height: npc.maxDown * width,
-      };
-    }
-    return {
-      x: Math.floor(Math.random() * area.width) + area.x,
-      y: Math.floor(Math.random() * area.height) + area.y,
-    };
   },
 };

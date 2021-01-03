@@ -22,7 +22,7 @@ const fetchTilesetData = new Promise((res) => {
 
 const storyWorker = new Worker(
   new URL('./workers/story-worker.js', import.meta.url),
-  { name: 'story-worker', type: 'classic' },
+  { type: 'module' },
 );
 
 function sendStoryEvent(event) {
@@ -31,7 +31,6 @@ function sendStoryEvent(event) {
 
 const zoomLevels = [1, 4];
 window.addEventListener('load', async () => {
-  const start = new Date(); // Save the start time
   const [gameData, tilemap] = await Promise.all([
     fetchGameData,
     fetchTilesetData,
@@ -60,7 +59,6 @@ window.addEventListener('load', async () => {
     canvasHeight,
   } = layoutCanvasData;
 
-  // mapDim.width, mapDim.height
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
 
@@ -93,6 +91,8 @@ window.addEventListener('load', async () => {
     width: mapDim.width,
     height: mapDim.height,
     actorSize: gameState.player.width });
+
+  storyWorker.postMessage({ type: 'update-graph', graph, mapDim });
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite'); // TODO duplicated code
@@ -176,7 +176,6 @@ window.addEventListener('load', async () => {
     updateStats, // eslint-disable-line no-use-before-define
     moveNPC: Characters.moveNPC,
     movePlayer, // eslint-disable-line no-use-before-define
-    graph,
   };
 
   /**
@@ -199,7 +198,6 @@ window.addEventListener('load', async () => {
       left,
       right,
       paused: pause,
-      attack, // game state
     });
     /* eslint-enable no-use-before-define */
     if (storyChanges != null && Object.keys(storyChanges).length > 0) {
@@ -227,13 +225,19 @@ window.addEventListener('load', async () => {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
-    //Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
+    // Camera.drawDestinations({
+    //  viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d')
+    // });
     gameState = {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
     };
-    storyWorker.postMessage({ type: 'update-game-state', gameState })
+    storyWorker.postMessage({
+      type: 'update-game-state',
+      gameState,
+      flags: { attack, enableConversation }, // eslint-disable-line no-use-before-define
+    });
 
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
@@ -243,22 +247,20 @@ window.addEventListener('load', async () => {
 
   storyWorker.postMessage({
     type: 'load-modules',
-    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t))
+    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t)),
   });
-  //// Update game state with the latest from physics
+  /// / Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
-    const newGameState = e.data;
-    storyChanges = Story.getChanges(gameState, newGameState);
+    storyChanges = e.data;
     /* eslint-disable no-use-before-define */
-    if (gameState.conversation !== newGameState.conversation) {
+    if (storyChanges.conversation != null) {
       const updateConvo = (newConvo) => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
-      renderConversation(newGameState.conversation, updateConvo);
+      renderConversation(storyChanges.conversation, updateConvo);
       enableConversation = false;
     }
     /* eslint-enable no-use-before-define */
-    gameState = newGameState;
   };
 
   // Update FPS/other stats every 1000ms
