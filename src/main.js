@@ -19,7 +19,10 @@ const fetchTilesetData = new Promise((res) => {
     .then((response) => res(response.json()));
 });
 
-const storyWorker = new Worker('./workers/story-worker.js');
+const storyWorker = new Worker(
+  new URL('./workers/story-worker.js', import.meta.url),
+  { name: 'story-worker', type: 'classic' },
+);
 
 function sendStoryEvent(event) {
   storyWorker.postMessage({ type: 'add-event', event });
