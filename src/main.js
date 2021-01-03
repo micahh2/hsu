@@ -21,7 +21,7 @@ const fetchTilesetData = new Promise((res) => {
 
 const storyWorker = new Worker(
   new URL('./workers/story-worker.js', import.meta.url),
-  { name: 'story-worker', type: 'classic' },
+  { type: 'module' },
 );
 
 function sendStoryEvent(event) {
@@ -91,6 +91,8 @@ window.addEventListener('load', async () => {
     mapDim,
     actorSize: gameState.player.width,
   });
+
+  storyWorker.postMessage({ type: 'update-graph', graph, mapDim });
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
@@ -232,7 +234,11 @@ window.addEventListener('load', async () => {
       player: physicsState.player,
       characters: physicsState.characters,
     };
-    storyWorker.postMessage({ type: 'update-game-state', gameState })
+    storyWorker.postMessage({
+      type: 'update-game-state',
+      gameState,
+      flags: { attack, enableConversation }, // eslint-disable-line no-use-before-define
+    });
 
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
@@ -242,12 +248,11 @@ window.addEventListener('load', async () => {
 
   storyWorker.postMessage({
     type: 'load-modules',
-    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t))
+    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t)),
   });
-  //// Update game state with the latest from physics
+  /// / Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
-    const newGameState = e.data;
-    storyChanges = Story.getChanges(gameState, newGameState);
+    storyChanges = e.data;
     /* eslint-disable no-use-before-define */
     if (storyChanges.conversation != null) {
       const updateConvo = (newConvo) => {
@@ -257,7 +262,6 @@ window.addEventListener('load', async () => {
       enableConversation = false;
     }
     /* eslint-enable no-use-before-define */
-    gameState = newGameState;
   };
 
   // Update FPS/other stats every 1000ms
