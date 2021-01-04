@@ -48,8 +48,8 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 1, y: 3 }, // TODO Why is this point not in the rout?
-      // { x: 2, y: 2 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 3 }, // TODO Why is this point not in the route?
+      // { x: 2, y: 2 }, // TODO Why is this point not in the route?
       // finish, // the finish is not reachable => the empty array is generated
     ]);
   });
@@ -67,16 +67,16 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 1, y: 4 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 4 }, // TODO Why is this point not in the route?
       { x: 2, y: 4 },
       { x: 3, y: 4 },
       { x: 4, y: 3 },
-      // { x: 3, y: 2 }, // TODO Why is this point not in the rout?
+      // { x: 3, y: 2 }, // TODO Why is this point not in the route?
       { x: 2, y: 2 },
       { x: 1, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
-      // { x: 2, y: 0 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
+      // { x: 2, y: 0 }, // TODO Why is this point not in the route?
       { x: 3, y: 0 },
       finish,
     ]);
@@ -95,11 +95,11 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 0, y: 3 }, // TODO Why is this point not in the rout?
+      // { x: 0, y: 3 }, // TODO Why is this point not in the route?
       { x: 0, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
-      // { x: 2, y: 0 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
+      // { x: 2, y: 0 }, // TODO Why is this point not in the route?
       { x: 3, y: 0 },
       finish,
     ]);
@@ -118,8 +118,8 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 1, y: 3 }, // TODO Why is this point not in the rout?
-      // { x: 2, y: 2 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 3 }, // TODO Why is this point not in the route?
+      // { x: 2, y: 2 }, // TODO Why is this point not in the route?
       { x: 3, y: 1 },
       finish,
     ]);
@@ -138,11 +138,11 @@ describe('aStar', () => {
     const path = PathFinding.aStar({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 0, y: 3 }, // TODO Why is this point not in the rout?
+      // { x: 0, y: 3 }, // TODO Why is this point not in the route?
       { x: 0, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the rout?
-      // { x: 2, y: 1 }, // TODO Why is this point not in the rout?
+      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
+      // { x: 2, y: 1 }, // TODO Why is this point not in the route?
       { x: 3, y: 2 },
       finish,
     ]);
@@ -162,7 +162,7 @@ describe('aStar', () => {
     expect(path).not.null;
     expect(path).to.eql([
       { x: 1, y: 1 },
-      // { x: 2, y: 1 }, // TODO Why is this point not in the rout?
+      // { x: 2, y: 1 }, // TODO Why is this point not in the route?
       { x: 3, y: 1 },
       finish,
     ]);
@@ -185,8 +185,8 @@ describe('aStar', () => {
       { x: 2, y: 2 },
       { x: 2, y: 1 },
       { x: 3, y: 0 },
-      // { x: 4, y: 1 }, // TODO Why is this point not in the rout?
-      // { x: 4, y: 2 }, // TODO Why is this point not in the rout?
+      // { x: 4, y: 1 }, // TODO Why is this point not in the route?
+      // { x: 4, y: 2 }, // TODO Why is this point not in the route?
       { x: 4, y: 3 },
       finish,
     ]);
