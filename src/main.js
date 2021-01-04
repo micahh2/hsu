@@ -8,7 +8,6 @@ import { Music } from './music.js';
 import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
-import { Util } from './util.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -91,8 +90,6 @@ window.addEventListener('load', async () => {
     mapDim,
     actorSize: gameState.player.width,
   });
-
-  storyWorker.postMessage({ type: 'update-graph', graph, mapDim });
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
@@ -246,10 +243,6 @@ window.addEventListener('load', async () => {
   // Start main game loop
   physicsLoop(performance.now());
 
-  storyWorker.postMessage({
-    type: 'load-modules',
-    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t)),
-  });
   /// / Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
     storyChanges = e.data;
