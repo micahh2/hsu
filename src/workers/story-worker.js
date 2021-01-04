@@ -1,4 +1,5 @@
 import { Story } from '../story.js';
+import { PathFinding } from '../path-finding.js';
 
 let gameState;
 let eventQueue = [];
@@ -8,8 +9,13 @@ let mapDim;
 let changes = false;
 onmessage = (e) => {
   switch (e.data.type) {
-    case 'update-graph':
-      graph = e.data.graph;
+    case 'update-grid':
+      graph = PathFinding.gridToGraph({
+        grid: e.data.grid,
+        width: e.data.mapDim.width,
+        height: e.data.mapDim.height,
+        actorSize: e.data.actorSize,
+      });
       mapDim = e.data.mapDim;
       break;
     case 'update-game-state':
@@ -20,6 +26,7 @@ onmessage = (e) => {
       eventQueue = eventQueue.concat(e.data.event);
       break;
     default:
+      console.warn(`Unknown event passed to worker: ${e.data.type}`); // eslint-disable-line no-console
       return;
   }
   changes = true;

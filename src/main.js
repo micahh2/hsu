@@ -6,10 +6,8 @@ import { Camera } from './camera.js';
 import { Map } from './map.js';
 import { Music } from './music.js';
 import { Time } from './time.js';
-import { PathFinding } from './path-finding.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
-import { Util } from './util.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -86,16 +84,15 @@ window.addEventListener('load', async () => {
   // Load the initial story
   let gameState = Story.loadGameState(gameData);
 
-  const graph = PathFinding.gridToGraph({
+  storyWorker.postMessage({
+    type: 'update-grid',
     grid: pixels,
-    width: mapDim.width,
-    height: mapDim.height,
-    actorSize: gameState.player.width });
-
-  storyWorker.postMessage({ type: 'update-graph', graph, mapDim });
+    mapDim,
+    actorSize: gameState.player.width,
+  });
 
   // Load sprites
-  const characterSprite = document.getElementById('character-sprite'); // TODO duplicated code
+  const characterSprite = document.getElementById('character-sprite');
   const sprites = Sprite.loadSprites({
     characterSprite: {
       image: characterSprite, // Actual image data
@@ -245,10 +242,6 @@ window.addEventListener('load', async () => {
   // Start main game loop
   physicsLoop(performance.now());
 
-  storyWorker.postMessage({
-    type: 'load-modules',
-    modules: [Util, PathFinding, Story].map((t) => JSON.stringify(t)),
-  });
   /// / Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
     storyChanges = e.data;
