@@ -230,6 +230,12 @@ window.addEventListener('load', async () => {
       player: physicsState.player,
       characters: physicsState.characters,
     };
+    //make flag "enableConversation" be fixed in false when no conversation is triggered
+    if (!Story.isWithinDistance({
+      distance: gameState.events[2].trigger.distance,
+      a: gameState.player,
+      b: gameState.characters.find((t) => t.id === gameState.events[2].trigger.characterId),
+    })) { enableConversation = false;}
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
@@ -389,6 +395,10 @@ window.addEventListener('keyup', (e) => {
   }
   playMusic(); // eslint-disable-line no-use-before-define
 });
+
+function enableDialog() {
+
+}
 
 /**
  * canvasProvider.
