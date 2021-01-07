@@ -153,11 +153,24 @@ export const Camera = {
    * @param {} args.context the context to draw to
    */
   drawGraph({ graph, context, viewport }) {
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    context.fillStyle = 'black';
+    // context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     graph.forEach((area) => {
       context.strokeStyle = 'black';
-      context.strokeRect(area.x - viewport.x, area.y - viewport.y, area.width, area.height);
+      context.strokeRect(
+        (area.x - viewport.x) * viewport.scale,
+        (area.y - viewport.y) * viewport.scale,
+        area.width * viewport.scale,
+        area.height * viewport.scale,
+      );
+      context.strokeStyle = 'red';
+      area.points.forEach((point) => {
+        context.strokeRect(
+          (point.x - viewport.x - 1) * viewport.scale,
+          (point.y - viewport.y - 1) * viewport.scale,
+          2,
+          2,
+        );
+      });
     });
   },
 

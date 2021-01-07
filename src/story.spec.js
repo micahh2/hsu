@@ -57,7 +57,8 @@ describe('newId', () => {
 
 describe('setDestination', () => {
   it('should return updated destinations', () => {
-    const characters = [{ id: 1 }, { id: 5 }, { id: 3 }];
+    const actor = { x: 10, y: 10, width: 10, height: 10 };
+    const characters = [{ ...actor, id: 1 }, { ...actor, id: 5 }, { ...actor, id: 3 }];
     const destination = { x: 1, y: 2 };
     const graph = [{ x: 0, y: 0, width: 100, height: 100 }];
     const selector = () => true;

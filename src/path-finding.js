@@ -4,30 +4,45 @@
  */
 export const PathFinding = {
   /**
-   * aStar.
-   * A* Path Finding
+   * dijikstras
+   * Implementation of dijikstras algorithm
    */
-  aStar({ graph, start, finish }) {
-    const startPlace = graph.find((t) => PathFinding.inArea(t, start));
+  dijikstras({ graph, start, finish }) {
+    let startPlace = graph.find((t) => PathFinding.inArea(t, start));
+    if (startPlace == null) {
+      startPlace = graph.map((t) => ({
+        node: t,
+        cost: Math.min(
+          PathFinding.distanceCost(t, start),
+          PathFinding.distanceCost({ x: t.x + t.width, y: t.y + t.height }, start),
+        ),
+      })).sort((a, b) => a.cost - b.cost)[0].node;
+    }
     const finishPlace = graph.find((t) => PathFinding.inArea(t, finish));
-    // Can't find a route
+    // Can't find a destination -> no route possible
     if (!finishPlace) { return []; }
+    // No route necessary
+    if (startPlace === finishPlace) {
+      return [finish];
+    }
 
     const nextPlaces = [];
-    const been = [];
-    let place = startPlace;
-    while (place && (place.x !== finishPlace.x || place.y !== finishPlace.y)) {
-      for (let i = 0; i < place.neighbors.length; i++) {
-        const neighbor = place.neighbors[i];
-        // Don't go in a cycle/loop
-        if (been.includes(neighbor)) { continue; }
-        const newPlace = { ...neighbor, from: place };
+    const key = (t) => `${t.x}:${t.y}`;
+    const been = { };
+    let place = { ...finishPlace, from: { x: finish.x, y: finish.y }, cost: 0 };
+    while (place && (place.x !== startPlace.x || place.y !== startPlace.y)) {
+      // Don't go in a cycle/loop
+      const { points } = place;
+      for (let i = 0; i < points.length; i++) {
+        const point = points[i];
+        const k = key(point);
+        if (been[k]) { continue; }
+        const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };
         newPlace.cost = (place.cost || 0)
-          + PathFinding.moveCost(place, newPlace)
-          + PathFinding.distanceCost(newPlace, finish);
+          + PathFinding.moveCost(place.from || place, point);
 
         nextPlaces.push(newPlace);
-        been.push(neighbor);
+        been[k] = true;
       }
       // Sort ascending order
       nextPlaces.sort((place1, place2) => place1.cost - place2.cost);
@@ -35,26 +50,56 @@ export const PathFinding = {
       place = nextPlaces.shift();
     }
     // "place" is now the destination (and it has a "from" property), or undefined
-    let lastDirection;
     const path = [];
+
+    // Trim starting "moves" that aren't going anywhere
+    while (place && place.from && place.x === place.from.x && place.y === place.from.y) {
+      place = place.from;
+    }
+    let lastDirection = place && PathFinding.getDirection(place, place.from);
     // Go backwards through the path using the "from"s that setup before:
-    while (place && place.from) {
+    while (place) {
       const newDirection = PathFinding.getDirection(place, place.from);
       if (lastDirection !== newDirection) {
+        path.push({ x: place.x, y: place.y });
         lastDirection = newDirection;
-        path.push({
-          x: place.x + Math.floor(place.width / 2),
-          y: place.y + Math.floor(place.height / 2),
-        });
       }
       place = place.from;
     }
-    if (!path[0] || (path[0].x !== finish.x || path[0].y !== finish.y)) {
-      path.unshift(finish);
-    }
-    // reverse the path before returning it
-    path.reverse();
     return path;
+  },
+
+  getGatewayPoint(to, from, actorSize) {
+    if (to.width === 1 || to.height === 1) { return { x: to.x, y: to.y }; }
+
+    const margin = Math.floor(actorSize / 2);
+    const toXEnd = to.x + to.width;
+    const fromXEnd = from.x + from.width;
+    const toYEnd = to.y + to.height;
+    // They have the same x
+    if (toXEnd === from.x || to.x === fromXEnd) {
+      const lastStart = Math.max(to.y, from.y);
+      const firstEnd = Math.min(toYEnd, from.y + from.height);
+      const sameLine = toXEnd === from.x
+        ? toXEnd - margin
+        : to.x + margin;
+
+      return {
+        x: sameLine,
+        y: lastStart + Math.floor((firstEnd - lastStart) / 2),
+      };
+    }
+    // They have the same y
+    const lastStart = Math.max(to.x, from.x);
+    const firstEnd = Math.min(toXEnd, fromXEnd);
+    const sameLine = toYEnd === from.y
+      ? toYEnd - margin
+      : to.y + margin;
+
+    return {
+      x: lastStart + Math.floor((firstEnd - lastStart) / 2),
+      y: sameLine,
+    };
   },
 
   /**
@@ -64,7 +109,7 @@ export const PathFinding = {
    */
   getDirection(start, finish) {
     return finish
-      ? `${Math.sign(start.x - finish.x)}:${Math.sign(start.y - finish.y)}`
+      ? `${start.x - finish.x}:${start.y - finish.y}`
       : 'origin';
   },
 
@@ -89,23 +134,17 @@ export const PathFinding = {
    * @returns {number} - distance between start a finish
    */
   distanceCost(start, finish) {
-    // This is discounted by half to allow move cost to be more important...
-    // if we're okay with unecessary diagonal moves we can remove this
-    return (
-      (Math.sqrt((finish.x - start.x) ** 2) + (finish.y - start.y) ** 2) / 2
-    );
+    return ((Math.sqrt((finish.x - start.x) ** 2) + (finish.y - start.y) ** 2)) / 2;
   },
 
   /**
    * moveCost.
    * A sperate cost calculation for each move.
-   * Diagonal moves should be aschewed in favor of straight lines
    * @param {} start
    * @param {} finish
    */
   moveCost(start, finish) {
-    // Even if moming is diagonal, it is counted as two movements: horizontal and vertical
-    return Math.abs(start.x - finish.x) + Math.abs(start.y - finish.y);
+    return Math.sqrt((start.x - finish.x) ** 2 + (start.y - finish.y) ** 2);
   },
 
   gridToSubgraph({ grid, width, height, actorSize, x, y }) {
@@ -195,7 +234,10 @@ export const PathFinding = {
       y: 0,
     });
 
-    return res.filter((t, i, self) => self.indexOf(t) === i);
+    const graph = res.filter((t, i, self) => self.indexOf(t) === i);
+    return PathFinding.splitGraphIntoPoints(graph, actorSize);
+
+    // return graph;
   },
 
   hasBlock({ grid, x, y, width, height }) {
@@ -224,5 +266,48 @@ export const PathFinding = {
       return firstEnd - lastStart >= overlap;
     }
     return false;
+  },
+
+  graphToForest(graph, marked = [], root = true) {
+    if (marked.length > 1240) { return []; }
+    const newMarks = graph.filter((t) => !marked.includes(t));
+    const treeLevel = newMarks
+      .map((t) => ({
+        ...t,
+        neighbors: PathFinding.graphToForest(
+          t.neighbors,
+          root ? [t] : newMarks.concat(marked),
+          false,
+        ),
+      }));
+    return treeLevel;
+  },
+
+  splitGraphIntoPoints(graph, minSize, replace = {}) {
+    const key = (t) => `${t.x}:${t.y}`;
+    const newMap = graph.map((t) => {
+      const newNode = { ...t };
+      // eslint-disable-next-line no-param-reassign
+      replace[key(t)] = newNode;
+      return newNode;
+    });
+    newMap.forEach((t) => {
+      const node = t;
+      if (node.points == null) {
+        node.points = node.neighbors.map((k) => {
+          const neighborKey = key(k);
+          const neighbor = replace[neighborKey] != null
+            ? replace[neighborKey]
+            : PathFinding.splitGraphIntoPoints([k], minSize, replace)[0];
+          // eslint-disable-next-line no-param-reassign
+          replace[neighborKey] = neighbor;
+          return {
+            ...PathFinding.getGatewayPoint(k, node, minSize),
+            neighbor,
+          };
+        });
+      }
+    });
+    return newMap;
   },
 };

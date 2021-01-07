@@ -3,8 +3,8 @@ import { Characters } from './characters.js';
 
 describe('moveNPC', () => {
   it('should always move an npc as an integer', () => {
-    const width = 900;
-    const height = 900;
+    const width = 900000;
+    const height = 900000;
     const player = {};
     const updateStats = () => {};
     const graph = [{ x: 0, y: 0, width, height, neighbors: [] }];
