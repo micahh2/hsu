@@ -154,7 +154,6 @@ export const Camera = {
    */
   drawGraph({ graph, context, viewport }) {
     // context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    context.fillStyle = 'black';
     graph.forEach((area) => {
       context.strokeStyle = 'black';
       context.strokeRect(
@@ -163,6 +162,15 @@ export const Camera = {
         area.width * viewport.scale,
         area.height * viewport.scale,
       );
+      context.strokeStyle = 'red';
+      area.points.forEach((point) => {
+        context.strokeRect(
+          (point.x - viewport.x - 1) * viewport.scale,
+          (point.y - viewport.y - 1) * viewport.scale,
+          2,
+          2,
+        );
+      });
     });
   },
 

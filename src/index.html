@@ -1,13 +1,13 @@
 <!doctype html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <meta name="description" content="Graduate with your life">
-    <title>Hochschule Ulm</title>
-    <link href="./assets/fonts/PressStart2P.css" rel="stylesheet">
-    <link href="main.css" rel="stylesheet" />
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <meta name="description" content="Graduate with your life">
+        <title>Hochschule Ulm</title>
+        <link href="./assets/fonts/PressStart2P.css" rel="stylesheet">
+        <link href="main.css" rel="stylesheet" />
+    </head>
 <body>
     <div id="images">
         <img id="character-sprite" src="assets/charBatch1_sprite.png">
@@ -28,32 +28,31 @@
         <div id="ui-icons">
             <button class="ui-icon" id="inventory">
                 <img
-                src="assets/Backpack_Closed.png"
-                onMouseOver="src='assets/Backpack_Opened.png'"
-                onMouseOut="src='assets/Backpack_Closed.png'"
-                >
+                    src="assets/Backpack_Closed.png"
+                    onMouseOver="src='assets/Backpack_Opened.png'"
+                    onMouseOut="src='assets/Backpack_Closed.png'"
+                    >
             </button>
-            <button class="ui-icon" id="email">
-                <img
-                src="assets/Email_Closed.png"
-                onMouseOver="src='assets/Email_Opened.png'"
-                onMouseOut="src='assets/Email_Closed.png'"
-                >
-            </button>
-        </br>
-        <button class="ui-icon" id="task">
-            <img
-            src="assets/PhoneV2_Off.png"
-            onMouseOver="src='assets/Phone_On.png'"
-            onMouseOut="src='assets/PhoneV2_Off.png'"
-            >
-        </button>
+                <button class="ui-icon" id="email">
+                    <img
+                        src="assets/Email_Closed.png"
+                        onMouseOver="src='assets/Email_Opened.png'"
+                        onMouseOut="src='assets/Email_Closed.png'"
+                        >
+                </button>
+                    </br>
+                    <button class="ui-icon" id="quest">
+                        <img
+                            src="assets/PhoneV2_Off.png"
+                            onMouseOver="src='assets/Phone_On.png'"
+                            onMouseOut="src='assets/PhoneV2_Off.png'"
+                            >
+                    </button>
         </div>
         <div id="time"></div>
         <div id="ingameTime"></div>
         <div id="timer"></div>
     </div>
-
     <div class="container">
         <div id="overlay" class="overlay">
             <div class="content">
@@ -120,7 +119,6 @@
         </div>
 
     </div>
-    
     <div class="music">
         <img src="assets/musicnote.png" id="musicnote"></img>
         <div id="volumeslider">
@@ -131,6 +129,7 @@
         <audio src="assets/music/waterdrop.wav" id="waterdrop"></audio>
         <audio src="assets/music/backgroundchill.m4a" id="backgroundchill"></audio>
     </div>
+    <div id="quest-overlay"></div>
 </body>
 <script type="module" src="main.js"></script>
 </html>

@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { PathFinding } from './path-finding.js';
 
-const W = 0; // checking points
 const o = 0; // intermediate points when going without turn (the forward trace)
 const u = 0; // turning "u-points"
 const s = 0; // start point
@@ -13,16 +12,18 @@ function toObjectGraph(arrayGraph) {
   arrayGraph.forEach((a, i) => {
     a.forEach((b, j) => {
       if (arrayGraph[i][j] > 0) { return; }
-      const area = { x: j, y: i, width: 1, height: 1, neighbors: [] }; // TODO x: j, y: i,: verse-versa?
-      for (let l = 0; l < maxNumberOfNeighbors; l++) { // TODO can it be done by 2 loops?
+      const area = { x: j, y: i, width: 1, height: 1, neighbors: [] };
+      for (let l = 0; l < maxNumberOfNeighbors; l++) {
         const offsetX = 1 - (l % 3); // 1  0 -1  1  0 -1  1  0 -1
         const offsetY = 1 - Math.floor(l / 3); // 1  1  1  0  0  0 -1 -1 -1
         const newX = j + offsetX;
         const newY = i + offsetY;
         if (offsetX === 0 && offsetY === 0) { continue; } // no moving: no reason
         if (newX < 0 || newY < 0) { continue; } // out of the borders: not allowed
-        if (newX >= arrayGraph[0].length || newY >= arrayGraph.length) { continue; } // out of the borders: not allowed
-        if (arrayGraph[newY][newX] > 0) { continue; } // no need to change anything in the objectGraph
+        // out of the borders: not allowed
+        if (newX >= arrayGraph[0].length || newY >= arrayGraph.length) { continue; }
+        // no need to change anything in the objectGraph
+        if (arrayGraph[newY][newX] > 0) { continue; }
         const neighbor = objectGraph.find((t) => t.x === newX && t.y === newY);
         if (!neighbor) { continue; }
         area.neighbors.push(neighbor);
@@ -34,7 +35,7 @@ function toObjectGraph(arrayGraph) {
   return PathFinding.splitGraphIntoPoints(objectGraph, 1);
 }
 
-describe('aStar', () => {
+describe('dijikstras', () => {
   it('should generate no path', () => {
     const graph = toObjectGraph([
       [0, 0, 1, 1, f],
@@ -45,39 +46,30 @@ describe('aStar', () => {
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([
-      // { x: 1, y: 3 }, // TODO Why is this point not in the route?
-      // { x: 2, y: 2 }, // TODO Why is this point not in the route?
-      // finish, // the finish is not reachable => the empty array is generated
-    ]);
+    expect(path).to.eql([]);
   });
 
   it('should find a valid path', () => {
     const graph = toObjectGraph([
-      [0, u, o, W, f],
-      [W, 1, 1, 1, 1],
-      [0, W, W, u, 0],
-      [1, 1, 1, 1, W],
-      [s, o, W, W, 0],
+      [0, u, o, o, f],
+      [u, 1, 1, 1, 1],
+      [0, u, o, u, 0],
+      [1, 1, 1, 1, u],
+      [s, o, o, u, 0],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 1, y: 4 }, // TODO Why is this point not in the route?
-      { x: 2, y: 4 },
       { x: 3, y: 4 },
       { x: 4, y: 3 },
-      // { x: 3, y: 2 }, // TODO Why is this point not in the route?
-      { x: 2, y: 2 },
+      { x: 3, y: 2 },
       { x: 1, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
-      // { x: 2, y: 0 }, // TODO Why is this point not in the route?
-      { x: 3, y: 0 },
+      { x: 1, y: 0 },
       finish,
     ]);
   });
@@ -86,21 +78,17 @@ describe('aStar', () => {
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
     const graph = toObjectGraph([
-      [0, o, 0, W, f],
-      [W, 1, 1, 1, 1],
-      [W, 1, 0, 0, 0],
-      [0, 1, 0, 0, 0],
+      [0, u, o, o, f],
+      [u, 1, 1, 1, 1],
+      [o, 1, 0, 0, 0],
+      [o, 1, 0, 0, 0],
       [s, 1, 0, 0, 0],
     ]);
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 0, y: 3 }, // TODO Why is this point not in the route?
-      { x: 0, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
-      // { x: 2, y: 0 }, // TODO Why is this point not in the route?
-      { x: 3, y: 0 },
+      { x: 1, y: 0 },
       finish,
     ]);
   });
@@ -108,91 +96,77 @@ describe('aStar', () => {
   it('should generate a diagonal path', () => {
     const graph = toObjectGraph([
       [0, 0, 1, 1, f],
-      [0, 1, 1, W, 1],
+      [0, 1, 1, o, 1],
       [1, 1, o, 1, 1],
       [1, o, 1, 1, 0],
       [s, 1, 1, 0, 0],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
-    expect(path).to.eql([
-      // { x: 1, y: 3 }, // TODO Why is this point not in the route?
-      // { x: 2, y: 2 }, // TODO Why is this point not in the route?
-      { x: 3, y: 1 },
-      finish,
-    ]);
+    expect(path).to.eql([finish]);
   });
 
   it('should go straight over a wall, then diagonal to the right', () => {
     const graph = toObjectGraph([
       [0, u, 0, 0, 0],
-      [W, 1, o, 0, 0],
-      [W, 1, 0, W, 0],
+      [u, 1, o, 0, 0],
+      [o, 1, 0, o, 0],
       [o, 1, 0, 0, f],
       [s, 1, 0, 0, 0],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 3 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      // { x: 0, y: 3 }, // TODO Why is this point not in the route?
-      { x: 0, y: 2 },
       { x: 0, y: 1 },
-      // { x: 1, y: 0 }, // TODO Why is this point not in the route?
-      // { x: 2, y: 1 }, // TODO Why is this point not in the route?
-      { x: 3, y: 2 },
+      { x: 1, y: 0 },
       finish,
     ]);
   });
 
-  it('should go straight up, diagonal over the wall, and straight down', () => {
+  it('should go diagonal over the wall', () => {
     const graph = toObjectGraph([
       [0, 0, u, 0, 0],
-      [0, W, 1, W, 0],
+      [0, o, 1, o, 0],
       [s, 0, 1, 0, f],
       [0, 0, 1, 0, 0],
       [0, 0, 1, 0, 0],
     ]);
     const start = { x: 0, y: 2 };
     const finish = { x: 4, y: 2 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      { x: 1, y: 1 },
-      // { x: 2, y: 1 }, // TODO Why is this point not in the route?
-      { x: 3, y: 1 },
+      { x: 2, y: 0 },
       finish,
     ]);
   });
 
   it('should first go up-right (diagonal), then down a corridor', () => {
     const graph = toObjectGraph([
-      [0, 0, 0, W, 0],
-      [0, 0, W, 1, u],
-      [0, 0, W, 1, o],
-      [0, W, 0, 1, W],
+      [0, 0, 0, u, 0],
+      [0, 0, u, 1, u],
+      [0, 0, u, 1, o],
+      [0, o, 0, 1, o],
       [s, 0, 0, 1, f],
     ]);
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 4 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(path).to.eql([
-      { x: 1, y: 3 },
       { x: 2, y: 2 },
       { x: 2, y: 1 },
       { x: 3, y: 0 },
-      // { x: 4, y: 1 }, // TODO Why is this point not in the route?
-      // { x: 4, y: 2 }, // TODO Why is this point not in the route?
-      { x: 4, y: 3 },
+      { x: 4, y: 1 },
       finish,
     ]);
   });
 });
-// TODO Check from line this downwards
+
 describe('areNeighbors', () => {
   it('should return true for two areas are neighbors', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };
@@ -230,7 +204,7 @@ describe('areNeighbors', () => {
 
 describe('gridToGraph', () => {
   it('should receive a grid and return a graph', () => {
-    const grid = [ // TODO 0-grid
+    const grid = [
       [0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0],
@@ -244,7 +218,7 @@ describe('gridToGraph', () => {
       actorSize: 2,
     });
     expect(graph).not.null;
-    expect(graph).to.eql([{ // TODO with the non-empty object {...}
+    expect(graph).to.eql([{
       x: 0,
       y: 0,
       width: 5,
@@ -255,7 +229,7 @@ describe('gridToGraph', () => {
   });
 
   it('should receive a blocked grid and return an empty graph', () => {
-    const grid = [ // TODO 0-grid
+    const grid = [
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1],
@@ -269,11 +243,11 @@ describe('gridToGraph', () => {
       actorSize: 2,
     });
     expect(graph).not.null;
-    expect(graph).to.eql([]); // TODO with the non-empty object {}
+    expect(graph).to.eql([]);
   });
 
   it('should receive a mixed grid and return a graph with neighbors', () => {
-    const grid = [ // TODO 0,1-mixed-grid
+    const grid = [ 
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 1, 1],
@@ -316,7 +290,7 @@ describe('gridToGraph', () => {
     expect(aArea.neighbors.length).to.eql(2, 'Incorrect number of neighbors');
   });
 
-  it('grid to graph using A*', () => {
+  it('grid to graph using dijikstras', () => {
     const m = 0;
     const n = 0;
     const grid = [
@@ -336,14 +310,14 @@ describe('gridToGraph', () => {
     expect(graph).not.null;
     const start = { x: 0, y: 4 };
     const finish = { x: 4, y: 0 };
-    const path = PathFinding.aStar({ graph, start, finish });
+    const path = PathFinding.dijikstras({ graph, start, finish });
     expect(path).not.null;
     expect(graph.length).gt(0);
     expect(path).to.eql([
+      { x: 2, y: 5 },
       { x: 3, y: 4 },
       { x: 5, y: 5 },
       { x: 4, y: 3 },
-      { x: 5, y: 2 },
       finish,
     ]);
   });

@@ -4,10 +4,10 @@
  */
 export const PathFinding = {
   /**
-   * aStar.
-   * A* Path Finding
+   * dijikstras
+   * Implementation of dijikstras algorithm
    */
-  aStar({ graph, start, finish }) {
+  dijikstras({ graph, start, finish }) {
     let startPlace = graph.find((t) => PathFinding.inArea(t, start));
     if (startPlace == null) {
       startPlace = graph.map((t) => ({
@@ -22,32 +22,27 @@ export const PathFinding = {
     // Can't find a destination -> no route possible
     if (!finishPlace) { return []; }
     // No route necessary
-    if (startPlace === finishPlace) { return [finish]; }
+    if (startPlace === finishPlace) {
+      return [finish];
+    }
 
     const nextPlaces = [];
     const key = (t) => `${t.x}:${t.y}`;
     const been = { };
-    let place = { ...startPlace, x: start.x, y: start.y, cost: 0 };
-    while (place && (place.x !== finishPlace.x || place.y !== finishPlace.y)) {
+    let place = { ...finishPlace, from: { x: finish.x, y: finish.y }, cost: 0 };
+    while (place && (place.x !== startPlace.x || place.y !== startPlace.y)) {
       // Don't go in a cycle/loop
       const { points } = place;
-      if (points == null) {
-        // eslint-disable-next-line no-console
-        console.log('Place', place);
-        // eslint-disable-next-line no-debugger
-        debugger;
-      }
       for (let i = 0; i < points.length; i++) {
         const point = points[i];
-        if (been[key(point)]) { continue; }
+        const k = key(point);
+        if (been[k]) { continue; }
         const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };
-        newPlace.runningCost = (place.runningCost || 0)
+        newPlace.cost = (place.cost || 0)
           + PathFinding.moveCost(place.from || place, point);
-        newPlace.cost = newPlace.runningCost // TODO Do we need ";" here ?
-          + PathFinding.distanceCost(point, finish);
 
         nextPlaces.push(newPlace);
-        been[key(point)] = true;
+        been[k] = true;
       }
       // Sort ascending order
       nextPlaces.sort((place1, place2) => place1.cost - place2.cost);
@@ -55,33 +50,37 @@ export const PathFinding = {
       place = nextPlaces.shift();
     }
     // "place" is now the destination (and it has a "from" property), or undefined
-    let lastDirection;
     const path = [];
-    if (place && (place.x !== finish.x || place.y !== finish.y)) {
-      path.push(finish);
+
+    // Trim "moves" that aren't going anywhere
+    while (place && place.from && place.x === place.from.x && place.y === place.from.y) {
+      place = place.from;
     }
+    let lastDirection = place && PathFinding.getDirection(place, place.from);
     // Go backwards through the path using the "from"s that setup before:
-    while (place && place.from) {
+    while (place) {
       const newDirection = PathFinding.getDirection(place, place.from);
       if (lastDirection !== newDirection) {
+        path.push({ x: place.x, y: place.y });
         lastDirection = newDirection;
-        path.push({ x: place.from.x, y: place.from.y });
       }
       place = place.from;
     }
-    // reverse the path before returning it
-    path.reverse();
+    //const last = path && path[path.length - 1];
+    //if (last && (last.x !== finish.y || last.y !== finish.y)) {
+    //  path.push(finish);
+    //}
     return path;
   },
 
   getGatewayPoint(to, from, actorSize) {
     if (to.width === 1 || to.height === 1) { return { x: to.x, y: to.y }; }
 
-    // They have the same x
     const margin = Math.floor(actorSize / 2);
     const toXEnd = to.x + to.width;
     const fromXEnd = from.x + from.width;
     const toYEnd = to.y + to.height;
+    // They have the same x
     if (toXEnd === from.x || to.x === fromXEnd) {
       const lastStart = Math.max(to.y, from.y);
       const firstEnd = Math.min(toYEnd, from.y + from.height);
@@ -290,23 +289,29 @@ export const PathFinding = {
 
   splitGraphIntoPoints(graph, minSize, replace = {}) {
     const key = (t) => `${t.x}:${t.y}`;
-    return graph.map((t) => {
-      const node = { ...t };
+    const newMap = graph.map((t) => {
+      const newNode = { ...t };
       // eslint-disable-next-line no-param-reassign
-      replace[key(node)] = node;
-      node.points = node.neighbors.map((k) => {
-        const neighborKey = key(k);
-        const neighbor = replace[neighborKey] != null
-          ? replace[neighborKey]
-          : PathFinding.splitGraphIntoPoints([k], minSize, replace)[0];
-        // eslint-disable-next-line no-param-reassign
-        replace[neighborKey] = neighbor;
-        return {
-          ...PathFinding.getGatewayPoint(k, node, minSize),
-          neighbor,
-        };
-      });
-      return node;
+      replace[key(t)] = newNode;
+      return newNode;
     });
+    newMap.forEach((t) => {
+      const node = t;
+      if (node.points == null) {
+        node.points = node.neighbors.map((k) => {
+          const neighborKey = key(k);
+          const neighbor = replace[neighborKey] != null
+            ? replace[neighborKey]
+            : PathFinding.splitGraphIntoPoints([k], minSize, replace)[0];
+          // eslint-disable-next-line no-param-reassign
+          replace[neighborKey] = neighbor;
+          return {
+            ...PathFinding.getGatewayPoint(k, node, minSize),
+            neighbor,
+          };
+        });
+      }
+    });
+    return newMap;
   },
 };

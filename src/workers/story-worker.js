@@ -56,4 +56,4 @@ setInterval(() => {
   eventQueue = eventQueue.filter((t) => !callingEventQueue.includes(t));
   const gameChanges = Story.getChanges(oldGameState, newGameState);
   postMessage(gameChanges);
-}, 100); // Once every 100ms
+}, 50); // Once every 100ms

@@ -8,6 +8,15 @@
       "height": 101,
       "color": "rgba(74,238,72,0.5)",
       "name": "quad"
+    },
+    {
+      "id": 1,
+      "x": 190,
+      "y": 200,
+      "width": 157,
+      "height": 126,
+      "color": "rgba(16,89,12,0.5)",
+      "name": "near"
     }
   ],
   "player": {
@@ -30,7 +39,7 @@
         "y": 30
       },
       "selector": {
-        "characterId": 1
+        "characterId": -1
       }
     },
     {
@@ -45,7 +54,7 @@
         "y": 1000
       },
       "selector": {
-        "characterId": 1
+        "characterId": -1
       }
     },
     {
@@ -134,7 +143,7 @@
       "height": 10,
       "spriteIndex": 12,
       "isNew": true,
-      "attachedAreaId": 0,
+      "attachedAreaId": 1,
       "actions": {
         "t": "start-conversation",
         "a": "attack"

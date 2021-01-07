@@ -16,6 +16,10 @@ export const Story = {
     const stateKeys = Object.keys(state);
     for (const i of stateKeys) {
       if (oldState[i] === state[i]) { continue; }
+      if (state[i] != null && state[i]._keep) { // eslint-disable-line no-underscore-dangle
+        changes[i] = state[i];
+        continue;
+      }
       if (typeof oldState[i] === typeof state[i] && typeof state[i] === 'object') {
         const subChanges = Story.getChanges(oldState[i], state[i]);
         if (Object.keys(subChanges).length === 0) { continue; }
@@ -36,6 +40,7 @@ export const Story = {
   applyChanges(state, changes) {
     if (state == null) { return changes; }
     if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
+    if (changes._keep) { return changes; } // eslint-disable-line no-underscore-dangle
     const changeKeys = Object.keys(changes);
     if (changeKeys.length === 0) { return state; }
     let newState;
@@ -211,17 +216,19 @@ export const Story = {
 
     current.characters = current.characters.map((npc) => {
       const { destination } = npc;
-      let { waypoints } = npc;
-      if (!destination || npc.hasCollision) {
-        const finish = (npc.hasCollision && waypoints && waypoints.length)
-          ? waypoints[waypoints.length - 1]
-          : Story.newDestination({ areas, width, height, attack, player, npc });
-        const start = {
-          x: Math.round(npc.x + npc.width / 2),
-          y: Math.round(npc.y + npc.height / 2),
-        };
-        waypoints = PathFinding.aStar({ graph, start, finish });
-        return { ...npc, destination: waypoints[0], waypoints: waypoints.slice(1) };
+      if (!destination) {
+        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+        return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
+      }
+      if (npc.hasCollision && npc.wait < 30) {
+        return { ...npc, wait: npc.wait + 1 };
+      }
+      if (npc.hasCollision) {
+        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+        return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
+      }
+      if (npc.wait > 0) {
+        return { ...npc, wait: 0 };
       }
       return npc;
     });
@@ -304,20 +311,32 @@ export const Story = {
   setDestination({ characters, destination, selector, graph }) {
     return characters.map((actor) => {
       if (selector(actor)) {
-        const finish = destination;
-        const start = {
-          x: actor.x, // Math.round(actor.x + actor.width / 2),
-          y: actor.y, // Math.round(actor.y + actor.height / 2),
-        };
-        const waypoints = PathFinding.aStar({ graph, start, finish });
-        return {
-          ...actor,
-          destination: waypoints[0],
-          waypoints: waypoints.slice(1),
-        };
+        return Story.setSingleDestination({ actor, destination, graph });
       }
       return actor;
     });
+  },
+  /**
+   * setSingleDestination.
+   *
+   * @param {}
+   */
+  setSingleDestination({ actor, destination, graph }) {
+    const finish = destination;
+    const start = {
+      x: actor.x, // Math.round(actor.x + actor.width / 2),
+      y: actor.y, // Math.round(actor.y + actor.height / 2),
+    };
+    const waypoints = PathFinding.dijikstras({ graph, start, finish });
+    const newWaypoints = waypoints.slice(1);
+    // Bit of a hack to force the changes through
+    newWaypoints._keep = true; // eslint-disable-line no-underscore-dangle
+    return {
+      ...actor,
+      wait: 0,
+      destination: waypoints[0],
+      waypoints: newWaypoints,
+    };
   },
 
   /**

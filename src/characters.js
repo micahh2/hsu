@@ -14,14 +14,16 @@ export const Characters = {
     let newNPC = npc;
 
     // Allow for spawn points
-    if (npc.isNew && npc.fallbackSpeed == null) {
-      newNPC = { ...newNPC, speed: npc.width + 1, fallbackSpeed: npc.speed };
-    } else if (npc.isNew && !npc.hasCollision) {
-      newNPC = { ...newNPC, speed: newNPC.fallbackSpeed, isNew: false };
+    if (npc.isNew) {
+      if (npc.fallbackSpeed == null) {
+        newNPC = { ...newNPC, speed: npc.width + 1, fallbackSpeed: npc.speed };
+      } else if (!npc.hasCollision) {
+        newNPC = { ...newNPC, speed: newNPC.fallbackSpeed, isNew: false };
+      }
     }
 
-    // If we're near to destination, or have a collision pick a new destination
-    if (!npc.destination || Util.dist(npc, npc.destination) <= npc.speed || npc.hasCollision) {
+    // If we're near to destination, set the next waypoint as our destination
+    if (npc.destination && Util.dist(npc, npc.destination) <= npc.speed) {
       let { waypoints } = npc;
       waypoints = waypoints || [];
       newNPC = {
@@ -30,7 +32,7 @@ export const Characters = {
         waypoints: waypoints.slice(1),
       };
     }
-    if (newNPC.destination == null) { return npc; }
+    if (newNPC.destination == null) { return newNPC; }
     const x = newNPC.x + Math.round(newNPC.width / 2);
     const y = newNPC.y + Math.round(newNPC.height / 2);
     const xdist = Math.abs(x - newNPC.destination.x);

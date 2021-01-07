@@ -8,6 +8,7 @@ import { Music } from './music.js';
 import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
+import { PathFinding } from './path-finding.js';
 
 const fetchGameData = new Promise((res) => {
   fetch('./gameData.json')
@@ -59,10 +60,10 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(debugCanvas, canvasWidth, canvasHeight);
 
   const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
   Camera.setCanvasResolution(virtualCanvas, mapDim.width, mapDim.width);
-  Camera.setCanvasResolution(debugCanvas, mapDim.width, mapDim.width);
   Map.drawTileMapToContext({
     context: virtualCanvas.getContext('2d'),
     tilemap,
@@ -84,11 +85,19 @@ window.addEventListener('load', async () => {
   // Load the initial story
   let gameState = Story.loadGameState(gameData);
 
+  const actorSize = gameState.player.width;
   storyWorker.postMessage({
     type: 'update-grid',
     grid: pixels,
     mapDim,
-    actorSize: gameState.player.width,
+    actorSize,
+  });
+
+  const graph = PathFinding.gridToGraph({
+    grid: pixels,
+    width: mapDim.width,
+    height: mapDim.height,
+    actorSize,
   });
 
   // Load sprites
@@ -222,7 +231,7 @@ window.addEventListener('load', async () => {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
-    if (debugPathfinding) {
+    if (debugPathfinding) { // eslint-disable-line no-use-before-define
       Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
       Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
     }
