@@ -52,7 +52,7 @@ export const PathFinding = {
     // "place" is now the destination (and it has a "from" property), or undefined
     const path = [];
 
-    // Trim "moves" that aren't going anywhere
+    // Trim starting "moves" that aren't going anywhere
     while (place && place.from && place.x === place.from.x && place.y === place.from.y) {
       place = place.from;
     }
@@ -66,10 +66,6 @@ export const PathFinding = {
       }
       place = place.from;
     }
-    //const last = path && path[path.length - 1];
-    //if (last && (last.x !== finish.y || last.y !== finish.y)) {
-    //  path.push(finish);
-    //}
     return path;
   },
 

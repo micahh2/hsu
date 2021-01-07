@@ -247,7 +247,7 @@ describe('gridToGraph', () => {
   });
 
   it('should receive a mixed grid and return a graph with neighbors', () => {
-    const grid = [ 
+    const grid = [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 1, 1],
