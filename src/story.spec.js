@@ -23,6 +23,19 @@ describe('getChanges', () => {
 
     expect(Story.getChanges(oldState, state)).to.eql({ a: { 0: 4, 1: 5, 2: 6 } });
   });
+  it('should show the diff between an array and null', () => {
+    const oldState = { a: null };
+    const state = { a: [{ x: 1, y: 1 }] };
+
+    expect(Story.getChanges(oldState, state).a).to.eql(state.a);
+  });
+  it('should show the diff between an array of arrays of objects', () => {
+    const one = { one: 1 };
+    const oldState = { a: [{ x: 1, y: 1, b: [one] }] };
+    const state = { a: [{ x: 1, y: 1, b: null }] };
+
+    expect(Story.getChanges(oldState, state).a[0].b).to.eql(null);
+  });
 });
 
 describe('applyChanges', () => {

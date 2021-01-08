@@ -206,6 +206,20 @@ window.addEventListener('load', async () => {
       right,
       paused: pause,
     });
+
+    // Update global game state object
+    gameState = {
+      ...gameState,
+      player: physicsState.player,
+      characters: physicsState.characters,
+    };
+    // Update story worker with new game state
+    storyWorker.postMessage({
+      type: 'update-game-state',
+      gameState,
+      flags: { attack }, // eslint-disable-line no-use-before-define
+    });
+
     /* eslint-enable no-use-before-define */
     const viewport = Camera.updateViewport({
       oldViewport,
@@ -232,17 +246,6 @@ window.addEventListener('load', async () => {
       Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
       Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
     }
-    gameState = {
-      ...gameState,
-      player: physicsState.player,
-      characters: physicsState.characters,
-    };
-    storyWorker.postMessage({
-      type: 'update-game-state',
-      gameState,
-      flags: { attack }, // eslint-disable-line no-use-before-define
-    });
-
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
   };

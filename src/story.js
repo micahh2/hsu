@@ -12,16 +12,22 @@ export const Story = {
    * @param {} state
    */
   getChanges(oldState, state) {
+    if (oldState == null || state == null) { return state; }
     const changes = {};
     const stateKeys = Object.keys(state);
     for (const i of stateKeys) {
       if (oldState[i] === state[i]) { continue; }
+      if (oldState[i] == null && state[i] == null) { continue; }
       if (state[i] != null && state[i]._keep) { // eslint-disable-line no-underscore-dangle
         changes[i] = state[i];
         continue;
       }
       if (typeof oldState[i] === typeof state[i] && typeof state[i] === 'object') {
         const subChanges = Story.getChanges(oldState[i], state[i]);
+        if (subChanges == null) {
+          changes[i] = null;
+          continue;
+        }
         if (Object.keys(subChanges).length === 0) { continue; }
         changes[i] = subChanges;
         continue;
@@ -38,7 +44,7 @@ export const Story = {
    * @param {} changes
    */
   applyChanges(state, changes) {
-    if (state == null) { return changes; }
+    if (changes == null || state == null) { return changes; }
     if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
     if (changes._keep) { return changes; } // eslint-disable-line no-underscore-dangle
     const changeKeys = Object.keys(changes);
@@ -227,9 +233,6 @@ export const Story = {
           const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
           const exclude = (npc.exclude || []).concat(npc.destination);
           return Story.setSingleDestination({ actor: npc, destination: newDest, graph, exclude });
-        }
-        if (npc.exclude != null) {
-          return { ...npc, exclude: [] };
         }
         return npc;
       });

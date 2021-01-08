@@ -58,6 +58,9 @@ function storyLoop() {
   if (Object.keys(gameChanges).length > 0) {
     postMessage(gameChanges);
   }
-  setTimeout(storyLoop);
+  // Important --
+  // we need to wait long enough for our changes to propogate
+  // or we'll end up fighting our own changes
+  setTimeout(storyLoop, 100); // Wait for 100 ms before rechecking.
 }
 storyLoop();

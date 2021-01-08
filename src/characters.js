@@ -30,6 +30,7 @@ export const Characters = {
         ...newNPC,
         destination: waypoints[0],
         waypoints: waypoints.slice(1),
+        exclude: null,
       };
     }
     if (newNPC.destination == null) { return newNPC; }
