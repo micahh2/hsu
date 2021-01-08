@@ -7,7 +7,7 @@ export const PathFinding = {
    * dijikstras
    * Implementation of dijikstras algorithm
    */
-  dijikstras({ graph, start, finish }) {
+  dijikstras({ graph, start, finish, exclude }) {
     let startPlace = graph.find((t) => PathFinding.inArea(t, start));
     if (startPlace == null) {
       startPlace = graph.map((t) => ({
@@ -18,6 +18,7 @@ export const PathFinding = {
         ),
       })).sort((a, b) => a.cost - b.cost)[0].node;
     }
+
     const finishPlace = graph.find((t) => PathFinding.inArea(t, finish));
     // Can't find a destination -> no route possible
     if (!finishPlace) { return []; }
@@ -35,6 +36,7 @@ export const PathFinding = {
       const { points } = place;
       for (let i = 0; i < points.length; i++) {
         const point = points[i];
+        if (exclude && exclude.some((t) => point.x === t.x && point.y === t.y)) { continue; }
         const k = key(point);
         if (been[k]) { continue; }
         const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };

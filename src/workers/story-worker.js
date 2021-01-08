@@ -55,7 +55,7 @@ function storyLoop() {
   // Something
   eventQueue = [];
   const gameChanges = Story.getChanges(gameState, newGameState);
-  if (gameChanges != null && Object.keys(gameChanges).length > 0) {
+  if (Object.keys(gameChanges).length > 0) {
     postMessage(gameChanges);
   }
   setTimeout(storyLoop);

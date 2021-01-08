@@ -223,15 +223,13 @@ export const Story = {
           const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
           return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
         }
-        if (npc.hasCollision && npc.wait < 30) {
-          return { ...npc, wait: npc.wait + 1 };
-        }
         if (npc.hasCollision) {
           const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
-          return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
+          const exclude = (npc.exclude || []).concat(npc.destination);
+          return Story.setSingleDestination({ actor: npc, destination: newDest, graph, exclude });
         }
-        if (npc.wait > 0) {
-          return { ...npc, wait: 0 };
+        if (npc.exclude != null) {
+          return { ...npc, exclude: [] };
         }
         return npc;
       });
@@ -315,21 +313,21 @@ export const Story = {
    *
    * @param {}
    */
-  setSingleDestination({ actor, destination, graph }) {
+  setSingleDestination({ actor, destination, graph, exclude }) {
     const finish = destination;
     const start = {
       x: actor.x, // Math.round(actor.x + actor.width / 2),
       y: actor.y, // Math.round(actor.y + actor.height / 2),
     };
-    const waypoints = PathFinding.dijikstras({ graph, start, finish });
+    const waypoints = PathFinding.dijikstras({ graph, start, finish, exclude });
     const newWaypoints = waypoints.slice(1);
     // Bit of a hack to force the changes through
     newWaypoints._keep = true; // eslint-disable-line no-underscore-dangle
     return {
       ...actor,
-      wait: 0,
       destination: waypoints[0],
       waypoints: newWaypoints,
+      exclude,
     };
   },
 
