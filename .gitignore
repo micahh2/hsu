@@ -194,3 +194,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Bullshit Mac Stuff
+.DS_Store
