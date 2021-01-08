@@ -22,8 +22,12 @@ export const Physics = {
       characters, width, height,
       locMap, updateStats,
       moveNPC, movePlayer,
+      conversation,
       paused, up, down, left, right,
     } = state;
+
+    const isPaused = paused || (conversation && conversation.active);
+    if (isPaused) { return state; }
 
     // Get the move the player wants to make
     let newPlayer = movePlayer({
@@ -41,24 +45,23 @@ export const Physics = {
       updateStats,
       useHandycap: true,
     });
-    // Update player location in map
-    Physics.updateLocationMap(locMap, { actor: newPlayer, oldActor: player, updateStats });
 
     let newOthers = characters;
-    if (!paused) {
-      newOthers = new Array(characters.length);
-      for (let i = 0; i < characters.length; i++) {
-        // Get new NPC move
-        const newActor = moveNPC({ npc: characters[i], width, height });
-        newOthers[i] = Physics.getUseableMove({
-          oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats,
+
+    // Update player location in map
+    Physics.updateLocationMap(locMap, { actor: newPlayer, oldActor: player, updateStats });
+    newOthers = new Array(characters.length);
+    for (let i = 0; i < characters.length; i++) {
+      // Get new NPC move
+      const newActor = moveNPC({ npc: characters[i], width, height });
+      newOthers[i] = Physics.getUseableMove({
+        oldActor: characters[i], actor: newActor, pixels, width, height, locMap, updateStats,
+      });
+      // Update npc location in map
+      Physics.updateLocationMap(locMap,
+        {
+          actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats,
         });
-        // Update npc location in map
-        Physics.updateLocationMap(locMap,
-          {
-            actor: newOthers[i], map: locMap, oldActor: characters[i], updateStats,
-          });
-      }
     }
 
     // Increment Frames

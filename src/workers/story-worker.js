@@ -34,15 +34,15 @@ onmessage = (e) => {
 
 let last = new Date();
 const start = new Date();
-setInterval(() => {
-  if (!changes) { return; }
-  if (!gameState || !graph) { return; }
+function storyLoop() {
+  if (!changes || !gameState || !graph) {
+    setTimeout(storyLoop, 50);
+    return;
+  }
   changes = false;
   const now = new Date() - start;
   const timeSinceLast = new Date() - last;
   last = new Date();
-  const callingEventQueue = eventQueue;
-  const oldGameState = gameState;
   const newGameState = Story.updateGameState({
     graph,
     gameState,
@@ -53,7 +53,11 @@ setInterval(() => {
     mapDim,
   });
   // Something
-  eventQueue = eventQueue.filter((t) => !callingEventQueue.includes(t));
-  const gameChanges = Story.getChanges(oldGameState, newGameState);
-  postMessage(gameChanges);
-}, 50); // Once every 100ms
+  eventQueue = [];
+  const gameChanges = Story.getChanges(gameState, newGameState);
+  if (gameChanges != null && Object.keys(gameChanges).length > 0) {
+    postMessage(gameChanges);
+  }
+  setTimeout(storyLoop);
+}
+storyLoop();

@@ -164,6 +164,7 @@ window.addEventListener('load', async () => {
       }
       return {
         ...t,
+        dialog: null,
         id: i + gameState.characters.length + 1,
         spriteIndex,
         type: '',
@@ -206,10 +207,6 @@ window.addEventListener('load', async () => {
       paused: pause,
     });
     /* eslint-enable no-use-before-define */
-    if (storyChanges != null && Object.keys(storyChanges).length > 0) {
-      physicsState = Story.applyChanges(physicsState, storyChanges);
-      storyChanges = null;
-    }
     const viewport = Camera.updateViewport({
       oldViewport,
       player: physicsState.player,
@@ -240,23 +237,15 @@ window.addEventListener('load', async () => {
       player: physicsState.player,
       characters: physicsState.characters,
     };
-    //make flag "enableConversation" be fixed in false when no conversation is triggered
-    if (!Story.isWithinDistance({
-      distance: gameState.events[2].trigger.distance,
-      a: gameState.player,
-      b: gameState.characters.find((t) => t.id === gameState.events[2].trigger.characterId),
-    })) { enableConversation = false;}
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
-      flags: { attack, enableConversation }, // eslint-disable-line no-use-before-define
+      flags: { attack }, // eslint-disable-line no-use-before-define
     });
 
     oldViewport = viewport;
     window.requestAnimationFrame(physicsLoop);
   };
-  // Start main game loop
-  physicsLoop(performance.now());
 
   /// / Update game state with the latest from physics
   storyWorker.onmessage = (e) => {
@@ -267,8 +256,8 @@ window.addEventListener('load', async () => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
       renderConversation(storyChanges.conversation, updateConvo);
-      enableConversation = false;
     }
+    physicsState = Story.applyChanges(physicsState, storyChanges);
     /* eslint-enable no-use-before-define */
   };
 
@@ -319,6 +308,9 @@ window.addEventListener('load', async () => {
     quests,
   });
   /* eslint-enable no-use-before-define */
+
+  // Start main game loop
+  physicsLoop(performance.now());
 });
 
 // Modified by the eventListener
@@ -329,7 +321,6 @@ let right = false;
 let attack = false;
 let pause = false;
 let zoom = false;
-let enableConversation = false;
 let debugPathfinding = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
@@ -398,7 +389,7 @@ window.addEventListener('keyup', (e) => {
       toggleInventoryOverlay(e); // eslint-disable-line no-use-before-define
       break;
     case 'KeyC':
-      enableConversation = !enableConversation; // eslint-disable-line no-use-before-define
+      sendStoryEvent({ type: 'start-conversation' });
       break;
     case 'Digit0':
       debugPathfinding = !debugPathfinding;
@@ -409,10 +400,6 @@ window.addEventListener('keyup', (e) => {
   }
   playMusic(); // eslint-disable-line no-use-before-define
 });
-
-function enableDialog() {
-
-}
 
 /**
  * canvasProvider.
@@ -475,10 +462,7 @@ function renderConversation(conversation, updateConvo) {
       button.addEventListener('click', () => {
         const option = options[i];
         if (option === goodbye || option.response == null) {
-          updateConvo({
-            ...conversation,
-            active: false,
-          });
+          updateConvo({ ...conversation, active: false });
           return;
         }
         updateConvo({

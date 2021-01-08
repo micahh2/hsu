@@ -56,17 +56,6 @@
       "selector": {
         "characterId": -1
       }
-    },
-    {
-      "type": "start-conversation",
-      "trigger": {
-        "type": "distance",
-        "characterId": 1,
-        "distance": 25
-      },
-      "selector": {
-        "characterId": 1
-      }
     }
   ],
   "characters": [
@@ -131,7 +120,7 @@
     },
     {
       "id": 2,
-      "name": "Olga",
+      "name": "Herr Katzer",
       "x": 500,
       "y": 100,
       "maxLeft": 0,
@@ -165,24 +154,7 @@
           {
             "id": 3,
             "query": "Is that criminal?",
-            "response": "There's a number of places.",
-            "options": [
-              {
-                "id": 1,
-                "query": "Where is cheap?",
-                "response": "The Mensa is cheap."
-              },
-              {
-                "id": 2,
-                "query": "Where is convenient?",
-                "response": "The Cafeteria is convenient"
-              },
-              {
-                "id": 3,
-                "query": "Where is delicious?",
-                "response": "No where around here!"
-              }
-            ],
+            "response": "Yes.",
             "event": "return-response"
           }
         ]

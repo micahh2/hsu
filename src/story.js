@@ -157,7 +157,7 @@ export const Story = {
   updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
     const { player, areas } = gameState;
     const { width, height } = mapDim;
-    const { enableConversation, attack } = flags || { enableConversation: false, attack: false };
+    const { attack } = flags || { attack: false };
     let { events } = gameState;
     events = events.concat(eventQueue);
     let expired = [];
@@ -190,8 +190,8 @@ export const Story = {
           });
           break;
         case 'start-conversation':
-          if (!enableConversation) { break; }
           current = Story.startConversation({
+            player,
             characters: current.characters,
             conversation: current.conversation,
             selector,
@@ -214,24 +214,27 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
-    current.characters = current.characters.map((npc) => {
-      const { destination } = npc;
-      if (!destination) {
-        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
-        return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
-      }
-      if (npc.hasCollision && npc.wait < 30) {
-        return { ...npc, wait: npc.wait + 1 };
-      }
-      if (npc.hasCollision) {
-        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
-        return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
-      }
-      if (npc.wait > 0) {
-        return { ...npc, wait: 0 };
-      }
-      return npc;
-    });
+    // If it's paused, don't update the characters
+    current.characters = (gameState.conversation && gameState.conversation.active)
+      ? current.characters
+      : current.characters.map((npc) => {
+        const { destination } = npc;
+        if (!destination) {
+          const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+          return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
+        }
+        if (npc.hasCollision && npc.wait < 30) {
+          return { ...npc, wait: npc.wait + 1 };
+        }
+        if (npc.hasCollision) {
+          const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+          return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
+        }
+        if (npc.wait > 0) {
+          return { ...npc, wait: 0 };
+        }
+        return npc;
+      });
 
     return {
       ...gameState,
@@ -244,22 +247,29 @@ export const Story = {
    *
    * @param {}
    */
-  startConversation({ characters, selector }) {
-    const character = characters.find(selector);
-    const newCharacter = {
-      ...character,
-      fallbackSpeed: character.speed || character.fallbackSpeed,
-      speed: 0,
+  startConversation({ player, characters, selector, conversation }) {
+    const nearestNPC = () => {
+      const res = characters
+        .filter((t) => t.dialog != null) // Only speaking npc's
+        .map((t) => ({
+          npc: t,
+          dist: Util.dist(t, player),
+        })).sort((a, b) => (a.dist - b.dist))[0];
+
+      // The nearest npc is too far away
+      if (!res || res.dist >= (player.width * 2.5)) { return null; }
+      return res.npc;
     };
-    const updateCharacters = characters.map((t) => {
-      if (t.id === character.id) { return newCharacter; }
-      return t;
-    });
+    const character = selector != null
+      ? characters.find(selector)
+      : nearestNPC();
+    if (!character) { return { characters, conversation }; }
+
     return {
-      characters: updateCharacters,
+      characters,
       conversation: {
-        character: newCharacter,
-        currentDialog: newCharacter.dialog,
+        character,
+        currentDialog: character.dialog,
         active: true,
         selectedOption: 0,
       },
@@ -272,23 +282,7 @@ export const Story = {
    * @param {}
    */
   updateConversation({ conversation, characters }) {
-    const { character } = conversation;
-    const newCharacter = conversation.active
-      ? character
-      : {
-        ...character,
-        speed: character.fallbackSpeed,
-      };
-    const updateCharacters = conversation.active
-      ? characters
-      : characters.map((t) => {
-        if (t.id === character.id) { return newCharacter; }
-        return t;
-      });
-    return {
-      characters: updateCharacters,
-      conversation,
-    };
+    return { characters, conversation };
   },
 
   /**
