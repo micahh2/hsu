@@ -66,7 +66,7 @@ export const Sprite = {
    * @param {}
    */
   drawActorToContext({
-    context, actor, sprites, offset = { x: 0, y: 0 }, scale,
+    context, actor, sprites, offset = { x: 0, y: 0 }, scale, defaultSprite,
   }) {
     const x = actor.x - offset.x;
     const y = actor.y - offset.y;
@@ -77,7 +77,7 @@ export const Sprite = {
     context.translate(centerx, centery);
     context.rotate(Sprite.getRotationFromFacing(actor.facing));
     context.translate(-centerx, -centery);
-    const spriteData = sprites[actor.spriteName || 'characterSprite'][actor.width * scale];
+    const spriteData = sprites[actor.spriteName || defaultSprite][actor.width * scale];
     const spritePart = spriteData.parts[actor.spriteIndex || 0];
     context.drawImage(spriteData.canvas,
       spritePart.x, spritePart.y, spritePart.width, spritePart.height,

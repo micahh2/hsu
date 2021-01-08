@@ -232,6 +232,7 @@ export const Story = {
         if (npc.hasCollision) {
           const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
           const exclude = (npc.exclude || []).concat(npc.destination);
+          exclude._keep = true; // eslint-disable-line no-underscore-dangle
           return Story.setSingleDestination({ actor: npc, destination: newDest, graph, exclude });
         }
         return npc;

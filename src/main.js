@@ -102,14 +102,23 @@ window.addEventListener('load', async () => {
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
+  const itemSprite = document.getElementById('item-sprite');
+  // How big should the cached tile versions be - we just have two sizes
+  const scales = [gameState.player.width * zoomLevels[0], gameState.player.width * zoomLevels[1]];
   const sprites = Sprite.loadSprites({
     characterSprite: {
       image: characterSprite, // Actual image data
       columns: 3, // How many columns
       rows: 5, // How many rows
       padding: 60, // How much whitespace to ignore
-      // How big should the cached tile versions be - we just have two sizes
-      scales: [gameState.player.width * zoomLevels[0], gameState.player.width * zoomLevels[1]],
+      scales,
+    },
+    itemSprite: {
+      image: itemSprite,
+      columns: 4,
+      rows: 4,
+      padding: 30,
+      scales,
     },
   }, canvasProvider); // eslint-disable-line no-use-before-define
   // set background
@@ -233,6 +242,7 @@ window.addEventListener('load', async () => {
     Camera.drawScene({
       player: physicsState.player,
       characters: physicsState.characters,
+      items: gameState.items,
       context,
       width: canvasWidth,
       height: canvasHeight,
@@ -605,21 +615,10 @@ function updateStats(key, value) {
  * @param {number} args.collisionChecks
  * @param {number} args.collisionCalls
  */
-function updateDiagnostDisp({
-  fps,
-  collisionTime,
-  mapMakingTime,
-  collisionChecks,
-  collisionCalls,
-}) {
+function updateDiagnostDisp({ fps }) {
   /* eslint-enable no-shadow */
   const el = document.getElementById('fps');
-  el.innerHTML = `<ul>
-    <li>${fps} FPS</li>
-    <li>${collisionTime} Col. ms </li>
-    <li>${mapMakingTime} Map. ms </li>
-    <li>${Math.round(collisionChecks / collisionCalls)} Ave. Col. Checks </li>
-  </ul>`;
+  el.innerHTML = `<div>${fps} FPS</div>`;
 }
 
 let overlayOpen = false;

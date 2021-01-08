@@ -64,10 +64,6 @@
       "name": "Frau Kold",
       "x": 30,
       "y": 70,
-      "maxLeft": 0,
-      "maxRight": 36,
-      "maxUp": 0,
-      "maxDown": 159,
       "speed": 1,
       "width": 10,
       "height": 10,
@@ -123,10 +119,6 @@
       "name": "Herr Katzer",
       "x": 500,
       "y": 100,
-      "maxLeft": 0,
-      "maxRight": 533,
-      "maxUp": 0,
-      "maxDown": 256,
       "speed": 1,
       "width": 10,
       "height": 10,
@@ -159,6 +151,18 @@
           }
         ]
       }
+    }
+  ],
+  "items": [
+    {
+      "id": 2,
+      "name": "Notebook",
+      "x": 500,
+      "y": 100,
+      "width": 10,
+      "height": 10,
+      "spriteIndex": 8,
+      "attachedAreaId": 1
     }
   ]
 }

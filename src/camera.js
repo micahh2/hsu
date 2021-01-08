@@ -99,6 +99,7 @@ export const Camera = {
   drawScene({
     player,
     characters,
+    items,
     context,
     width,
     height,
@@ -126,9 +127,32 @@ export const Camera = {
     // Remove old
     context.clearRect(0, 0, width, height);
 
+    for (let i = 0; i < items.length; i++) {
+      const actor = items[i];
+      if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
+        continue;
+      }
+      if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) {
+        continue;
+      }
+      drawActorToContext({
+        context,
+        sprites,
+        actor,
+        offset: viewport,
+        scale: viewport.scale,
+        defaultSprite: 'itemSprite',
+      });
+    }
+
     // Draw new position player position
     drawActorToContext({
-      context, sprites, actor: player, offset: viewport, scale: viewport.scale,
+      context,
+      sprites,
+      actor: player,
+      offset: viewport,
+      scale: viewport.scale,
+      defaultSprite: 'characterSprite',
     });
 
     for (let i = 0; i < characters.length; i++) {
@@ -141,7 +165,12 @@ export const Camera = {
       }
       // Draw new position
       drawActorToContext({
-        context, sprites, actor, offset: viewport, scale: viewport.scale,
+        context,
+        sprites,
+        actor,
+        offset: viewport,
+        scale: viewport.scale,
+        defaultSprite: 'characterSprite',
       });
     }
   },
