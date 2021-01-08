@@ -1,6 +1,7 @@
 export const InventoryUI = {
   renderOverlay({ icon, overlay, items }) {
     const itemHTML = items
+      .filter((item) => item.inInventory)
       .map((item, index) => {
         const size = 4; // Sprite width & height
         const posx = (item.spriteIndex % size) * 100;
@@ -15,25 +16,33 @@ export const InventoryUI = {
       }).join('');
 
     /* eslint-disable no-param-reassign */
-    overlay.innerHTML = `<div class="container">
-                 <div class="overlay"></div>
-                 <div class="accordion-container">
-                        <h2>Inventory</h2>
-                        ${itemHTML}
-                 </div>
-          </div>`;
+    const cont = overlay.querySelector('.accordion-container');
+    if (!cont) {
+      overlay.innerHTML = `<div class="container">
+                   <div class="overlay"></div>
+                   <div class="accordion-container">
+                          <h2>Inventory</h2>
+                          ${itemHTML}
+                   </div>
+            </div>`;
+      InventoryUI.hide(overlay); // explicitly hide so it can be toggled
+
+      const background = overlay.querySelector('.overlay');
+      InventoryUI.show(background);
+      background.addEventListener('click', () => {
+        InventoryUI.hide(overlay);
+      });
+
+      icon.addEventListener('click', () => {
+        InventoryUI.toggle(overlay);
+      });
+    } else {
+      cont.innerHTML = `
+        <h2>Inventory</h2>
+        ${itemHTML}
+      `;
+    }
     /* eslint-enable no-param-reassign */
-    InventoryUI.hide(overlay); // explicitly hide so it can be toggled
-
-    const background = overlay.querySelector('.overlay');
-    InventoryUI.show(background);
-    background.addEventListener('click', () => {
-      InventoryUI.hide(overlay);
-    });
-
-    icon.addEventListener('click', () => {
-      InventoryUI.toggle(overlay);
-    });
   },
   show(element) {
     element.style.display = 'block'; // eslint-disable-line no-param-reassign

@@ -16,4 +16,15 @@ export const Util = {
     const by = b.y + (b.height || 0) / 2;
     return Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
   },
+
+  /**
+   * isWithinArea.
+   *
+   * @param {}
+   */
+  isWithinArea({ area, actor }) {
+    const diffx = actor.x - area.x;
+    const diffy = actor.y - area.y;
+    return diffx >= 0 && diffx <= area.width && diffy >= 0 && diffy <= area.height;
+  },
 };

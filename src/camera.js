@@ -110,7 +110,6 @@ export const Camera = {
     drawActorToContext,
   }) {
     if (oldViewport !== viewport) {
-      // layoutContext.clearRect(0, 0, width, height);
       const layoutData = sprites.background[width * viewport.scale];
       layoutContext.drawImage(
         layoutData.canvas,
@@ -123,20 +122,13 @@ export const Camera = {
         viewport.height * viewport.scale,
       );
     }
-
-    // Remove old
-    context.clearRect(0, 0, width, height);
-
+    // Draw Items on the background
     for (let i = 0; i < items.length; i++) {
       const actor = items[i];
-      if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
-        continue;
-      }
-      if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) {
-        continue;
-      }
+      if (actor.inInventory) { continue; }
+      if (!Camera.isWithinViewport({ viewport, actor })) { continue; }
       drawActorToContext({
-        context,
+        context: layoutContext,
         sprites,
         actor,
         offset: viewport,
@@ -144,6 +136,9 @@ export const Camera = {
         defaultSprite: 'itemSprite',
       });
     }
+
+    // Remove old
+    context.clearRect(0, 0, width, height);
 
     // Draw new position player position
     drawActorToContext({
@@ -157,12 +152,7 @@ export const Camera = {
 
     for (let i = 0; i < characters.length; i++) {
       const actor = characters[i];
-      if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
-        continue;
-      }
-      if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) {
-        continue;
-      }
+      if (!Camera.isWithinViewport({ viewport, actor })) { continue; }
       // Draw new position
       drawActorToContext({
         context,
@@ -233,5 +223,14 @@ export const Camera = {
       });
       context.stroke();
     });
+  },
+  isWithinViewport({ viewport, actor }) {
+    if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
+      return false;
+    }
+    if (viewport.y > (actor.y + actor.height) || (viewport.y + viewport.height) < actor.y) {
+      return false;
+    }
+    return true;
   },
 };

@@ -13,7 +13,7 @@ export const Story = {
    */
   getChanges(oldState, state) {
     if (oldState == null || state == null) { return state; }
-    const changes = {};
+    const changes = { };
     const stateKeys = Object.keys(state);
     for (const i of stateKeys) {
       if (oldState[i] === state[i]) { continue; }
@@ -103,17 +103,6 @@ export const Story = {
   },
 
   /**
-   * isWithinArea.
-   *
-   * @param {}
-   */
-  isWithinArea({ area, actor }) {
-    const diffx = actor.x - area.x;
-    const diffy = actor.y - area.y;
-    return diffx >= 0 && diffx <= area.width && diffy >= 0 && diffy <= area.height;
-  },
-
-  /**
    * isTriggered.
    *
    * @param {}
@@ -136,7 +125,7 @@ export const Story = {
           b: characters.find((t) => t.id === trigger.characterId),
         });
       case 'area':
-        return Story.isWithinArea({
+        return Util.isWithinArea({
           area: areas.find((t) => t.id === trigger.areaId),
           actor: player,
         });
@@ -161,7 +150,7 @@ export const Story = {
    * @param {}
    */
   updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
-    const { player, areas } = gameState;
+    const { player, areas, items } = gameState;
     const { width, height } = mapDim;
     const { attack } = flags || { attack: false };
     let { events } = gameState;
@@ -238,9 +227,17 @@ export const Story = {
         return npc;
       });
 
+    const newItems = items && items.map((t) => {
+      if (!t.inInventory && Util.dist(t, player) < 2 * player.width) {
+        return { ...t, inInventory: true };
+      }
+      return t;
+    });
+
     return {
       ...gameState,
       ...current,
+      items: newItems,
     };
   },
 

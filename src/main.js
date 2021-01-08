@@ -176,6 +176,7 @@ window.addEventListener('load', async () => {
     pixels,
     player: gameState.player,
     characters: gameState.characters.concat(newCharacters),
+    items: gameState.items,
     width: mapDim.width,
     height: mapDim.height,
     locMap: {},
@@ -211,6 +212,7 @@ window.addEventListener('load', async () => {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
+      items: physicsState.items,
     };
     // Update story worker with new game state
     storyWorker.postMessage({
@@ -250,33 +252,6 @@ window.addEventListener('load', async () => {
     window.requestAnimationFrame(physicsLoop);
   };
 
-  /// / Update game state with the latest from physics
-  storyWorker.onmessage = (e) => {
-    storyChanges = e.data;
-    /* eslint-disable no-use-before-define */
-    if (storyChanges.conversation != null) {
-      const updateConvo = (newConvo) => {
-        sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
-      };
-      renderConversation(storyChanges.conversation, updateConvo);
-    }
-    physicsState = Story.applyChanges(physicsState, storyChanges);
-    /* eslint-enable no-use-before-define */
-  };
-
-  // Update FPS/other stats every 1000ms
-  setInterval(() => {
-    /* eslint-disable no-use-before-define */
-    updateDiagnostDisp({
-      fps: frames,
-      mapMakingTime,
-      collisionTime,
-      collisionChecks,
-      collisionCalls,
-    });
-    clearStats();
-    /* eslint-enable no-use-before-define */
-  }, 1000);
   /* eslint-disable no-use-before-define */
 
   // Inventory UI
@@ -311,8 +286,44 @@ window.addEventListener('load', async () => {
   });
   /* eslint-enable no-use-before-define */
 
+  // Update game state with the latest from story
+  storyWorker.onmessage = (e) => {
+    storyChanges = e.data;
+    /* eslint-disable no-use-before-define */
+    if (storyChanges.conversation != null) {
+      const updateConvo = (newConvo) => {
+        sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
+      };
+      renderConversation(storyChanges.conversation, updateConvo);
+    }
+    physicsState = Story.applyChanges(physicsState, storyChanges);
+    if (storyChanges.items) {
+      gameState.items = physicsState.items;
+      InventoryUI.renderOverlay({
+        icon: inventoryIcon,
+        overlay: inventoryOverlay,
+        items: gameState.items,
+      });
+    }
+    /* eslint-enable no-use-before-define */
+  };
+
+  // Update FPS/other stats every 1000ms
+  setInterval(() => {
+    /* eslint-disable no-use-before-define */
+    updateDiagnostDisp({
+      fps: frames,
+      mapMakingTime,
+      collisionTime,
+      collisionChecks,
+      collisionCalls,
+    });
+    clearStats();
+    /* eslint-enable no-use-before-define */
+  }, 1000);
+
   // Start main game loop
-  physicsLoop(performance.now());
+  setTimeout(physicsLoop(performance.now()));
 });
 
 // Modified by the eventListener
