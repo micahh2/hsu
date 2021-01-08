@@ -8,6 +8,7 @@ import { Music } from './music.js';
 import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
+import { InventoryUI } from './ui/inventory-ui.js';
 import { PathFinding } from './path-finding.js';
 
 const fetchGameData = new Promise((res) => {
@@ -139,21 +140,10 @@ window.addEventListener('load', async () => {
   await readyToStart;
 
   /* eslint-disable no-use-before-define */
-  // Icons
-  inventoryIcon = document.getElementById('inventory');
-  overlay = document.getElementById('overlay');
-  inventory = document.querySelector('.inventory');
-  overlay.addEventListener('click', toggleInventoryOverlay);
-  inventoryIcon.addEventListener('click', toggleInventoryOverlay);
-  inventory.addEventListener('click', (e) => { e.preventDefault(); });
 
-  /**
-   *  just added these here for testing, uncomment to test -Eetu
-   */
   Time.ingameTime(0);
-  Time.setTimer(4);
 
-  // Music - Might not work the first time
+  // Music - Might not work the first time due to browser permissions
   playMusic();
 
   const emailIcon = document.getElementById('email');
@@ -289,17 +279,18 @@ window.addEventListener('load', async () => {
   }, 1000);
   /* eslint-disable no-use-before-define */
 
-  // Icons
-  inventoryIcon = document.getElementById('inventory');
-  overlay = document.getElementById('overlay');
-  inventory = document.querySelector('.inventory');
-  overlay.addEventListener('click', toggleInventoryOverlay);
-  inventoryIcon.addEventListener('click', toggleInventoryOverlay);
-  inventory.addEventListener('click', (e) => {
-    e.preventDefault();
+  // Inventory UI
+  const inventoryIcon = document.getElementById('inventory');
+  const inventoryOverlay = document.getElementById('inventory-overlay');
+  InventoryUI.renderOverlay({
+    icon: inventoryIcon,
+    overlay: inventoryOverlay,
+    items: gameState.items,
   });
 
   // Quest UI
+  const questIcon = document.getElementById('quest'); // HTMLElement
+  const questOverlay = document.getElementById('quest-overlay'); // HTMLElement
   const quests = [{
     title: 'Talk to someone',
     tasks: [{ description: 'Talk to anyone about anything!' }],
@@ -313,8 +304,6 @@ window.addEventListener('load', async () => {
       },
     ],
   }];
-  const questIcon = document.getElementById('quest'); // HTMLElement
-  const questOverlay = document.getElementById('quest-overlay'); // HTMLElement
   QuestUI.renderOverlay({
     icon: questIcon,
     overlay: questOverlay,
@@ -397,9 +386,6 @@ window.addEventListener('keyup', (e) => {
       break;
     case 'KeyZ':
       zoom = !zoom;
-      break;
-    case 'KeyI':
-      toggleInventoryOverlay(e); // eslint-disable-line no-use-before-define
       break;
     case 'KeyC':
       sendStoryEvent({ type: 'start-conversation' });
@@ -619,24 +605,6 @@ function updateDiagnostDisp({ fps }) {
   /* eslint-enable no-shadow */
   const el = document.getElementById('fps');
   el.innerHTML = `<div>${fps} FPS</div>`;
-}
-
-let overlayOpen = false;
-let inventoryIcon;
-let overlay;
-let inventory;
-
-function toggleInventoryOverlay(e) {
-  if (e.defaultPrevented) {
-    return;
-  }
-  if (!overlayOpen) {
-    overlay.style.display = 'block';
-    overlayOpen = true;
-  } else {
-    overlay.style.display = 'none';
-    overlayOpen = false;
-  }
 }
 
 function renderMessageOverlay(element) {

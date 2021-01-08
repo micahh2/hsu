@@ -8,32 +8,32 @@
         <link href="./assets/fonts/PressStart2P.css" rel="stylesheet">
         <link href="main.css" rel="stylesheet" />
     </head>
-<body>
-    <div id="images">
-        <img id="character-sprite" src="assets/charBatch1_sprite.png">
-        <img id="item-sprite" src="assets/Item_batch1_sprite.png">
-    </div>
-    <div id="logo">
-        <img class="icon" src="assets/hochschule_icon.svg">
-        <h1>Hochschule Ulm</h1>
-    </div>
-    <div id="fps"></div>
-    <div id="stage">
-        <canvas id="debug-layer"></canvas>
-        <canvas id="objects-layer"></canvas>
-        <canvas id="layout-layer"></canvas>
-    </div>
-    <div id="conversation"></div>
-    <div id="instructions">Z: Toggle Zoom | [Space]: Toggle attack | P: Toggle Pause</div>
-    <div class="container">
-        <div id="ui-icons">
-            <button class="ui-icon" id="inventory">
-                <img
-                    src="assets/Backpack_Closed.png"
-                    onMouseOver="src='assets/Backpack_Opened.png'"
-                    onMouseOut="src='assets/Backpack_Closed.png'"
-                    >
-            </button>
+    <body>
+        <div id="images">
+            <img id="character-sprite" src="assets/charBatch1_sprite.png">
+            <img id="item-sprite" src="assets/Item_batch1_sprite.png">
+        </div>
+        <div id="logo">
+            <img class="icon" src="assets/hochschule_icon.svg">
+            <h1>Hochschule Ulm</h1>
+        </div>
+        <div id="fps"></div>
+        <div id="stage">
+            <canvas id="debug-layer"></canvas>
+            <canvas id="objects-layer"></canvas>
+            <canvas id="layout-layer"></canvas>
+        </div>
+        <div id="conversation"></div>
+        <div id="instructions">Z: Toggle Zoom | [Space]: Toggle attack | P: Toggle Pause</div>
+        <div class="container">
+            <div id="ui-icons">
+                <button class="ui-icon" id="inventory">
+                    <img
+                        src="assets/Backpack_Closed.png"
+                        onMouseOver="src='assets/Backpack_Opened.png'"
+                        onMouseOut="src='assets/Backpack_Closed.png'"
+                        >
+                </button>
                 <button class="ui-icon" id="email">
                     <img
                         src="assets/Email_Closed.png"
@@ -41,96 +41,71 @@
                         onMouseOut="src='assets/Email_Closed.png'"
                         >
                 </button>
-                    </br>
-                    <button class="ui-icon" id="quest">
-                        <img
-                            src="assets/PhoneV2_Off.png"
-                            onMouseOver="src='assets/Phone_On.png'"
-                            onMouseOut="src='assets/PhoneV2_Off.png'"
-                            >
-                    </button>
+                </br>
+                <button class="ui-icon" id="quest">
+                    <img
+                        src="assets/PhoneV2_Off.png"
+                        onMouseOver="src='assets/Phone_On.png'"
+                        onMouseOut="src='assets/PhoneV2_Off.png'"
+                        >
+                </button>
+            </div>
+            <div id="time"></div>
+            <div id="ingameTime"></div>
+            <div id="timer"></div>
         </div>
-        <div id="time"></div>
-        <div id="ingameTime"></div>
-        <div id="timer"></div>
-    </div>
-    <div class="container">
-        <div id="overlay" class="overlay">
-            <div class="content">
-                <div class="inventory">
-                    <div id="0" class="slot">
-                        <div class="item" id="wood">
-                            <img src="assets/Email_Closed.png" />
-                        </div>
-                    </div>
-                    <div id="1" class="slot">
-                        <div class="item" id="wood">
-                            <img src="assets/Phone_On.png" />
-                        </div>
-                    </div>
-                    <div id="2" class="slot">
-                        <div class="item" id="wood">
-                            <img src="assets/Backpack_Closed.png" />
-                        </div>
-                    </div>
-                    <div id="3" class="slot">
-                        <div class="item" id="wood">
-                            <img src="assets/PhoneV2_Off.png" />
-                        </div>
-                    </div>
-
-                    <div id="4" class="slot"></div>
-                    <div id="5" class="slot"></div>
-                    <div id="6" class="slot"></div>
-                    <div id="7" class="slot"></div>
-
-                    <div id="8" class="slot"></div>
-                    <div id="9" class="slot"></div>
-                    <div id="10" class="slot"></div>
-                    <div id="11" class="slot"></div>
-
-
-                    <div id="12" class="slot"></div>
-                    <div id="13" class="slot"></div>
-                    <div id="14" class="slot"></div>
-                    <div id="15" class="slot"></div>
+        <div class="container">
+            <div class="overlay"></div>
+            <div id="inventory-overlay"></div>
+        </div>
+        <div id="message-overlay-container" class="container">
+            <div class="overlay"></div>
+            <div id="message-overlay"></div>
+        </div>
+        <div id="start-page">
+            <div class="overlay" style="display: block"></div>
+            <div class="start-page-container">
+                <h1>Welcome to Hochschule Ulm</h1>
+                <div class="loading">
+                    <img class="icon" src="assets/hochschule_icon.svg">
+                    <p>Loading...</p>
+                </div>
+                <div class="start-page">
+                    <p>
+                        In this game you will learn how to get around in the Hochschule Ulm,
+                        how to complete tasks and how to use every single brain cell to graduate.
+                    </p>
+                    <p>
+                        You can navigate with the arrow keys, 
+                        communicate with "c", zoom with "z" and toggle attack with "[space]".
+                    </p>
+                    <br />
+                    <h2>This game was developed by:</h2>
+                    <p>
+                        Anton Gorshkov,
+                        Eetu Hyvärinen,
+                        Fiordi Doma,
+                        Jonny Bahous,
+                        Pan Zhao,
+                        Petar Stoyanov,
+                        Micah De Vyldere,
+                        and Spyridon Ntokos
+                    </p>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="message-overlay-container" class="container">
-        <div class="overlay"></div>
-        <div id="message-overlay"></div>
-    </div>
-    <div id="start-page">
-        <div class="overlay" style="display: block"></div>
-        <div class="start-page-container">
-            <h1>Welcome to Hochschule Ulm</h1>
-            <div class="loading">
-                <img class="icon" src="assets/hochschule_icon.svg">
-                <p>Loading...</p>
-            </div>
-            <div class="start-page">
-              <p>In this game you will learn how to get around in the Hochschule Ulm, how to complete tasks and how to use every single brain cell to graduate.</p>
-              <p>You can navigate with the arrow keys, communicate with "c", zoom with "z" and toggle attack with "[space]".</p>
-              <br></br>
-              <h2>This game is developed by:</h2>
-                <p>Anton Gorshkov, Eetu Hyvärinen, Fiordi Doma, Jonny Bahous, Pan Zhao, Petar Stoyanov, Micah DeVyldere and Spyridon Ntokos</p>
-            </div>
-        </div>
 
-    </div>
-    <div class="music">
-        <img src="assets/musicnote.png" id="musicnote"></img>
-        <div id="volumeslider">
-            <input type="range" class="slider" min="0" max="1.0" step="0.01" value="1.0" id="rangeSlider">
-            </br>
-            <span id="range_value" class="rangevalue">100%</span>
         </div>
-        <audio src="assets/music/waterdrop.wav" id="waterdrop"></audio>
-        <audio src="assets/music/backgroundchill.m4a" id="backgroundchill"></audio>
-    </div>
-    <div id="quest-overlay"></div>
-</body>
-<script type="module" src="main.js"></script>
+        <div class="music">
+            <img src="assets/musicnote.png" id="musicnote"></img>
+            <div id="volumeslider">
+                <input type="range" class="slider" min="0" max="1.0" step="0.01" value="1.0" id="rangeSlider">
+                </br>
+                <span id="range_value" class="rangevalue">100%</span>
+            </div>
+            <audio src="assets/music/waterdrop.wav" id="waterdrop"></audio>
+            <audio src="assets/music/backgroundchill.m4a" id="backgroundchill"></audio>
+        </div>
+        <div id="quest-overlay"></div>
+    </body>
+    <script type="module" src="main.js"></script>
 </html>

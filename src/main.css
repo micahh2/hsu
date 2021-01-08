@@ -128,35 +128,20 @@ body {
   justify-content: center;
 }
 
-.inventory {
-  width: 318px;
-  height: 318px;
-  background: grey;
-  border-radius: 5px;
-  padding: 5px;
-
-}
-
 .slot {
-  width: 70px;
-  height: 70px;
+  width: 92px;
+  height: 92px;
   background: lightgrey;
   justify-content: center;
   border: solid 2.5px darkgrey;
   margin: 2px;
   float: left;
-
 }
 
 .item {
-  width: auto;
-  height: auto;
-
-}
-
-.item img {
+  background: url('assets/Item_batch1_sprite.png');
+  height: 100%;
   width: 100%;
-  margin: 0 auto;
 }
 
 #ingameTime {
@@ -325,6 +310,7 @@ body {
   margin-left: -200px;
   padding: 10px;
   border-radius: 5px;
+  display: inline-block;
 }
 .accordion-container h2 {
   text-align: center;
