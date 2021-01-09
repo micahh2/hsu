@@ -171,6 +171,7 @@ window.addEventListener('load', async () => {
     });
 
   let storyChanges;
+  let oldItems;
   let oldViewport;
   let physicsState = {
     pixels,
@@ -235,6 +236,7 @@ window.addEventListener('load', async () => {
       player: physicsState.player,
       characters: physicsState.characters,
       items: gameState.items,
+      oldItems,
       context,
       width: canvasWidth,
       height: canvasHeight,
@@ -249,6 +251,7 @@ window.addEventListener('load', async () => {
       Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
     }
     oldViewport = viewport;
+    oldItems = gameState.items;
     window.requestAnimationFrame(physicsLoop);
   };
 

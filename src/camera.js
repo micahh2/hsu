@@ -100,6 +100,7 @@ export const Camera = {
     player,
     characters,
     items,
+    oldItems,
     context,
     width,
     height,
@@ -109,7 +110,7 @@ export const Camera = {
     layoutContext,
     drawActorToContext,
   }) {
-    if (oldViewport !== viewport) {
+    if (oldViewport !== viewport || oldItems !== items) {
       const layoutData = sprites.background[width * viewport.scale];
       layoutContext.drawImage(
         layoutData.canvas,
@@ -121,20 +122,20 @@ export const Camera = {
         viewport.width * viewport.scale,
         viewport.height * viewport.scale,
       );
-    }
-    // Draw Items on the background
-    for (let i = 0; i < items.length; i++) {
-      const actor = items[i];
-      if (actor.inInventory) { continue; }
-      if (!Camera.isWithinViewport({ viewport, actor })) { continue; }
-      drawActorToContext({
-        context: layoutContext,
-        sprites,
-        actor,
-        offset: viewport,
-        scale: viewport.scale,
-        defaultSprite: 'itemSprite',
-      });
+      // Draw Items on the background
+      for (let i = 0; i < items.length; i++) {
+        const actor = items[i];
+        if (actor.inInventory) { continue; }
+        if (!Camera.isWithinViewport({ viewport, actor })) { continue; }
+        drawActorToContext({
+          context: layoutContext,
+          sprites,
+          actor,
+          offset: viewport,
+          scale: viewport.scale,
+          defaultSprite: 'itemSprite',
+        });
+      }
     }
 
     // Remove old
