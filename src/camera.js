@@ -15,8 +15,8 @@ export const Camera = {
   getCanvasData(canvas) {
     const bounds = canvas.getBoundingClientRect();
     const ratio = bounds.width / bounds.height;
-    const canvasWidth = Math.round(bounds.width);
-    const canvasHeight = Math.round(bounds.height);
+    const canvasWidth = Math.round(Math.min(bounds.width, 1000) * ratio);
+    const canvasHeight = Math.round(Math.min(bounds.height, 1000));
     const context = canvas.getContext('2d');
 
     return {
@@ -108,9 +108,22 @@ export const Camera = {
     viewport,
     oldViewport,
     layoutContext,
+    aboveContext,
     drawActorToContext,
   }) {
     if (oldViewport !== viewport || oldItems !== items) {
+      aboveContext.clearRect(0, 0, width, height);
+      const aboveData = sprites.above[width * viewport.scale];
+      aboveContext.drawImage(
+        aboveData.canvas,
+        viewport.x * viewport.scale,
+        viewport.y * viewport.scale,
+        viewport.width * viewport.scale,
+        viewport.height * viewport.scale,
+        0, 0,
+        viewport.width * viewport.scale,
+        viewport.height * viewport.scale,
+      );
       const layoutData = sprites.background[width * viewport.scale];
       layoutContext.drawImage(
         layoutData.canvas,

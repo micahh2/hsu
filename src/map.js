@@ -124,7 +124,14 @@ export const Map = {
    * @param {}
    */
   loadTileMapAsSpriteData({
-    tilemap, zoomLevels, canvasWidth, setCanvasResolution, sprites, canvasProvider,
+    tilemap, zoomLevels,
+    canvasWidth,
+    setCanvasResolution,
+    sprites,
+    canvasProvider,
+    only,
+    except,
+    alpha = 0,
   }) {
     const dim = Map.getTileMapDim(tilemap);
 
@@ -135,10 +142,11 @@ export const Map = {
       const width = z * dim.width;
       const height = Math.round(z * dim.height);
       setCanvasResolution(canvas, width, height);
-      const context = canvas.getContext('2d', { alpha: false });
+      const context = canvas.getContext('2d', { alpha: alpha !== 0 });
+      context.globalAlpha = alpha;
       context.imageSmoothingEnabled = false;
       Map.drawTileMapToContext({
-        tilemap, context, canvasProvider, sprites, zoomLevel: z,
+        tilemap, context, canvasProvider, sprites, zoomLevel: z, only, except,
       });
       spriteData[z * canvasWidth] = {
         canvas,
@@ -158,10 +166,11 @@ export const Map = {
    *
    * @param {}
    */
-  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only }) {
+  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only, except }) {
     for (const layer of tilemap.layers) {
       if (!layer.visible || layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
+      if (except && except.includes(layer.name)) { continue; }
       Map.drawTileLayerToContext({
         layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,
       });
@@ -252,10 +261,10 @@ export const Map = {
         continue;
       }
 
-      const x = (i % layer.height) * scale - 1;
-      const y = Math.floor(i / layer.height) * scale - 1;
-      const width = scale + 2;
-      const height = scale + 2;
+      const x = (i % layer.height) * scale;
+      const y = Math.floor(i / layer.height) * scale;
+      const width = scale;
+      const height = scale;
       if (hasFlip) {
         const centerx = (x + width / 2);
         const centery = (y + height / 2);

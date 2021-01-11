@@ -5,6 +5,7 @@ test-report.*
 coverage
 
 # Editor shit
+.vs
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

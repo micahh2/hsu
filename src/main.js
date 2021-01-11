@@ -47,7 +47,7 @@ window.addEventListener('load', async () => {
   // Load elements from DOM (look in index.html)
   const objectCanvas = document.getElementById('objects-layer');
   const layoutCanvas = document.getElementById('layout-layer');
-  const debugCanvas = document.getElementById('debug-layer');
+  const aboveCanvas = document.getElementById('above-layer');
 
   // const layoutImage = document.getElementById('layout');
   // const backgroundImage = document.getElementById('background');
@@ -61,7 +61,7 @@ window.addEventListener('load', async () => {
 
   Camera.setCanvasResolution(objectCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
-  Camera.setCanvasResolution(debugCanvas, canvasWidth, canvasHeight);
+  Camera.setCanvasResolution(aboveCanvas, canvasWidth, canvasHeight);
 
   const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
   Camera.setCanvasResolution(virtualCanvas, mapDim.width, mapDim.width);
@@ -80,8 +80,10 @@ window.addEventListener('load', async () => {
 
   // Default layer context
   const context = objectCanvas.getContext('2d');
+  const aboveContext = aboveCanvas.getContext('2d');
   context.imageSmoothingEnabled = false;
   layoutCanvasData.context.imageSmoothingEnabled = false;
+  aboveContext.imageSmoothingEnabled = false;
 
   // Load the initial story
   let gameState = Story.loadGameState(gameData);
@@ -131,6 +133,19 @@ window.addEventListener('load', async () => {
     canvasWidth,
     zoomLevels,
     canvasProvider, // eslint-disable-line no-use-before-define
+    except: ['Above'],
+    alpha: 1,
+  });
+  sprites.above = Map.loadTileMapAsSpriteData({
+    tilemap,
+    loadedTilesets,
+    setCanvasResolution: Camera.setCanvasResolution,
+    sprites: tileSprites,
+    canvasWidth,
+    zoomLevels,
+    canvasProvider, // eslint-disable-line no-use-before-define
+    only: ['Above'],
+    alpha: 1,
   });
   // Wait for start
   const startPage = document.getElementById('start-page');
@@ -245,10 +260,15 @@ window.addEventListener('load', async () => {
       oldViewport,
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
+      aboveContext,
     });
-    if (debugPathfinding) { // eslint-disable-line no-use-before-define
-      Camera.drawDestinations({ viewport, characters: physicsState.characters, context: debugCanvas.getContext('2d') });
-      Camera.drawGraph({ viewport, graph, context: debugCanvas.getContext('2d') });
+    if (debugPathfinding && oldViewport !== viewport) { // eslint-disable-line no-use-before-define
+      Camera.drawDestinations({
+        viewport,
+        characters: physicsState.characters,
+        context: aboveContext,
+      });
+      Camera.drawGraph({ viewport, graph, context: aboveContext });
     }
     oldViewport = viewport;
     oldItems = gameState.items;

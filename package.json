@@ -1,6 +1,6 @@
 {
   "name": "hsu",
-  "version": "0.8.7",
+  "version": "0.9.1",
   "description": "Hochschule Ulm, The Game",
   "main": "main.js",
   "scripts": {
