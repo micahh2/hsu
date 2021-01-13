@@ -6,32 +6,44 @@ export const QuestUI = {
   }) {
     const questHTML = quests.map((quest) => {
       const { title, tasks } = quest;
+      const completed = tasks.every((k) => k.hidden || k.done) ? '\u2705 ' : '';
       const taskHTML = tasks
         .filter((k) => !k.hidden)
-        .map((k) => `<li>${k.description}</li>`)
+        .map((k) => `<li class="${k.done ? 'task-done' : ''}">${k.description}</li>`)
         .join('');
-      return `<input type="button" class="accordion-toggle" value="${title}">
+      return `<input type="button" class="accordion-toggle" value="${completed}${title}">
               <div class="accordion-expandable"> <ol>${taskHTML}</ol> </div>`;
     })
       .join('');
 
-    /* eslint-disable no-param-reassign */
-    overlay.innerHTML = `<div class="container">
-                 <div class="overlay"></div>
-                 <div class="accordion-container">
-                        <h2>Quests</h2>
-                        ${questHTML}
-                 </div>
-          </div>`;
-    /* eslint-enable no-param-reassign */
-    QuestUI.hide(overlay); // explicitly hide so it can be toggled
+    const cont = overlay.querySelector('.accordion-container');
+    if (!cont) {
+      /* eslint-disable no-param-reassign */
+      overlay.innerHTML = `<div class="container">
+                   <div class="overlay"></div>
+                   <div class="accordion-container">
+                          <h2>Quests</h2>
+                          ${questHTML}
+                   </div>
+            </div>`;
+      /* eslint-enable no-param-reassign */
+      QuestUI.hide(overlay); // explicitly hide so it can be toggled
 
-    const background = overlay.querySelector('.overlay');
-    QuestUI.show(background);
-    background.addEventListener('click', () => {
-      QuestUI.hide(overlay);
-    });
+      const background = overlay.querySelector('.overlay');
+      QuestUI.show(background);
+      background.addEventListener('click', () => {
+        QuestUI.hide(overlay);
+      });
 
+      icon.addEventListener('click', () => {
+        QuestUI.toggle(overlay);
+      });
+    } else {
+      cont.innerHTML = `
+          <h2>Quests</h2>
+          ${questHTML}
+      `;
+    }
     const toggles = overlay.querySelectorAll('.accordion-toggle');
     toggles.forEach((toggle) => {
       const sibling = toggle.nextElementSibling;
@@ -39,10 +51,6 @@ export const QuestUI = {
       toggle.addEventListener('click', () => {
         QuestUI.toggle(sibling);
       });
-    });
-
-    icon.addEventListener('click', () => {
-      QuestUI.toggle(overlay);
     });
   },
   show(element) {

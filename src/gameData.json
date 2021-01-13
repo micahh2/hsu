@@ -80,36 +80,42 @@
           {
             "id": 1,
             "query": "Goodbye.",
-            "event": "end-conversation"
+            "events": []
           },
           {
             "id": 2,
             "query": "Are you going home?",
             "response": "No.",
-            "event": "return-response"
+            "events": []
           },
           {
             "id": 3,
+            "query": "Have you seen my notebook?",
+            "response": "I think one of the other students picked it up. Not sure which one. You all look alike to me.",
+            "events": [{ "type": "show-item", "itemId": 8 }]
+          },
+          {
+            "id": 4,
             "query": "Where can I find food?",
             "response": "There's a number of places.",
             "options": [
               {
-                "id": 1,
+                "id": 5,
                 "query": "Where is cheap?",
                 "response": "The Mensa is cheap."
               },
               {
-                "id": 2,
+                "id": 6,
                 "query": "Where is convenient?",
                 "response": "The Cafeteria is convenient"
               },
               {
-                "id": 3,
+                "id": 6,
                 "query": "Where is delicious?",
                 "response": "No where around here!"
               }
             ],
-            "event": "return-response"
+            "events": []
           }
         ]
       }
@@ -233,7 +239,8 @@
       "y": 700,
       "width": 10,
       "height": 10,
-      "spriteIndex": 8
+      "spriteIndex": 8,
+      "hidden": true
     },
     {
       "id": 9,
@@ -297,6 +304,41 @@
       "width": 10,
       "height": 10,
       "spriteIndex": 15
+    }
+  ],
+  "quests": [
+    {
+      "id": 0,
+      "title": "Talk to someone",
+      "tasks": [
+        { 
+          "id": 0,
+          "description": "Talk to anyone about anything!",
+          "trigger": { "type": "conversation" }
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Find your notebook",
+      "tasks": [
+        {
+          "id": 0,
+          "description": "You last left your notebook in a classroom. Talk to your teachers.",
+          "trigger": { "type": "conversation", "characterId": 1, "dialogId": 2 }
+        },
+        { 
+          "id": 1,
+          "description": "Frau Kold says another student picked it up!",
+          "hidden": true,
+          "trigger": { "type": "has-item", "itemId": 8 }
+        },
+        { 
+          "id": 3,
+          "description": "You found it in the grass!",
+          "hidden": true
+        }
+      ]
     }
   ]
 }

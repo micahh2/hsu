@@ -328,3 +328,6 @@ body {
 #quest-overlay {
    display: none;
 }
+.task-done {
+  text-decoration: line-through;
+}

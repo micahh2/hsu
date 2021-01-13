@@ -11,14 +11,8 @@ import { QuestUI } from './ui/quest-ui.js';
 import { InventoryUI } from './ui/inventory-ui.js';
 import { PathFinding } from './path-finding.js';
 
-const fetchGameData = new Promise((res) => {
-  fetch('./gameData.json')
-    .then((response) => res(response.json()));
-});
-const fetchTilesetData = new Promise((res) => {
-  fetch('./tileset.json')
-    .then((response) => res(response.json()));
-});
+import gameData from './gameData.json';
+import tilemap from './tileset.json';
 
 const storyWorker = new Worker(
   new URL('./workers/story-worker.js', import.meta.url),
@@ -31,11 +25,6 @@ function sendStoryEvent(event) {
 
 const zoomLevels = [1, 3];
 window.addEventListener('load', async () => {
-  const [gameData, tilemap] = await Promise.all([
-    fetchGameData,
-    fetchTilesetData,
-  ]);
-
   const mapDim = Map.getTileMapDim(tilemap);
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
   const tileSprites = Map.loadTileMapSprites({
@@ -184,6 +173,7 @@ window.addEventListener('load', async () => {
     player: gameState.player,
     characters: gameState.characters.concat(newCharacters),
     items: gameState.items,
+    quests: gameState.quests,
     width: mapDim.width,
     height: mapDim.height,
     locMap: {},
@@ -274,23 +264,10 @@ window.addEventListener('load', async () => {
   // Quest UI
   const questIcon = document.getElementById('quest'); // HTMLElement
   const questOverlay = document.getElementById('quest-overlay'); // HTMLElement
-  const quests = [{
-    title: 'Talk to someone',
-    tasks: [{ description: 'Talk to anyone about anything!' }],
-  }, {
-    title: 'Find your notebook',
-    tasks: [
-      { description: 'You last left your notebook in a classroom. Talk to your teachers.' },
-      {
-        description: 'Frau Kold says another student picked it up!',
-        hidden: true,
-      },
-    ],
-  }];
   QuestUI.renderOverlay({
     icon: questIcon,
     overlay: questOverlay,
-    quests,
+    quests: gameState.quests,
   });
   /* eslint-enable no-use-before-define */
 
@@ -305,24 +282,34 @@ window.addEventListener('load', async () => {
       };
       renderConversation(physicsState.conversation, updateConvo);
     }
-    if (oldItems.items !== physicsState.items) {
+    if (oldState.items !== physicsState.items) {
       InventoryUI.renderOverlay({
         icon: inventoryIcon,
         overlay: inventoryOverlay,
-        items: gameState.items,
+        items: physicsState.items,
       });
     }
+    if (oldState.quests !== physicsState.quests) {
+      QuestUI.renderOverlay({
+        icon: questIcon,
+        overlay: questOverlay,
+        quests: physicsState.quests,
+      });
+    }
+    // TODO: Fix this whole physicsState/gameState mess
     gameState = {
       ...gameState,
       player: physicsState.player,
       characters: physicsState.characters,
       items: physicsState.items,
+      quests: physicsState.quests,
+      conversation: physicsState.conversation,
     };
     // Update story worker with new game state
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
-      flags: { attack },
+      flags: { attack }, // eslint-disable-line no-use-before-define
     });
     /* eslint-enable no-use-before-define */
   };
@@ -335,9 +322,7 @@ window.addEventListener('load', async () => {
   storyWorker.postMessage({
     type: 'update-game-state',
     gameState,
-    flags: { attack },
   });
-
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {

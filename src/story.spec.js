@@ -22,8 +22,8 @@ describe('applyChanges', () => {
   });
 
   it('should should update character waypoints/destinations', () => {
-    const waypoints = [1,2,3];
-    const exclude = [4,5,6];
+    const waypoints = [1, 2, 3];
+    const exclude = [4, 5, 6];
     const destination = 1;
     const characters = [{ id: 1, x: 1, y: 2 }];
     const state = { characters };
@@ -45,7 +45,7 @@ describe('applyChanges', () => {
         waypoints,
         exclude,
         destination,
-      }]
+      }],
     });
   });
 });
@@ -251,6 +251,21 @@ describe('isTriggered', () => {
     const characters = [two];
     const { trigger } = events[3]; // characterId: 1
     expect(Story.isTriggered({ trigger, player: one, characters })).true;
+  });
+  it('should trigger on any conversation', () => {
+    const trigger = { type: 'conversation' };
+    expect(Story.isTriggered({ conversation: { active: true }, trigger })).true;
+  });
+  it('should trigger on conversation with specific npc', () => {
+    const trigger = { type: 'conversation', characterId: 123 };
+    expect(Story.isTriggered(
+      { conversation: { active: true, character: { id: 123 } }, trigger },
+    )).true;
+  });
+  it('should trigger on having an item', () => {
+    const items = [{ id: 12, inInventory: true }];
+    const trigger = { type: 'has-item', itemId: 12 };
+    expect(Story.isTriggered({ items, trigger })).true;
   });
 });
 

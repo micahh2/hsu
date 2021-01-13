@@ -51,7 +51,14 @@ export const Story = {
    * @param {}
    */
   isTriggered({
-    player, characters, areas, trigger, now, timeSinceLast,
+    player,
+    characters,
+    areas,
+    trigger,
+    now,
+    timeSinceLast,
+    items,
+    conversation,
   }) {
     const triggerType = trigger ? trigger.type : 'dynamic';
     switch (triggerType) {
@@ -72,6 +79,12 @@ export const Story = {
           area: areas.find((t) => t.id === trigger.areaId),
           actor: player,
         });
+      case 'has-item':
+        return items.some((item) => item.id === trigger.itemId && item.inInventory);
+      case 'conversation':
+        return !!(conversation
+          && conversation.active
+          && (trigger.characterId == null || conversation.character.id === trigger.characterId));
       default:
         throw Error(`Unexpected Trigger: ${trigger.type}`);
     }
@@ -93,11 +106,14 @@ export const Story = {
    * @param {}
    */
   updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
-    const { player, areas, items } = gameState;
+    const { player, areas, items, quests } = gameState;
     const { width, height } = mapDim;
     const { attack } = flags || { attack: false };
-    const paused = (gameState.conversation && gameState.conversation.active) || flags && flags.paused;
+    const paused = (gameState.conversation && gameState.conversation.active)
+       || (flags && flags.paused);
+
     let { events } = gameState;
+    if (paused) { events = []; }
     events = events.concat(eventQueue);
     let changes = [];
     let expired = [];
@@ -108,6 +124,8 @@ export const Story = {
         areas,
         player,
         characters,
+        conversation,
+        items,
         trigger: events[i].trigger,
         now,
         timeSinceLast,
@@ -133,18 +151,26 @@ export const Story = {
             Story.startConversation({
               player,
               characters,
-              conversation,
               selector,
             }),
           );
           break;
-        case 'update-conversation':
-          changes = changes.concat(
-            Story.updateConversation({
-              characters,
-              conversation,
-            }),
-          );
+        case 'update-conversation': {
+          const convoUpdates = Story.updateConversation({
+            characters,
+            conversation: events[i].conversation,
+          });
+          changes = changes.concat(convoUpdates.changes);
+          events = events.concat(convoUpdates.events);
+          break;
+        }
+        case 'show-item':
+          changes = changes.concat({
+            type: 'update-item',
+            id: events[i].itemId,
+            prop: 'hidden',
+            value: false,
+          });
           break;
         default:
           break;
@@ -157,40 +183,30 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
-    // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
-    const directionlessNPC = characters
-      .find((npc) => npc.destination == null
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
-
-    if (directionlessNPC != null) {
-      const newDest = Story.newDestination({
-        areas, width, height, attack, player, npc: directionlessNPC,
-      });
-      changes = changes.concat(
-        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph }),
-      );
-    }
-
-    const blockedNPC = directionlessNPC == null && [...characters]
-      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
-      .find((npc) => !npc.isNew
-        && npc.waypoints != null
-        && npc.waypoints.length > 0
-        && npc.hasCollision
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
-
-    if (blockedNPC) {
-      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
-      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
-      changes = changes.concat(
-        Story.setSingleDestination({ actor: blockedNPC, destination, graph, exclude }),
-      );
-    }
-
     // If near an item, pick it up.
-    changes = changes.concat(items && items
-      .filter((t) => !t.inInventory && Util.dist(t, player) < 2 * player.width)
+    changes = changes.concat((items || [])
+      .filter((t) => !t.inInventory && !t.hidden && Util.dist(t, player) < 2 * player.width)
       .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true })));
+
+    // Check completed quests
+    changes = changes.concat(
+      Story.completedTaskChanges({
+        quests, characters, areas, player, items, conversation, timeSinceLast, now,
+      }),
+    );
+
+    // If an npc is bored or blocked, reroute it
+    changes = changes.concat(
+      Story.blockedBoredNPCChanges({
+        characters, changes, graph, areas, width, height, player, attack,
+      }),
+    );
+
+    // If we've removed or added events
+    if (events.length !== gameState.events.length
+      || events.some((t, index) => gameState.events[index] !== t)) {
+      changes = changes.concat({ type: 'update-events', events });
+    }
 
     return changes;
   },
@@ -198,6 +214,8 @@ export const Story = {
   applyChanges(inState, events) {
     return events.reduce((state, e) => {
       switch (e.type) {
+        case 'update-events':
+          return { ...state, events };
         case 'update-item':
           return {
             ...state,
@@ -212,7 +230,7 @@ export const Story = {
           return {
             ...state,
             characters: state.characters.map((t) => {
-              if (t.id === e.id) {
+              if (t.id === e.id && (!e.mustHaveCollision || t.hasCollision)) {
                 return {
                   ...t,
                   destination: e.destination,
@@ -225,11 +243,96 @@ export const Story = {
           };
         case 'set-conversation':
           return { ...state, conversation: e.conversation };
+        case 'set-task-done':
+          return {
+            ...state,
+            quests: state.quests.map((t) => {
+              if (t.id === e.questId) {
+                return {
+                  ...t,
+                  tasks: t.tasks.map((k) => {
+                    if (k.id === e.taskId) { return { ...k, done: true }; }
+                    if (k.id === e.nextTaskId) { return { ...k, hidden: false }; }
+                    return k;
+                  }),
+                };
+              }
+              return t;
+            }),
+          };
         default:
-          console.warn('Unknown event type', e.type);
+          console.warn('Unknown event type', e.type); // eslint-disable-line no-console
           return state;
       }
     }, inState);
+  },
+
+  completedTaskChanges({
+    quests, characters, areas, player, items, conversation, timeSinceLast, now,
+  }) {
+    if (!quests) { return []; }
+    const activeTasks = quests
+      .map((quest) => ({
+        quest,
+        task: quest.tasks.find((t) => !t.hidden && !t.done),
+      }))
+      .filter((t) => t.task != null);
+
+    return activeTasks.filter(({ task }) => Story.isTriggered({
+      player,
+      characters,
+      areas,
+      trigger: task.trigger,
+      now,
+      timeSinceLast,
+      items,
+      conversation,
+    })).map(({ task, quest }) => {
+      const nextIndex = quest.tasks.indexOf(task) + 1;
+      const nextTask = quest.tasks[nextIndex];
+      return {
+        type: 'set-task-done',
+        taskId: task.id,
+        questId: quest.id,
+        nextTaskId: nextTask && nextTask.id,
+      };
+    });
+  },
+
+  blockedBoredNPCChanges({ characters, changes, graph, areas, width, height, player, attack }) {
+    // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
+    const directionlessNPC = characters
+      .find((npc) => npc.destination == null
+        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+
+    if (directionlessNPC != null) {
+      const newDest = Story.newDestination({
+        areas, width, height, attack, player, npc: directionlessNPC,
+      });
+      return Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph });
+    }
+
+    const blockedNPC = characters
+      .filter((npc) => !npc.isNew
+        && npc.waypoints != null
+        && npc.waypoints.length > 0
+        && npc.hasCollision
+        && !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
+      .find(() => true);
+
+    if (blockedNPC) {
+      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
+      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
+      return Story.setSingleDestination({
+        actor: blockedNPC,
+        destination,
+        graph,
+        exclude,
+        mustHaveCollision: true,
+      });
+    }
+    return [];
   },
 
   /**
@@ -272,7 +375,13 @@ export const Story = {
    * @param {}
    */
   updateConversation({ conversation }) {
-    return { type: 'set-conversation', conversation };
+    return {
+      changes: [{ type: 'set-conversation', conversation }],
+      events: (conversation
+        && conversation.currentDialog
+        && conversation.currentDialog.events)
+        || [],
+    };
   },
 
   /**
@@ -301,7 +410,7 @@ export const Story = {
    *
    * @param {}
    */
-  setSingleDestination({ actor, destination, graph, exclude }) {
+  setSingleDestination({ actor, destination, graph, exclude, mustHaveCollision }) {
     const finish = destination;
     const start = {
       x: actor.x, // Math.round(actor.x + actor.width / 2),
@@ -316,6 +425,7 @@ export const Story = {
       id: actor.id,
       destination: waypoints[0],
       waypoints: newWaypoints,
+      mustHaveCollision,
       exclude,
     };
   },

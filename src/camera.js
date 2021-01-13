@@ -138,7 +138,7 @@ export const Camera = {
       // Draw Items on the background
       for (let i = 0; i < items.length; i++) {
         const actor = items[i];
-        if (actor.inInventory) { continue; }
+        if (actor.inInventory || actor.hidden) { continue; }
         if (!Camera.isWithinViewport({ viewport, actor })) { continue; }
         drawActorToContext({
           context: layoutContext,
