@@ -12,10 +12,7 @@ export const PathFinding = {
     if (startPlace == null) {
       startPlace = graph.map((t) => ({
         node: t,
-        cost: Math.min(
-          PathFinding.distanceCost(t, start),
-          PathFinding.distanceCost({ x: t.x + t.width, y: t.y + t.height }, start),
-        ),
+        cost: PathFinding.distanceFromArea(t, start),
       })).sort((a, b) => a.cost - b.cost)[0].node;
     }
 
@@ -36,7 +33,9 @@ export const PathFinding = {
       const { points } = place;
       for (let i = 0; i < points.length; i++) {
         const point = points[i];
-        if (exclude && exclude.some((t) => point.x === t.x && point.y === t.y)) { continue; }
+        if (exclude && exclude.some((t) => point.x === t.x && point.y === t.y)) {
+          continue;
+        }
         const k = key(point);
         if (been[k]) { continue; }
         const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };
@@ -137,6 +136,22 @@ export const PathFinding = {
    */
   distanceCost(start, finish) {
     return ((Math.sqrt((finish.x - start.x) ** 2) + (finish.y - start.y) ** 2)) / 2;
+  },
+
+  distanceFromArea(area, point) {
+    const xdist = area.x < point.x && (area.x + area.width) > point.x
+      ? 0
+      : Math.min(
+        Math.abs(area.x - point.x),
+        Math.abs(area.x - point.x + area.width),
+      );
+    const ydist = area.y < point.y && (area.y + area.height) > point.y
+      ? 0
+      : Math.min(
+        Math.abs(area.y - point.y),
+        Math.abs(area.y - point.y + area.height),
+      );
+    return xdist + ydist;
   },
 
   /**

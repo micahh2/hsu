@@ -6,63 +6,6 @@ import { PathFinding } from './path-finding.js';
  */
 export const Story = {
   /**
-   * getChanges.
-   *
-   * @param {} oldState
-   * @param {} state
-   */
-  getChanges(oldState, state) {
-    if (oldState == null || state == null) { return state; }
-    const changes = { };
-    const stateKeys = Object.keys(state);
-    for (const i of stateKeys) {
-      if (oldState[i] === state[i]) { continue; }
-      if (oldState[i] == null && state[i] == null) { continue; }
-      if (state[i] != null && state[i]._keep) { // eslint-disable-line no-underscore-dangle
-        changes[i] = state[i];
-        continue;
-      }
-      if (typeof oldState[i] === typeof state[i] && typeof state[i] === 'object') {
-        const subChanges = Story.getChanges(oldState[i], state[i]);
-        if (subChanges == null) {
-          changes[i] = null;
-          continue;
-        }
-        if (Object.keys(subChanges).length === 0) { continue; }
-        changes[i] = subChanges;
-        continue;
-      }
-      changes[i] = state[i];
-    }
-    return changes;
-  },
-
-  /**
-   * applyChanges.
-   *
-   * @param {} state
-   * @param {} changes
-   */
-  applyChanges(state, changes) {
-    if (changes == null || state == null) { return changes; }
-    if (typeof changes !== 'object' || typeof state !== 'object') { return changes; }
-    if (changes._keep) { return changes; } // eslint-disable-line no-underscore-dangle
-    const changeKeys = Object.keys(changes);
-    if (changeKeys.length === 0) { return state; }
-    let newState;
-    if (state instanceof Array) {
-      newState = [...state];
-    } else {
-      newState = { ...state };
-    }
-
-    for (const i of changeKeys) {
-      newState[i] = Story.applyChanges(newState[i], changes[i]);
-    }
-    return newState;
-  },
-
-  /**
    * loadGameState.
    *
    * @param {}
@@ -153,19 +96,18 @@ export const Story = {
     const { player, areas, items } = gameState;
     const { width, height } = mapDim;
     const { attack } = flags || { attack: false };
+    const paused = (gameState.conversation && gameState.conversation.active) || flags && flags.paused;
     let { events } = gameState;
     events = events.concat(eventQueue);
+    let changes = [];
     let expired = [];
-    let current = {
-      characters: gameState.characters,
-      conversation: gameState.conversation,
-    };
+    const { characters, conversation } = gameState;
 
     for (let i = 0; i < events.length; i++) {
       if (!Story.isTriggered({
         areas,
         player,
-        characters: current.characters,
+        characters,
         trigger: events[i].trigger,
         now,
         timeSinceLast,
@@ -177,26 +119,32 @@ export const Story = {
       switch (events[i].type) {
         case 'set-destination':
           // Set destination
-          current.characters = Story.setDestination({
-            graph,
-            characters: current.characters,
-            selector,
-            destination: events[i].destination,
-          });
+          changes = changes.concat(
+            Story.setDestination({
+              graph,
+              characters,
+              selector,
+              destination: events[i].destination,
+            }),
+          );
           break;
         case 'start-conversation':
-          current = Story.startConversation({
-            player,
-            characters: current.characters,
-            conversation: current.conversation,
-            selector,
-          });
+          changes = changes.concat(
+            Story.startConversation({
+              player,
+              characters,
+              conversation,
+              selector,
+            }),
+          );
           break;
         case 'update-conversation':
-          current = Story.updateConversation({
-            characters: current.characters,
-            conversation: events[i].conversation,
-          });
+          changes = changes.concat(
+            Story.updateConversation({
+              characters,
+              conversation,
+            }),
+          );
           break;
         default:
           break;
@@ -209,36 +157,79 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
-    // If it's paused, don't update the characters
-    current.characters = (gameState.conversation && gameState.conversation.active)
-      ? current.characters
-      : current.characters.map((npc) => {
-        const { destination } = npc;
-        if (!destination) {
-          const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
-          return Story.setSingleDestination({ actor: npc, destination: newDest, graph });
-        }
-        if (npc.hasCollision) {
-          const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
-          const exclude = (npc.exclude || []).concat(npc.destination);
-          exclude._keep = true; // eslint-disable-line no-underscore-dangle
-          return Story.setSingleDestination({ actor: npc, destination: newDest, graph, exclude });
-        }
-        return npc;
+    // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
+    const directionlessNPC = characters
+      .find((npc) => npc.destination == null
+        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+
+    if (directionlessNPC != null) {
+      const newDest = Story.newDestination({
+        areas, width, height, attack, player, npc: directionlessNPC,
       });
+      changes = changes.concat(
+        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph }),
+      );
+    }
 
-    const newItems = items && items.map((t) => {
-      if (!t.inInventory && Util.dist(t, player) < 2 * player.width) {
-        return { ...t, inInventory: true };
+    const blockedNPC = directionlessNPC == null && [...characters]
+      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
+      .find((npc) => !npc.isNew
+        && npc.waypoints != null
+        && npc.waypoints.length > 0
+        && npc.hasCollision
+        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+
+    if (blockedNPC) {
+      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
+      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
+      changes = changes.concat(
+        Story.setSingleDestination({ actor: blockedNPC, destination, graph, exclude }),
+      );
+    }
+
+    // If near an item, pick it up.
+    changes = changes.concat(items && items
+      .filter((t) => !t.inInventory && Util.dist(t, player) < 2 * player.width)
+      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true })));
+
+    return changes;
+  },
+
+  applyChanges(inState, events) {
+    return events.reduce((state, e) => {
+      switch (e.type) {
+        case 'update-item':
+          return {
+            ...state,
+            items: state.items.map((t) => {
+              if (t.id === e.id) {
+                return { ...t, [e.prop]: e.value };
+              }
+              return t;
+            }),
+          };
+        case 'set-character-waypoints':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (t.id === e.id) {
+                return {
+                  ...t,
+                  destination: e.destination,
+                  waypoints: e.waypoints,
+                  exclude: e.exclude,
+                };
+              }
+              return t;
+            }),
+          };
+        case 'set-conversation':
+          return { ...state, conversation: e.conversation };
+        default:
+          console.warn('Unknown event type', e.type);
+          return state;
       }
-      return t;
-    });
-
-    return {
-      ...gameState,
-      ...current,
-      items: newItems,
-    };
+    }, inState);
   },
 
   /**
@@ -246,7 +237,7 @@ export const Story = {
    *
    * @param {}
    */
-  startConversation({ player, characters, selector, conversation }) {
+  startConversation({ player, characters, selector }) {
     const nearestNPC = () => {
       const res = characters
         .filter((t) => t.dialog != null) // Only speaking npc's
@@ -262,10 +253,10 @@ export const Story = {
     const character = selector != null
       ? characters.find(selector)
       : nearestNPC();
-    if (!character) { return { characters, conversation }; }
+    if (!character) { return []; }
 
     return {
-      characters,
+      type: 'set-conversation',
       conversation: {
         character,
         currentDialog: character.dialog,
@@ -280,8 +271,8 @@ export const Story = {
    *
    * @param {}
    */
-  updateConversation({ conversation, characters }) {
-    return { characters, conversation };
+  updateConversation({ conversation }) {
+    return { type: 'set-conversation', conversation };
   },
 
   /**
@@ -302,12 +293,8 @@ export const Story = {
    * @param {}
    */
   setDestination({ characters, destination, selector, graph }) {
-    return characters.map((actor) => {
-      if (selector(actor)) {
-        return Story.setSingleDestination({ actor, destination, graph });
-      }
-      return actor;
-    });
+    return characters.filter(selector)
+      .map((actor) => Story.setSingleDestination({ actor, destination, graph }));
   },
   /**
    * setSingleDestination.
@@ -322,10 +309,11 @@ export const Story = {
     };
     const waypoints = PathFinding.dijikstras({ graph, start, finish, exclude });
     const newWaypoints = waypoints.slice(1);
-    // Bit of a hack to force the changes through
-    newWaypoints._keep = true; // eslint-disable-line no-underscore-dangle
+    // No way found
+    if (waypoints[0] == null) { return []; }
     return {
-      ...actor,
+      type: 'set-character-waypoints',
+      id: actor.id,
       destination: waypoints[0],
       waypoints: newWaypoints,
       exclude,

@@ -29,7 +29,7 @@ function sendStoryEvent(event) {
   storyWorker.postMessage({ type: 'add-event', event });
 }
 
-const zoomLevels = [1, 4];
+const zoomLevels = [1, 3];
 window.addEventListener('load', async () => {
   const [gameData, tilemap] = await Promise.all([
     fetchGameData,
@@ -89,13 +89,6 @@ window.addEventListener('load', async () => {
   let gameState = Story.loadGameState(gameData);
 
   const actorSize = gameState.player.width;
-  storyWorker.postMessage({
-    type: 'update-grid',
-    grid: pixels,
-    mapDim,
-    actorSize,
-  });
-
   const graph = PathFinding.gridToGraph({
     grid: pixels,
     width: mapDim.width,
@@ -134,7 +127,6 @@ window.addEventListener('load', async () => {
     zoomLevels,
     canvasProvider, // eslint-disable-line no-use-before-define
     except: ['Above'],
-    alpha: 1,
   });
   sprites.above = Map.loadTileMapAsSpriteData({
     tilemap,
@@ -145,7 +137,7 @@ window.addEventListener('load', async () => {
     zoomLevels,
     canvasProvider, // eslint-disable-line no-use-before-define
     only: ['Above'],
-    alpha: 1,
+    alpha: 0.9,
   });
   // Wait for start
   const startPage = document.getElementById('start-page');
@@ -185,7 +177,6 @@ window.addEventListener('load', async () => {
       }; // other NPCs' IDs follow the 'vip' NPCs'
     });
 
-  let storyChanges;
   let oldItems;
   let oldViewport;
   let physicsState = {
@@ -230,12 +221,6 @@ window.addEventListener('load', async () => {
       characters: physicsState.characters,
       items: physicsState.items,
     };
-    // Update story worker with new game state
-    storyWorker.postMessage({
-      type: 'update-game-state',
-      gameState,
-      flags: { attack }, // eslint-disable-line no-use-before-define
-    });
 
     /* eslint-enable no-use-before-define */
     const viewport = Camera.updateViewport({
@@ -311,25 +296,48 @@ window.addEventListener('load', async () => {
 
   // Update game state with the latest from story
   storyWorker.onmessage = (e) => {
-    storyChanges = e.data;
     /* eslint-disable no-use-before-define */
-    if (storyChanges.conversation != null) {
+    const oldState = physicsState;
+    physicsState = Story.applyChanges(physicsState, e.data);
+    if (oldState.conversation !== physicsState.conversation) {
       const updateConvo = (newConvo) => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
-      renderConversation(storyChanges.conversation, updateConvo);
+      renderConversation(physicsState.conversation, updateConvo);
     }
-    physicsState = Story.applyChanges(physicsState, storyChanges);
-    if (storyChanges.items) {
-      gameState.items = physicsState.items;
+    if (oldItems.items !== physicsState.items) {
       InventoryUI.renderOverlay({
         icon: inventoryIcon,
         overlay: inventoryOverlay,
         items: gameState.items,
       });
     }
+    gameState = {
+      ...gameState,
+      player: physicsState.player,
+      characters: physicsState.characters,
+      items: physicsState.items,
+    };
+    // Update story worker with new game state
+    storyWorker.postMessage({
+      type: 'update-game-state',
+      gameState,
+      flags: { attack },
+    });
     /* eslint-enable no-use-before-define */
   };
+  storyWorker.postMessage({
+    type: 'update-grid',
+    grid: pixels,
+    mapDim,
+    actorSize,
+  });
+  storyWorker.postMessage({
+    type: 'update-game-state',
+    gameState,
+    flags: { attack },
+  });
+
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {

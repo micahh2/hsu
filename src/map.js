@@ -131,7 +131,7 @@ export const Map = {
     canvasProvider,
     only,
     except,
-    alpha = 0,
+    alpha = 1,
   }) {
     const dim = Map.getTileMapDim(tilemap);
 
@@ -142,7 +142,7 @@ export const Map = {
       const width = z * dim.width;
       const height = Math.round(z * dim.height);
       setCanvasResolution(canvas, width, height);
-      const context = canvas.getContext('2d', { alpha: alpha !== 0 });
+      const context = canvas.getContext('2d', { alpha: alpha < 1 });
       context.globalAlpha = alpha;
       context.imageSmoothingEnabled = false;
       Map.drawTileMapToContext({

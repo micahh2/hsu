@@ -6,7 +6,30 @@ let eventQueue = [];
 let graph;
 let flags;
 let mapDim;
-let changes = false;
+
+let last = new Date();
+const start = new Date();
+function updateStory() {
+  if (!gameState || !graph) {
+    postMessage({}); // Important to post an empty change to synchronise
+    return;
+  }
+  const now = new Date() - start;
+  const timeSinceLast = new Date() - last;
+  last = new Date();
+  const changes = Story.updateGameState({
+    graph,
+    gameState,
+    now,
+    timeSinceLast,
+    eventQueue,
+    flags,
+    mapDim,
+  });
+  eventQueue = [];
+  postMessage(changes);
+}
+
 onmessage = (e) => {
   switch (e.data.type) {
     case 'update-grid':
@@ -21,46 +44,12 @@ onmessage = (e) => {
     case 'update-game-state':
       gameState = e.data.gameState;
       flags = e.data.flags;
+      updateStory();
       break;
     case 'add-event':
       eventQueue = eventQueue.concat(e.data.event);
       break;
     default:
       console.warn(`Unknown event passed to worker: ${e.data.type}`); // eslint-disable-line no-console
-      return;
   }
-  changes = true;
 };
-
-let last = new Date();
-const start = new Date();
-function storyLoop() {
-  if (!changes || !gameState || !graph) {
-    setTimeout(storyLoop, 50);
-    return;
-  }
-  changes = false;
-  const now = new Date() - start;
-  const timeSinceLast = new Date() - last;
-  last = new Date();
-  const newGameState = Story.updateGameState({
-    graph,
-    gameState,
-    now,
-    timeSinceLast,
-    eventQueue,
-    flags,
-    mapDim,
-  });
-  // Something
-  eventQueue = [];
-  const gameChanges = Story.getChanges(gameState, newGameState);
-  if (Object.keys(gameChanges).length > 0) {
-    postMessage(gameChanges);
-  }
-  // Important --
-  // we need to wait long enough for our changes to propogate
-  // or we'll end up fighting our own changes
-  setTimeout(storyLoop, 100); // Wait for 100 ms before rechecking.
-}
-storyLoop();

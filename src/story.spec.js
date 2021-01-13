@@ -2,62 +2,51 @@ import { expect } from 'chai';
 import gameData from './gameData.spec.json';
 import { Story } from './story.js';
 
-describe('getChanges', () => {
-  it('should show the diff between two single level objects', () => {
-    const oldState = { a: 1, b: 2, c: 3 };
-    const state = { a: 1, b: 3, c: 2 };
-
-    expect(Story.getChanges(oldState, state)).to.eql({ b: 3, c: 2 });
-  });
-
-  it('should show the diff between two double level objects', () => {
-    const oldState = { a: { d: 'something' }, b: 2, c: { e: 12 } };
-    const state = { a: { d: 'something' }, b: 3, c: { olga: 12 } };
-
-    expect(Story.getChanges(oldState, state)).to.eql({ b: 3, c: { olga: 12 } });
-  });
-
-  it('should show the diff between two arrays', () => {
-    const oldState = { a: [1, 2, 3] };
-    const state = { a: [4, 5, 6] };
-
-    expect(Story.getChanges(oldState, state)).to.eql({ a: { 0: 4, 1: 5, 2: 6 } });
-  });
-  it('should show the diff between an array and null', () => {
-    const oldState = { a: null };
-    const state = { a: [{ x: 1, y: 1 }] };
-
-    expect(Story.getChanges(oldState, state).a).to.eql(state.a);
-  });
-  it('should show the diff between an array of arrays of objects', () => {
-    const one = { one: 1 };
-    const oldState = { a: [{ x: 1, y: 1, b: [one] }] };
-    const state = { a: [{ x: 1, y: 1, b: null }] };
-
-    expect(Story.getChanges(oldState, state).a[0].b).to.eql(null);
-  });
-});
-
 describe('applyChanges', () => {
-  it('should apply some changes to a flat object', () => {
+  it('should apply conversation changes', () => {
+    const conversation = { dialog: 'something-something' };
     const state = { a: 1, b: 2, c: 3 };
-    const changes = { b: 4 };
+    const changes = [{ type: 'set-conversation', conversation }];
 
-    expect(Story.applyChanges(state, changes)).to.eql({ a: 1, b: 4, c: 3 });
+    expect(Story.applyChanges(state, changes)).to.eql({ a: 1, b: 2, c: 3, conversation });
   });
 
-  it('should should be able to process multi-level changes', () => {
-    const state = { a: { d: 1 }, b: 2, c: 3 };
-    const changes = { a: { d: 2, e: 2 } };
+  it('should should apply item changes', () => {
+    const items = [{ id: 1 }];
+    const state = { a: 1, b: 2, c: 3, items };
+    const changes = [{ type: 'update-item', id: 1, prop: 'cool', value: true }];
 
-    expect(Story.applyChanges(state, changes)).to.eql({ a: { d: 2, e: 2 }, b: 2, c: 3 });
+    expect(Story.applyChanges(state, changes)).to.eql(
+      { a: 1, b: 2, c: 3, items: [{ id: 1, cool: true }] },
+    );
   });
 
-  it('should should be able to update arrays', () => {
-    const state = [1, 2, 3, 4];
-    const changes = { 0: 2, 1: 3 };
+  it('should should update character waypoints/destinations', () => {
+    const waypoints = [1,2,3];
+    const exclude = [4,5,6];
+    const destination = 1;
+    const characters = [{ id: 1, x: 1, y: 2 }];
+    const state = { characters };
+    const changes = [
+      {
+        type: 'set-character-waypoints',
+        id: 1,
+        waypoints,
+        exclude,
+        destination,
+      },
+    ];
 
-    expect(Story.applyChanges(state, changes)).to.eql([2, 3, 3, 4]);
+    expect(Story.applyChanges(state, changes)).to.eql({
+      characters: [{
+        id: 1,
+        x: 1,
+        y: 2,
+        waypoints,
+        exclude,
+        destination,
+      }]
+    });
   });
 });
 
@@ -128,13 +117,15 @@ describe('startConversation', () => {
     expect(conversation.character.id).to.eql(characters[0].id);
     expect(conversation.selectedOption).to.eql(0);
   });
-  it('should only set the fallback if the current speed is non-zero', () => {
-    const selector = (t) => t.id === 1;
-    const changes = Story.startConversation({ characters, selector });
-    const kold = Story.startConversation({
-      characters: changes.characters, selector,
-    }).characters[0];
-    expect(kold.fallbackSpeed).to.not.equal(0);
+  it('should select the nearest npc if no selector', () => {
+    const player = { x: 30, y: 70, width: 10 };
+    const { conversation } = Story.startConversation({ characters, player });
+    expect(conversation.character).to.eql(characters[0]);
+  });
+  it('should do nothing if no selector and no near npc', () => {
+    const player = { x: 300, y: 700, width: 10 };
+    const events = Story.startConversation({ characters, player });
+    expect(events).to.eql([]);
   });
 });
 
@@ -275,13 +266,13 @@ describe('updateGameState', () => {
       events: [gameData.events[2]], // Just one for now
     };
     const flags = { enableConversation: true };
-    const newGameState = Story.updateGameState({
+    const [convoChange] = Story.updateGameState({
       gameState: gs,
       flags,
       mapDim: { width: 1000, height: 1000 },
       graph: [{ x: 0, y: 0, width: 1000, height: 1000 }],
     });
-    expect(newGameState.conversation.currentDialog).to.eql(character.dialog);
+    expect(convoChange.conversation.currentDialog).to.eql(character.dialog);
   });
   it('should set destination on time', () => {
     const e = gameData.events[0];
@@ -293,14 +284,14 @@ describe('updateGameState', () => {
       characters: [character],
       events: [e], // Just one for now
     };
-    const newGameState = Story.updateGameState({
+    const [destChange] = Story.updateGameState({
       graph,
       gameState,
       now: 100090,
       mapDim: { width: 100, height: 100 },
     });
-    expect(newGameState.conversation).null;
-    expect(newGameState.characters[0].destination).to.eql(e.destination);
+    expect(destChange.destination).to.eql(e.destination);
+    expect(destChange.id).to.eql(character.id);
   });
 });
 
