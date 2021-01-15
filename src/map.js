@@ -142,11 +142,19 @@ export const Map = {
       const width = z * dim.width;
       const height = Math.round(z * dim.height);
       setCanvasResolution(canvas, width, height);
-      const context = canvas.getContext('2d', { alpha: alpha < 1 });
+      const useAlpha = alpha < 1;
+      const context = canvas.getContext('2d', { alpha: useAlpha });
       context.globalAlpha = alpha;
       context.imageSmoothingEnabled = false;
       Map.drawTileMapToContext({
-        tilemap, context, canvasProvider, sprites, zoomLevel: z, only, except,
+        tilemap,
+        context,
+        canvasProvider,
+        sprites,
+        zoomLevel: z,
+        only,
+        except,
+        overdraw: !useAlpha,
       });
       spriteData[z * canvasWidth] = {
         canvas,
@@ -166,13 +174,13 @@ export const Map = {
    *
    * @param {}
    */
-  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only, except }) {
+  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only, except, overdraw = false }) {
     for (const layer of tilemap.layers) {
       if (!layer.visible || layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
       if (except && except.includes(layer.name)) { continue; }
       Map.drawTileLayerToContext({
-        layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,
+        layer, context, sprites, scale: zoomLevel * tilemap.tilewidth, overdraw,
       });
     }
   },
@@ -226,8 +234,9 @@ export const Map = {
    * @param {}
    */
   drawTileLayerToContext({
-    layer, context, sprites, scale,
+    layer, context, sprites, scale, overdraw,
   }) {
+    const overlap = overdraw ? 1 : 0;
     for (let i = 0; i < layer.data.length; i++) {
       let spriteIndex = layer.data[i];
       if (spriteIndex <= 0) { continue; }
@@ -268,17 +277,15 @@ export const Map = {
       if (hasFlip) {
         const centerx = (x + width / 2);
         const centery = (y + height / 2);
-        // context.translate(centerx, centery);
         const trans = Map.getTransformFromFlip({
           horizontally, vertically, diagonally, centerx, centery,
         });
         context.setTransform(trans.a, trans.b, trans.c, trans.d, trans.e, trans.f);
         context.translate(-centerx, -centery);
-        // context.setTransform(1, 0, 1, 0, 1, 1);
       }
       context.drawImage(spriteData.canvas,
-        spritePart.x, spritePart.y, spritePart.width, spritePart.height,
-        x, y, width, height);
+        spritePart.x, spritePart.y, spritePart.width - 1, spritePart.height - 1,
+        x - overlap, y - overlap, width + overlap * 2, height + overlap * 2);
       context.setTransform(1, 0, 0, 1, 0, 0);
     }
   },

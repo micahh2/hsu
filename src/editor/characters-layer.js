@@ -39,12 +39,13 @@ export const CharactersLayer = {
           throw Error('Unknown Change Type');
       }
     }
+    const pad = 5;
     function updateCharacters(newCharacters) {
       characters = newCharacters; // eslint-disable-line
       if (selected && selected) {
         selected = characters.find((t) => t.id === selected.id);
       }
-      CharactersLayer.drawAll({ ...args, characters, selected, viewport });
+      CharactersLayer.drawAll({ ...args, characters, selected, viewport, pad });
       CharactersLayer.renderCharacterPane({
         characterPane, characters, changeCharacters, sprites, player, selected,
       });
@@ -54,12 +55,11 @@ export const CharactersLayer = {
     });
 
     charactersCanvas.addEventListener('mousedown', (e) => {
-      const x = e.offsetX + viewport.x;
-      const y = e.offsetY + viewport.y;
+      const x = (e.offsetX / viewport.scale + viewport.x);
+      const y = (e.offsetY / viewport.scale + viewport.y);
       selected = AreasLayer.inArea({ areas: characters, x, y });
-      if (selected) { // Drag character
-        stat = 'move';
-      } else { // New character
+      stat = 'move';
+      if (!selected) {
         const id = Story.newId(characters);
         selected = { ...CharactersLayer.newCharacter(id, player), x, y };
       }
@@ -74,8 +74,8 @@ export const CharactersLayer = {
         const updatedCharacters = characters.filter((t) => t !== selected);
         selected = {
           ...selected,
-          x: selected.x + e.movementX,
-          y: selected.y + e.movementY,
+          x: selected.x + e.movementX / viewport.scale,
+          y: selected.y + e.movementY / viewport.scale,
         };
         updateCharacters(updatedCharacters.concat(selected));
       }
@@ -85,15 +85,6 @@ export const CharactersLayer = {
       // Something selected and we're doing something
       if (selected && stat != null) {
         const updatedCharacters = characters.filter((t) => t !== selected);
-        const x = selected.x + selected.width;
-        const y = selected.y + selected.height;
-        selected = {
-          ...selected,
-          width: Math.round(Math.abs(selected.width)),
-          height: Math.round(Math.abs(selected.height)),
-          x: Math.round(Math.min(x, selected.x)),
-          y: Math.round(Math.min(y, selected.y)),
-        };
         updateCharacters(updatedCharacters.concat(selected));
       }
       stat = null;
@@ -105,7 +96,7 @@ export const CharactersLayer = {
       updateCharacters,
       updateViewport(newViewport) {
         viewport = newViewport; // eslint-disable-line
-        CharactersLayer.drawAll({ ...args, characters, selected, viewport });
+        CharactersLayer.drawAll({ ...args, characters, selected, viewport, pad });
       },
       getCharacters() { return characters; },
     };
@@ -133,6 +124,7 @@ export const CharactersLayer = {
     viewport,
     sprites,
     player,
+    pad,
   }) {
     Camera.drawScene({
       player,
@@ -146,16 +138,15 @@ export const CharactersLayer = {
       viewport,
       drawActorToContext: Sprite.drawActorToContext,
     });
-    if (selected && characters.includes(selected)) {
-      context.fillStyle = 'black';
-      const pad = 5;
+    characters.forEach((character) => {
+      context.strokeStyle = ((selected && selected.id) === character.id) ? 'red' : 'black';
       context.strokeRect(
-        selected.x - viewport.x - pad,
-        selected.y - viewport.y - pad,
-        selected.width + 2 * pad,
-        selected.height + 2 * pad,
+        (character.x - viewport.x - pad) * viewport.scale,
+        (character.y - viewport.y - pad) * viewport.scale,
+        (character.width + 2 * pad) * viewport.scale,
+        (character.height + 2 * pad) * viewport.scale,
       );
-    }
+    });
   },
 
   newName(id) {

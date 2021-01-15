@@ -15,6 +15,8 @@ import gameData from './gameData.json';
 import tilemap from './tileset.json';
 
 const storyWorker = new Worker(
+  // When this is merged, https://github.com/documentationjs/documentation/pull/1344
+  // we can go back to using the master branch of documentation.js
   new URL('./workers/story-worker.js', import.meta.url),
   { type: 'module' },
 );

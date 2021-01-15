@@ -17,12 +17,12 @@
 }
 
 .main #stage canvas:nth-child(2) {
-  top: -100%;
+  top: -100.5%;
   z-index: 9;
 }
 
 .main #stage canvas:nth-child(3) {
-  top: -200%;
+  top: -201%;
   z-index: 8;
 }
 
@@ -33,6 +33,12 @@
 #side-panel {
   max-width: 30%;
   flex: 1;
+}
+
+.download {
+  background: white;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
 }
 
 .pane {

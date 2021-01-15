@@ -1,22 +1,148 @@
 {
   "areas": [
     {
+      "id": 1,
+      "x": 1,
+      "y": 8,
+      "width": 2718,
+      "height": 322,
+      "color": "rgba(16,89,12,0.5)",
+      "name": "upper trees"
+    },
+    {
       "id": 0,
-      "x": 1168,
-      "y": 2135,
-      "width": 116,
-      "height": 101,
+      "x": 768,
+      "y": 1928,
+      "width": 974,
+      "height": 496,
       "color": "rgba(74,238,72,0.5)",
       "name": "quad"
     },
     {
-      "id": 1,
-      "x": 190,
-      "y": 200,
-      "width": 157,
-      "height": 126,
-      "color": "rgba(16,89,12,0.5)",
-      "name": "near"
+      "id": 2,
+      "x": 2240,
+      "y": 619,
+      "width": 447,
+      "height": 574,
+      "color": "rgba(142,168,153,0.5)",
+      "name": "mensa"
+    },
+    {
+      "id": 3,
+      "x": 1921,
+      "y": 2236,
+      "width": 459,
+      "height": 363,
+      "color": "rgba(144,126,64,0.5)",
+      "name": "AULA"
+    },
+    {
+      "id": 4,
+      "x": 362,
+      "y": 2571,
+      "width": 162,
+      "height": 142,
+      "color": "rgba(251,102,236,0.5)",
+      "name": "smoke place 1"
+    },
+    {
+      "id": 5,
+      "x": 1907,
+      "y": 1007,
+      "width": 181,
+      "height": 342,
+      "color": "rgba(204,142,105,0.5)",
+      "name": "cafeteria"
+    },
+    {
+      "id": 6,
+      "x": 1911,
+      "y": 1348,
+      "width": 176,
+      "height": 380,
+      "color": "rgba(99,243,6,0.5)",
+      "name": "library"
+    },
+    {
+      "id": 7,
+      "x": 984,
+      "y": 2493,
+      "width": 64,
+      "height": 96,
+      "color": "rgba(65,57,165,0.5)",
+      "name": "kold's office"
+    },
+    {
+      "id": 9,
+      "x": 1323,
+      "y": 1039,
+      "width": 411,
+      "height": 177,
+      "color": "rgba(35,10,70,0.5)",
+      "name": "frey's office"
+    },
+    {
+      "id": 8,
+      "x": 1032,
+      "y": 1043,
+      "width": 64,
+      "height": 106,
+      "color": "rgba(249,103,8,0.5)",
+      "name": "strahnen's office"
+    },
+    {
+      "id": 11,
+      "x": 1560,
+      "y": 1473,
+      "width": 180,
+      "height": 74,
+      "color": "rgba(253,49,66,0.5)",
+      "name": "WC 1"
+    },
+    {
+      "id": 12,
+      "x": 1564,
+      "y": 1557,
+      "width": 173,
+      "height": 108,
+      "color": "rgba(162,96,248,0.5)",
+      "name": "WC 2"
+    },
+    {
+      "id": 13,
+      "x": 532,
+      "y": 1793,
+      "width": 66,
+      "height": 96,
+      "color": "rgba(241,177,91,0.5)",
+      "name": "WC 3"
+    },
+    {
+      "id": 14,
+      "x": 533,
+      "y": 1735,
+      "width": 64,
+      "height": 56,
+      "color": "rgba(62,183,249,0.5)",
+      "name": "WC 4"
+    },
+    {
+      "id": 15,
+      "x": 754,
+      "y": 479,
+      "width": 1485,
+      "height": 335,
+      "color": "rgba(151,194,149,0.5)",
+      "name": "parking lot"
+    },
+    {
+      "id": 10,
+      "x": 1112,
+      "y": 1727,
+      "width": 574,
+      "height": 161,
+      "color": "rgba(16,98,185,0.5)",
+      "name": "strahnen's lab"
     }
   ],
   "player": {
@@ -60,71 +186,10 @@
   ],
   "characters": [
     {
-      "id": 1,
-      "name": "Frau Kold",
-      "x": 20,
-      "y": 70,
-      "speed": 1,
-      "width": 10,
-      "height": 10,
-      "spriteIndex": 12,
-      "isNew": true,
-      "attachedAreaId": 0,
-      "actions": {
-        "t": "start-conversation",
-        "a": "attack"
-      },
-      "dialog": {
-        "response": "Hello then.",
-        "options": [
-          {
-            "id": 1,
-            "query": "Goodbye.",
-            "events": []
-          },
-          {
-            "id": 2,
-            "query": "Are you going home?",
-            "response": "No.",
-            "events": []
-          },
-          {
-            "id": 3,
-            "query": "Have you seen my notebook?",
-            "response": "I think one of the other students picked it up. Not sure which one. You all look alike to me.",
-            "events": [{ "type": "show-item", "itemId": 8 }]
-          },
-          {
-            "id": 4,
-            "query": "Where can I find food?",
-            "response": "There's a number of places.",
-            "options": [
-              {
-                "id": 5,
-                "query": "Where is cheap?",
-                "response": "The Mensa is cheap."
-              },
-              {
-                "id": 6,
-                "query": "Where is convenient?",
-                "response": "The Cafeteria is convenient"
-              },
-              {
-                "id": 6,
-                "query": "Where is delicious?",
-                "response": "No where around here!"
-              }
-            ],
-            "events": []
-          }
-        ]
-      }
-    },
-    {
       "id": 2,
       "name": "Herr Katzer",
-      "x": 500,
-      "y": 100,
+      "x": 1108,
+      "y": 640,
       "speed": 1,
       "width": 10,
       "height": 10,
@@ -154,6 +219,102 @@
             "query": "Is that criminal?",
             "response": "Yes.",
             "event": "return-response"
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "x": 1176,
+      "y": 1781,
+      "spriteIndex": 12,
+      "width": 10,
+      "height": 10,
+      "speed": 3,
+      "name": "Doktor Strahnen"
+    },
+    {
+      "id": 4,
+      "x": 1540,
+      "y": 1129,
+      "spriteIndex": 12,
+      "width": 10,
+      "height": 10,
+      "speed": 3,
+      "name": "Professor Frey"
+    },
+    {
+      "id": 5,
+      "x": 903,
+      "y": 1587,
+      "spriteIndex": 12,
+      "width": 10,
+      "height": 10,
+      "speed": 3,
+      "name": "Frau Bosch"
+    },
+    {
+      "id": 1,
+      "name": "Frau Kold",
+      "x": 997,
+      "y": 2558,
+      "speed": 1,
+      "width": 10,
+      "height": 10,
+      "spriteIndex": 12,
+      "isNew": true,
+      "attachedAreaId": 0,
+      "actions": {
+        "t": "start-conversation",
+        "a": "attack"
+      },
+      "dialog": {
+        "response": "Hello then.",
+        "options": [
+          {
+            "id": 1,
+            "query": "Goodbye.",
+            "events": []
+          },
+          {
+            "id": 2,
+            "query": "Are you going home?",
+            "response": "No.",
+            "events": []
+          },
+          {
+            "id": 3,
+            "query": "Have you seen my notebook?",
+            "response": "I think one of the other students picked it up. Not sure which one. You all look alike to me.",
+            "events": [
+              {
+                "type": "show-item",
+                "itemId": 8
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "query": "Where can I find food?",
+            "response": "There's a number of places.",
+            "options": [
+              {
+                "id": 5,
+                "query": "Where is cheap?",
+                "response": "The Mensa is cheap."
+              },
+              {
+                "id": 6,
+                "query": "Where is convenient?",
+                "response": "The Cafeteria is convenient"
+              },
+              {
+                "id": 6,
+                "query": "Where is delicious?",
+                "response": "No where around here!"
+              }
+            ],
+            "events": []
           }
         ]
       }
@@ -311,10 +472,12 @@
       "id": 0,
       "title": "Talk to someone",
       "tasks": [
-        { 
+        {
           "id": 0,
           "description": "Talk to anyone about anything!",
-          "trigger": { "type": "conversation" }
+          "trigger": {
+            "type": "conversation"
+          }
         }
       ]
     },
@@ -325,15 +488,22 @@
         {
           "id": 0,
           "description": "You last left your notebook in a classroom. Talk to your teachers.",
-          "trigger": { "type": "conversation", "characterId": 1, "dialogId": 2 }
+          "trigger": {
+            "type": "conversation",
+            "characterId": 1,
+            "dialogId": 2
+          }
         },
-        { 
+        {
           "id": 1,
           "description": "Frau Kold says another student picked it up!",
           "hidden": true,
-          "trigger": { "type": "has-item", "itemId": 8 }
+          "trigger": {
+            "type": "has-item",
+            "itemId": 8
+          }
         },
-        { 
+        {
           "id": 3,
           "description": "You found it in the grass!",
           "hidden": true

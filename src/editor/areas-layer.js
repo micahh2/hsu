@@ -40,8 +40,8 @@ export const AreasLayer = {
     AreasLayer.renderAreaPane({ areaPane, areas, changeAreas });
 
     areasCanvas.addEventListener('mousedown', (e) => {
-      const x = e.offsetX + viewport.x;
-      const y = e.offsetY + viewport.y;
+      const x = (e.offsetX / viewport.scale + viewport.x);
+      const y = (e.offsetY / viewport.scale + viewport.y);
       const grabbed = AreasLayer.inHandle({ areas, x, y });
       selected = grabbed || AreasLayer.inArea({ areas, x, y });
       if (grabbed) {
@@ -65,8 +65,8 @@ export const AreasLayer = {
       if (selected) {
         const updatedAreas = areas.filter((t) => t !== selected);
         if (stat === 'resize') {
-          const x = e.offsetX + viewport.x;
-          const y = e.offsetY + viewport.y;
+          const x = (e.offsetX / viewport.scale + viewport.x);
+          const y = (e.offsetY / viewport.scale + viewport.y);
           selected = {
             ...selected,
             width: x - selected.x,
@@ -76,8 +76,8 @@ export const AreasLayer = {
         } else if (stat === 'move') {
           selected = {
             ...selected,
-            x: selected.x + e.movementX,
-            y: selected.y + e.movementY,
+            x: selected.x + e.movementX / viewport.scale,
+            y: selected.y + e.movementY / viewport.scale,
           };
           updateAreas(updatedAreas.concat(selected));
         }
@@ -138,8 +138,10 @@ export const AreasLayer = {
       const area = areas[areas.length - i - 1];
       const shiftedArea = {
         ...area,
-        x: area.x - viewport.x,
-        y: area.y - viewport.y,
+        x: (area.x - viewport.x) * viewport.scale,
+        y: (area.y - viewport.y) * viewport.scale,
+        width: area.width * viewport.scale,
+        height: area.height * viewport.scale,
       };
       AreasLayer.drawArea({ area: shiftedArea, context, active: area === selected });
     }
@@ -159,11 +161,11 @@ export const AreasLayer = {
     context.fill();
   },
 
-  inHandle({ areas, x, y }) {
+  inHandle({ areas, x, y, scale }) {
     for (let i = areas.length - 1; i >= 0; i--) {
       const diffx = Math.abs(x - (areas[i].x + areas[i].width));
       const diffy = Math.abs(y - (areas[i].y + areas[i].height));
-      if (diffx < 10 && diffy < 10) {
+      if (diffx < 10 * scale && diffy < 10 * scale) {
         return areas[i];
       }
     }
@@ -190,7 +192,7 @@ export const AreasLayer = {
         changeAreas({ type: 'update-area', id: a.id, prop: 'color', value: newColor });
       });
       const nameEl = Elements.create('input', { type: 'text', value: a.name });
-      Render.registerEvent(nameEl, 'change', (e) => {
+      Render.registerEvent(nameEl, 'keyup', (e) => {
         changeAreas({ type: 'update-area', id: a.id, prop: 'name', value: e.target.value });
       });
       const del = Elements.create('input', { type: 'button', value: 'x' });

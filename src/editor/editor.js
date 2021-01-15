@@ -7,35 +7,20 @@ import { AreasLayer } from './areas-layer.js';
 import { CharactersLayer } from './characters-layer.js';
 import { Panel } from './panel.js';
 
-const fetchTilesetData = new Promise((res) => {
-  fetch('../tileset.json')
-    .then((response) => res(response.json()));
-});
+import importedGameData from '../gameData.json';
+import tilemap from '../tileset.json';
 
 window.addEventListener('load', async () => {
-  const tilemap = await fetchTilesetData;
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap, prepend: '../' }));
   // Load element from DOM (look in index.html)
   const charactersCanvas = document.getElementById('characters-layer');
   const areasCanvas = document.getElementById('areas-layer');
   const layoutCanvas = document.getElementById('layout-layer');
-  const canvases = [charactersCanvas, areasCanvas, layoutCanvas];
 
   const mapDim = Map.getTileMapDim(tilemap);
-  const layoutCanvasData = Camera.getCanvasData(layoutCanvas);
-  const { canvasWidth, canvasHeight } = layoutCanvasData;
-  let gameData = {
-    player: {
-      x: 100,
-      y: 100,
-      width: 10,
-      height: 10,
-      spriteIndex: 8,
-      speed: 3,
-    },
-    characters: [],
-    areas: [],
-  };
+  const { bounds } = Camera.getCanvasData(layoutCanvas);
+  const canvasWidth = Math.round(bounds.width);
+  const canvasHeight = Math.round(bounds.height);
 
   Camera.setCanvasResolution(charactersCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
@@ -46,6 +31,8 @@ window.addEventListener('load', async () => {
     canvasProvider,
     zoomLevels: [1, 2],
   });
+
+  let gameData = importedGameData;
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
@@ -68,11 +55,10 @@ window.addEventListener('load', async () => {
     canvasWidth,
     zoomLevels: [1, 2],
     canvasProvider, // eslint-disable-line no-use-before-define
+    except: ['Above'],
   });
 
-  const zoom = false;
-
-  function updateViewport(v = null, focusArea = gameData.player) {
+  function updateViewport(v = null, focusArea = gameData.player, zoom = false) {
     return Camera.updateViewport({
       oldViewport: v,
       player: focusArea,
@@ -97,6 +83,7 @@ window.addEventListener('load', async () => {
       layoutContext: layoutCanvas.getContext('2d'),
       oldViewport: null,
       viewport: v,
+      items: [],
       drawActorToContext: () => {}, // Don't actually do that
     });
   }
@@ -116,35 +103,94 @@ window.addEventListener('load', async () => {
     player: gameData.player,
     sprites,
   });
+  areasLayer.updateAreas(gameData.areas);
+  charactersLayer.updateCharacters(gameData.characters);
 
-  window.addEventListener('mousemove', (e) => {
-    if (!canvases.includes(e.target)) { return; }
-    let diffx = 0;
-    let diffy = 0;
-    if (e.offsetX > canvasWidth * 0.9) {
-      diffx = e.offsetX - canvasWidth * 0.9;
-    } else if (e.offsetX < canvasWidth * 0.1) {
-      diffx = e.offsetX - canvasWidth * 0.1;
+  let up = false;
+  let down = false;
+  let left = false;
+  let right = false;
+  let zoom = false;
+  window.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented) { return; }
+    if (e.target.tagName === 'INPUT') { return; }
+
+    switch (e.code) {
+      case 'KeyS':
+      case 'ArrowDown':
+        down = true;
+        break;
+      case 'KeyW':
+      case 'ArrowUp':
+        up = true;
+        break;
+      case 'KeyA':
+      case 'ArrowLeft':
+        left = true;
+        break;
+      case 'KeyD':
+      case 'ArrowRight':
+        right = true;
+        break;
+      case 'KeyZ':
+        zoom = !zoom;
+        break;
+      default:
+        break;
     }
-    if (e.offsetY > canvasHeight * 0.9) {
-      diffy = e.offsetY - canvasHeight * 0.9;
-    } else if (e.offsetY < canvasHeight * 0.1) {
-      diffy = e.offsetY - canvasHeight * 0.1;
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.defaultPrevented) {
+      return;
     }
-    const focusArea = {
-      x: Math.floor(viewport.x + canvasWidth / 2 - 5 + diffx),
-      y: Math.floor(viewport.y + canvasHeight / 2 - 5 + diffy),
-      width: 10,
-      height: 10,
-    };
-    const newViewport = updateViewport(viewport, focusArea);
+
+    switch (e.code) {
+      case 'KeyS':
+      case 'ArrowDown':
+        down = false;
+        break;
+      case 'KeyW':
+      case 'ArrowUp':
+        up = false;
+        break;
+      case 'KeyA':
+      case 'ArrowLeft':
+        left = false;
+        break;
+      case 'KeyD':
+      case 'ArrowRight':
+        right = false;
+        break;
+      default:
+        break;
+    }
+  });
+  const focusArea = {
+    x: Math.floor(viewport.x + canvasWidth / 2 - 5),
+    y: Math.floor(viewport.y + canvasHeight / 2 - 5),
+    width: 10,
+    height: 10,
+  };
+  setInterval(() => {
+    const speed = 30;
+    const diffx = (left ? -speed : 0) + (right ? speed : 0);
+    const diffy = (up ? -speed : 0) + (down ? speed : 0);
+    focusArea.x = Math.max(
+      Math.min(focusArea.x + diffx, mapDim.width - canvasWidth / 4),
+      canvasWidth / 4,
+    );
+    focusArea.y = Math.max(
+      Math.min(focusArea.y + diffy, mapDim.height - canvasHeight / 4),
+      canvasHeight / 4,
+    );
+    const newViewport = updateViewport(viewport, focusArea, zoom);
     if (newViewport !== viewport) {
       viewport = newViewport;
       drawScene(viewport);
       areasLayer.updateViewport(viewport);
       charactersLayer.updateViewport(viewport);
     }
-  });
+  }, 30);
 
   const filePicker = document.getElementById('file');
   filePicker.addEventListener('change', async () => {
