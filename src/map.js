@@ -154,7 +154,6 @@ export const Map = {
         zoomLevel: z,
         only,
         except,
-        overdraw: !useAlpha,
       });
       spriteData[z * canvasWidth] = {
         canvas,
@@ -174,13 +173,13 @@ export const Map = {
    *
    * @param {}
    */
-  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only, except, overdraw = false }) {
+  drawTileMapToContext({ tilemap, context, sprites, zoomLevel, only, except }) {
     for (const layer of tilemap.layers) {
       if (!layer.visible || layer.type !== 'tilelayer') { continue; }
       if (only && !only.includes(layer.name)) { continue; }
       if (except && except.includes(layer.name)) { continue; }
       Map.drawTileLayerToContext({
-        layer, context, sprites, scale: zoomLevel * tilemap.tilewidth, overdraw,
+        layer, context, sprites, scale: zoomLevel * tilemap.tilewidth,
       });
     }
   },
@@ -234,9 +233,8 @@ export const Map = {
    * @param {}
    */
   drawTileLayerToContext({
-    layer, context, sprites, scale, overdraw,
+    layer, context, sprites, scale,
   }) {
-    const overlap = overdraw ? 1 : 0;
     for (let i = 0; i < layer.data.length; i++) {
       let spriteIndex = layer.data[i];
       if (spriteIndex <= 0) { continue; }
@@ -284,8 +282,8 @@ export const Map = {
         context.translate(-centerx, -centery);
       }
       context.drawImage(spriteData.canvas,
-        spritePart.x, spritePart.y, spritePart.width - 1, spritePart.height - 1,
-        x - overlap, y - overlap, width + overlap * 2, height + overlap * 2);
+        spritePart.x, spritePart.y, spritePart.width, spritePart.height,
+        x, y, width, height);
       context.setTransform(1, 0, 0, 1, 0, 0);
     }
   },

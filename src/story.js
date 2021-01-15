@@ -119,6 +119,8 @@ export const Story = {
     let expired = [];
     const { characters, conversation } = gameState;
 
+    const nearByCharacters = Story.nearByCharacters({ player, characters });
+
     for (let i = 0; i < events.length; i++) {
       if (!Story.isTriggered({
         areas,
@@ -150,6 +152,7 @@ export const Story = {
           changes = changes.concat(
             Story.startConversation({
               player,
+              nearByCharacters,
               characters,
               selector,
             }),
@@ -183,6 +186,11 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
+    // Update exposure
+    changes = changes.concat(
+      Story.exposureChanges({ player, nearByCharacters, timeSinceLast }),
+    );
+
     // If near an item, pick it up.
     changes = changes.concat((items || [])
       .filter((t) => !t.inInventory && !t.hidden && Util.dist(t, player) < 2 * player.width)
@@ -198,7 +206,7 @@ export const Story = {
     // If an npc is bored or blocked, reroute it
     changes = changes.concat(
       Story.blockedBoredNPCChanges({
-        characters, changes, graph, areas, width, height, player, attack,
+        characters, changes, graph, areas, width, height, player, attack, now,
       }),
     );
 
@@ -226,6 +234,22 @@ export const Story = {
               return t;
             }),
           };
+        case 'set-characters-wait':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (t.destination == null && t.waitStart == null) {
+                return { ...t, waitStart: e.waitStart };
+              }
+              if (t.hasCollision && t.blockedSince == null) {
+                return { ...t, blockedSince: e.waitStart };
+              }
+              if (!t.hasCollision && t.blockedSince != null) {
+                return { ...t, blockedSince: null };
+              }
+              return t;
+            }),
+          };
         case 'set-character-waypoints':
           return {
             ...state,
@@ -236,6 +260,8 @@ export const Story = {
                   destination: e.destination,
                   waypoints: e.waypoints,
                   exclude: e.exclude,
+                  waitStart: null,
+                  blockedSince: null,
                 };
               }
               return t;
@@ -243,6 +269,8 @@ export const Story = {
           };
         case 'set-conversation':
           return { ...state, conversation: e.conversation };
+        case 'update-player':
+          return { ...state, player: { ...state.player, [e.prop]: e.value } };
         case 'set-task-done':
           return {
             ...state,
@@ -260,11 +288,33 @@ export const Story = {
               return t;
             }),
           };
+        case 'end-game':
+          return { ...state, end: true };
         default:
           console.warn('Unknown event type', e.type); // eslint-disable-line no-console
           return state;
       }
     }, inState);
+  },
+
+  nearByCharacters({ player, characters }) {
+    return characters
+      .filter((t) => Util.dist(t, player) < player.width * 2);
+  },
+
+  exposureChanges({ player, nearByCharacters, timeSinceLast }) {
+    const newExposure = nearByCharacters
+      .reduce((a, b) => a + b.infectionFactor, 0);
+    if (newExposure === 0) { return []; }
+    const level = (player.exposureLevel || 0) + newExposure * (timeSinceLast / 1000);
+    if (level >= 100) {
+      return { type: 'end-game' };
+    }
+    return {
+      type: 'update-player',
+      prop: 'exposureLevel',
+      value: level,
+    };
   },
 
   completedTaskChanges({
@@ -299,40 +349,51 @@ export const Story = {
     });
   },
 
-  blockedBoredNPCChanges({ characters, changes, graph, areas, width, height, player, attack }) {
+  blockedBoredNPCChanges({
+    characters, changes, graph, areas, width, height, player, attack, now,
+  }) {
+    let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
+
     // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
+    const blockedNPC = characters
+      .filter((npc) => !npc.isNew
+        && npc.hasCollision
+        && npc.waypoints != null
+        && npc.waypoints.length > 0
+        && !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
+      .find(() => true);
+
+    if (blockedNPC != null) {
+      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
+      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
+      waitChanges = waitChanges.concat(Story.setSingleDestination({
+        actor: blockedNPC,
+        destination,
+        graph,
+        exclude,
+        mustHaveCollision: true,
+      }));
+    }
+
+    const timeBetweenMovement = 3000; // 3 seconds
+    const maxBlockTime = 5000; // 5 seconds
     const directionlessNPC = characters
-      .find((npc) => npc.destination == null
+      .find((npc) => (
+        (npc.destination == null && (now - (npc.waitStart || 0)) > timeBetweenMovement)
+        || (npc.hasCollision && (now - (npc.blockedSince || 0)) > maxBlockTime))
         && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
 
     if (directionlessNPC != null) {
       const newDest = Story.newDestination({
         areas, width, height, attack, player, npc: directionlessNPC,
       });
-      return Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph });
+      waitChanges = waitChanges.concat(
+        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph }),
+      );
     }
 
-    const blockedNPC = characters
-      .filter((npc) => !npc.isNew
-        && npc.waypoints != null
-        && npc.waypoints.length > 0
-        && npc.hasCollision
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id))
-      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
-      .find(() => true);
-
-    if (blockedNPC) {
-      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
-      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
-      return Story.setSingleDestination({
-        actor: blockedNPC,
-        destination,
-        graph,
-        exclude,
-        mustHaveCollision: true,
-      });
-    }
-    return [];
+    return waitChanges;
   },
 
   /**
@@ -340,9 +401,9 @@ export const Story = {
    *
    * @param {}
    */
-  startConversation({ player, characters, selector }) {
+  startConversation({ player, nearByCharacters, characters, selector }) {
     const nearestNPC = () => {
-      const res = characters
+      const res = nearByCharacters
         .filter((t) => t.dialog != null) // Only speaking npc's
         .map((t) => ({
           npc: t,

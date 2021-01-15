@@ -45,6 +45,8 @@ describe('applyChanges', () => {
         waypoints,
         exclude,
         destination,
+        waitStart: null,
+        blockedSince: null,
       }],
     });
   });
@@ -119,12 +121,14 @@ describe('startConversation', () => {
   });
   it('should select the nearest npc if no selector', () => {
     const player = { x: 30, y: 70, width: 10 };
-    const { conversation } = Story.startConversation({ characters, player });
+    const nearByCharacters = characters;
+    const { conversation } = Story.startConversation({ characters, nearByCharacters, player });
     expect(conversation.character).to.eql(characters[0]);
   });
   it('should do nothing if no selector and no near npc', () => {
     const player = { x: 300, y: 700, width: 10 };
-    const events = Story.startConversation({ characters, player });
+    const nearByCharacters = characters;
+    const events = Story.startConversation({ characters, nearByCharacters, player });
     expect(events).to.eql([]);
   });
 });

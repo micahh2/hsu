@@ -249,6 +249,8 @@ window.addEventListener('load', async () => {
     }
     oldViewport = viewport;
     oldItems = gameState.items;
+
+    if (physicsState.end) { return; }
     window.requestAnimationFrame(physicsLoop);
   };
 
@@ -278,6 +280,11 @@ window.addEventListener('load', async () => {
     /* eslint-disable no-use-before-define */
     const oldState = physicsState;
     physicsState = Story.applyChanges(physicsState, e.data);
+    if (physicsState.end) {
+      alert('Bummer'); // eslint-disable-line no-alert
+      window.location = window.location; // eslint-disable-line no-self-assign
+      return;
+    }
     if (oldState.conversation !== physicsState.conversation) {
       const updateConvo = (newConvo) => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });

@@ -146,8 +146,8 @@
     }
   ],
   "player": {
-    "x": 20,
-    "y": 20,
+    "x": 1000,
+    "y": 2100,
     "width": 10,
     "height": 10,
     "spriteIndex": 8,
@@ -230,8 +230,9 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Doktor Strahnen"
+      "speed": 1,
+      "name": "Doktor Strahnen",
+      "attachedAreaId": 8
     },
     {
       "id": 4,
@@ -240,8 +241,10 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Professor Frey"
+      "speed": 1,
+      "name": "Professor Frey",
+      "infectionFactor": 10,
+      "attachedAreaId": 9
     },
     {
       "id": 5,
@@ -250,8 +253,10 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Frau Bosch"
+      "speed": 1,
+      "name": "Frau Bosch",
+      "infectionFactor": 10,
+      "attachedAreaId": 9
     },
     {
       "id": 1,
