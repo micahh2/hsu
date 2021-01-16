@@ -163,8 +163,18 @@ export const Story = {
           });
           changes = changes.concat(convoUpdates.changes);
           events = events.concat(convoUpdates.events);
-          break;
         }
+          break;
+        case 'set-zombie-destination':
+          // Set destination
+          changes = changes.concat(
+            Story.setDestination({
+              characters,
+              selector,
+              destination: { x: player.x, y: player.y },
+            }),
+          );
+          break;
         case 'show-item':
           changes = changes.concat({
             type: 'update-item',
@@ -401,7 +411,7 @@ export const Story = {
       .find((npc) => (
         (npc.destination == null && (now - (npc.waitStart || 0)) > timeBetweenMovement)
         || (npc.hasCollision && (now - (npc.blockedSince || 0)) > maxBlockTime))
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+        && !changes.some((t) => t.type.contains('character') && t.id === npc.id));
 
     if (directionlessNPC != null) {
       const newDest = Story.newDestination({
@@ -470,6 +480,7 @@ export const Story = {
    * @param {} sel
    */
   createSelector(sel) {
+    console.log(sel.type, sel.id);
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }

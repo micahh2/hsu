@@ -153,10 +153,10 @@ window.addEventListener('load', async () => {
   /* eslint-enable no-use-before-define */
 
   // Add some random characters
-  const newCharacters = new Array(4).fill(gameState.characters[0])
+  const newCharacters = new Array(1).fill(gameState.characters[0])
     .map((t, i) => {
       let spriteIndex = 8;
-      while (spriteIndex === 8) {
+      while (spriteIndex % 2 === 1) {
         spriteIndex = Math.floor(Math.random() * 13);
       }
       return {
@@ -164,7 +164,7 @@ window.addEventListener('load', async () => {
         dialog: null,
         id: i + gameState.characters.length + 1,
         spriteIndex,
-        type: '',
+        type: 'human',
       }; // other NPCs' IDs follow the 'vip' NPCs'
     });
 
@@ -179,8 +179,8 @@ window.addEventListener('load', async () => {
         dialog: null,
         id: i + gameState.characters.length + 1,
         spriteIndex,
-        type: '',
-      }; // other NPCs' IDs follow the 'vip' NPCs'
+        type: 'zombie',
+      };
     });
   let oldItems;
   let oldViewport;

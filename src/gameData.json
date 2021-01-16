@@ -151,7 +151,8 @@
     "width": 10,
     "height": 10,
     "spriteIndex": 8,
-    "speed": 3
+    "speed": 3,
+    "type": "human"
   },
   "events": [
     {
@@ -184,11 +185,11 @@
       }
     },
     {
-      "type": "spawn-zombie",
+      "type": "set-zombie-destination",
       "trigger": {
         "type": "interval",
-        "start": 30000,
-        "interval": 30000
+        "start": 2000,
+        "interval": 5000
       },
       "selector": {
         "type": "zombie"
