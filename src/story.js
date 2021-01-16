@@ -1,5 +1,4 @@
 import { Util } from './util.js';
-import { PathFinding } from './path-finding.js';
 
 /**
  * Story.
@@ -105,7 +104,7 @@ export const Story = {
    *
    * @param {}
    */
-  updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
+  updateGameState({ gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
     const { player, areas, items, quests } = gameState;
     const { width, height } = mapDim;
     const { attack } = flags || { attack: false };
@@ -141,7 +140,6 @@ export const Story = {
           // Set destination
           changes = changes.concat(
             Story.setDestination({
-              graph,
               characters,
               selector,
               destination: events[i].destination,
@@ -192,9 +190,10 @@ export const Story = {
     );
 
     // If near an item, pick it up.
-    changes = changes.concat((items || [])
+    const itemChanges = (items || [])
       .filter((t) => !t.inInventory && !t.hidden && Util.dist(t, player) < 2 * player.width)
-      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true })));
+      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true }));
+    changes = changes.concat(itemChanges);
 
     // Check completed quests
     changes = changes.concat(
@@ -206,7 +205,7 @@ export const Story = {
     // If an npc is bored or blocked, reroute it
     changes = changes.concat(
       Story.blockedBoredNPCChanges({
-        characters, changes, graph, areas, width, height, player, attack, now,
+        characters, changes, areas, width, height, player, attack, now,
       }),
     );
 
@@ -262,7 +261,28 @@ export const Story = {
                   exclude: e.exclude,
                   waitStart: null,
                   blockedSince: null,
+                  isPathFinding: false,
                 };
+              }
+              return t;
+            }),
+          };
+        case 'set-characters-path-finding-request':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (!t.isPathFinding && e.ids.includes(t.id)) {
+                return { ...t, isPathFinding: true };
+              }
+              return t;
+            }),
+          };
+        case 'remove-character-path-finding-request':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (t.isPathFinding && e.id === t.id) {
+                return { ...t, isPathFinding: false };
               }
               return t;
             }),
@@ -350,7 +370,7 @@ export const Story = {
   },
 
   blockedBoredNPCChanges({
-    characters, changes, graph, areas, width, height, player, attack, now,
+    characters, changes, areas, width, height, player, attack, now,
   }) {
     let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
 
@@ -370,7 +390,6 @@ export const Story = {
       waitChanges = waitChanges.concat(Story.setSingleDestination({
         actor: blockedNPC,
         destination,
-        graph,
         exclude,
         mustHaveCollision: true,
       }));
@@ -389,7 +408,7 @@ export const Story = {
         areas, width, height, attack, player, npc: directionlessNPC,
       });
       waitChanges = waitChanges.concat(
-        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph }),
+        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest }),
       );
     }
 
@@ -462,32 +481,23 @@ export const Story = {
    *
    * @param {}
    */
-  setDestination({ characters, destination, selector, graph }) {
+  setDestination({ characters, destination, selector }) {
     return characters.filter(selector)
-      .map((actor) => Story.setSingleDestination({ actor, destination, graph }));
+      .map((actor) => Story.setSingleDestination({ actor, destination }));
   },
   /**
    * setSingleDestination.
    *
    * @param {}
    */
-  setSingleDestination({ actor, destination, graph, exclude, mustHaveCollision }) {
-    const finish = destination;
-    const start = {
-      x: actor.x, // Math.round(actor.x + actor.width / 2),
-      y: actor.y, // Math.round(actor.y + actor.height / 2),
-    };
-    const waypoints = PathFinding.dijikstras({ graph, start, finish, exclude });
-    const newWaypoints = waypoints.slice(1);
-    // No way found
-    if (waypoints[0] == null) { return []; }
+  setSingleDestination({ actor, destination, exclude, mustHaveCollision }) {
+    if (actor.isPathFinding) { return []; }
     return {
-      type: 'set-character-waypoints',
-      id: actor.id,
-      destination: waypoints[0],
-      waypoints: newWaypoints,
-      mustHaveCollision,
+      type: 'request-path-finding',
+      actor,
+      destination,
       exclude,
+      mustHaveCollision,
     };
   },
 

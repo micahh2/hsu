@@ -41,6 +41,7 @@ export const PathFinding = {
         const newPlace = { ...point.neighbor, from: { ...point, from: place.from } };
         newPlace.cost = (place.cost || 0)
           + PathFinding.moveCost(place.from || place, point);
+        // + PathFinding.distanceCost(point, start);
 
         nextPlaces.push(newPlace);
         been[k] = true;
