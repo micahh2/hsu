@@ -473,6 +473,9 @@ export const Story = {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }
+    if (sel.type != null) {
+      return (t) => t.type === sel.type;
+    }
     throw Error(`Unknown selector type: ${JSON.stringify(sel)}`);
   },
 
@@ -490,6 +493,7 @@ export const Story = {
    *
    * @param {}
    */
+
   setSingleDestination({ actor, destination, exclude, mustHaveCollision }) {
     if (actor.isPathFinding) { return []; }
     return {

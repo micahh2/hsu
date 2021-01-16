@@ -168,12 +168,26 @@ window.addEventListener('load', async () => {
       }; // other NPCs' IDs follow the 'vip' NPCs'
     });
 
+  const newZombies = new Array(1).fill(gameState.characters[0])
+    .map((t, i) => {
+      let spriteIndex = 1;
+      while (spriteIndex % 2 === 0) {
+        spriteIndex = Math.floor(Math.random() * 13);
+      }
+      return {
+        ...t,
+        dialog: null,
+        id: i + gameState.characters.length + 1,
+        spriteIndex,
+        type: '',
+      }; // other NPCs' IDs follow the 'vip' NPCs'
+    });
   let oldItems;
   let oldViewport;
   let physicsState = {
     pixels,
     player: gameState.player,
-    characters: gameState.characters.concat(newCharacters),
+    characters: gameState.characters.concat(newCharacters, newZombies),
     items: gameState.items,
     quests: gameState.quests,
     width: mapDim.width,
