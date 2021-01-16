@@ -203,6 +203,20 @@ export const Story = {
             }),
           );
           break;
+        case 'spawn-zombie':
+          changes = changes.concat({
+            type: 'add-character',
+            character: {
+              type: 'zombie',
+              x: 1010,
+              y: 2110,
+              speed: 1,
+              width: 10,
+              height: 10,
+              isNew: true,
+              spriteIndex: 11,
+            } });
+          break;
         case 'show-item':
           changes = changes.concat({
             type: 'update-item',
@@ -347,6 +361,8 @@ export const Story = {
               return t;
             }),
           };
+        case 'add-character':
+          return { ...state, characters: state.characters.concat(e.character) };
         case 'end-game':
           return { ...state, end: true };
         default:

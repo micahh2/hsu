@@ -188,11 +188,19 @@
       "type": "set-zombie-destination",
       "trigger": {
         "type": "interval",
-        "start": 2000,
-        "interval": 5000
+        "start": 1000,
+        "interval": 3000
       },
       "selector": {
         "type": "zombie"
+      }
+    },
+    {
+      "type": "spawn-zombie",
+      "trigger": {
+        "type": "interval",
+        "start": 2000,
+        "interval": 3000
       }
     }
   ],
