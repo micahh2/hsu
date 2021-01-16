@@ -208,13 +208,14 @@ export const Story = {
             type: 'add-character',
             character: {
               type: 'zombie',
-              x: 1010,
+              id: gameState.characters.length + 1,
+              x: 810,
               y: 2110,
               speed: 1,
               width: 10,
               height: 10,
               isNew: true,
-              spriteIndex: 11,
+              spriteIndex: Story.getRandomZombieSprite(),
             } });
           break;
         case 'show-item':
@@ -602,5 +603,12 @@ export const Story = {
       x: Math.floor(Math.random() * area.width) + area.x,
       y: Math.floor(Math.random() * area.height) + area.y,
     };
+  },
+  getRandomZombieSprite() {
+    let i = 0;
+    while (i % 2 !== 1) {
+      i = Math.floor(Math.random() * 13);
+    }
+    return i;
   },
 };
