@@ -10,8 +10,36 @@ export const Story = {
    * @param {}
    */
   loadGameState(gameData) {
-    // Extension point for adding dynamic things
-    return gameData;
+    // Add some random characters
+    const characters = (gameData.characters || []).filter((t) => t.copies == null);
+    const maxId = characters.reduce((a, b) => Math.max(a, b.id), 0);
+    const copyCharacters = (gameData.characters || []).filter((t) => t.copies);
+    const newCharacters = copyCharacters
+      .map((t) => new Array(t.copies).fill(t).map((k, i) => ({
+        ...k,
+        name: `${k.name} ${i}`,
+      })))
+      .reduce((a, b) => a.concat(b), [])
+      .map((t, i) => {
+        let { spriteIndex } = t;
+        if (t.spriteIndexes instanceof Array) {
+          const len = t.spriteIndexes.length;
+          spriteIndex = t.spriteIndexes[Math.floor(Math.random() * len)];
+        }
+        return {
+          ...t,
+          id: i + maxId + 1,
+          spriteIndex,
+        };
+      });
+
+    return {
+      ...gameData,
+      characters: characters.concat(newCharacters).map((t) => ({
+        ...t,
+        isNew: true,
+      })),
+    };
   },
 
   /**
@@ -237,6 +265,7 @@ export const Story = {
           return {
             ...state,
             characters: state.characters.map((t) => {
+              if (t.isNew) { return t; }
               if (t.destination == null && t.waitStart == null) {
                 return { ...t, waitStart: e.waitStart };
               }
@@ -374,43 +403,48 @@ export const Story = {
   }) {
     let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
 
-    // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
-    const blockedNPC = characters
+    const nonChanged = characters
+      .filter((npc) => !npc.isPathFinding && !npc.stuck)
+      .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+
+    waitChanges = nonChanged
       .filter((npc) => !npc.isNew
         && npc.hasCollision
+        && !npc.stuck
         && npc.waypoints != null
-        && npc.waypoints.length > 0
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+        && npc.waypoints.length > 0)
       .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
-      .find(() => true);
-
-    if (blockedNPC != null) {
-      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
-      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
-      waitChanges = waitChanges.concat(Story.setSingleDestination({
-        actor: blockedNPC,
-        destination,
-        exclude,
-        mustHaveCollision: true,
-      }));
-    }
+      .map((npc) => {
+        const destination = npc.waypoints[npc.waypoints.length - 1];
+        const exclude = (npc.exclude || []).concat(npc.destination);
+        return Story.setSingleDestination({
+          actor: npc,
+          destination,
+          exclude,
+          mustHaveCollision: true,
+        });
+      })
+      .reduce((a, b) => a.concat(b), waitChanges);
 
     const timeBetweenMovement = 3000; // 3 seconds
     const maxBlockTime = 5000; // 5 seconds
-    const directionlessNPC = characters
-      .find((npc) => (
-        (npc.destination == null && (now - (npc.waitStart || 0)) > timeBetweenMovement)
-        || (npc.hasCollision && (now - (npc.blockedSince || 0)) > maxBlockTime))
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
-
-    if (directionlessNPC != null) {
-      const newDest = Story.newDestination({
-        areas, width, height, attack, player, npc: directionlessNPC,
-      });
-      waitChanges = waitChanges.concat(
-        Story.setSingleDestination({ actor: directionlessNPC, destination: newDest }),
-      );
-    }
+    waitChanges = nonChanged
+      .filter((npc) => {
+        const waitTime = (now - (npc.waitStart || 0));
+        if (npc.destination == null && (npc.isNew || waitTime > timeBetweenMovement)) {
+          return true;
+        }
+        const blockedTime = (now - (npc.blockedSince || 0));
+        if (!npc.isNew && npc.hasCollision && blockedTime > maxBlockTime) {
+          return true;
+        }
+        return false;
+      })
+      .map((npc) => {
+        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+        return Story.setSingleDestination({ actor: npc, destination: newDest });
+      })
+      .reduce((a, b) => a.concat(b), waitChanges);
 
     return waitChanges;
   },
@@ -491,7 +525,6 @@ export const Story = {
    * @param {}
    */
   setSingleDestination({ actor, destination, exclude, mustHaveCollision }) {
-    if (actor.isPathFinding) { return []; }
     return {
       type: 'request-path-finding',
       actor,
@@ -526,6 +559,14 @@ export const Story = {
 
     if (npc.attachedAreaId != null) {
       area = areas.find((t) => t.id === npc.attachedAreaId);
+    }
+    if (npc.isNew) {
+      area = {
+        x: Math.max(0, npc.x - 150),
+        y: Math.max(0, npc.y - 150),
+        width: 300,
+        height: 300,
+      };
     }
     return {
       x: Math.floor(Math.random() * area.width) + area.x,

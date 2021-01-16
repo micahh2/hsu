@@ -273,6 +273,7 @@
         "t": "start-conversation",
         "a": "attack"
       },
+      "stuck": true,
       "dialog": {
         "response": "Hello then.",
         "options": [
@@ -316,13 +317,49 @@
               {
                 "id": 6,
                 "query": "Where is delicious?",
-                "response": "No where around here!"
+                "response": "Nowhere around here!"
               }
             ],
             "events": []
           }
         ]
       }
+    },
+    {
+      "id": 6,
+      "x": 1200,
+      "y": 2100,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
+    },
+    {
+      "id": 7,
+      "x": 300,
+      "y": 300,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
+    },
+    {
+      "id": 7,
+      "x": 800,
+      "y": 3200,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
     }
   ],
   "items": [

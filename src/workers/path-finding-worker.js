@@ -11,7 +11,9 @@ function routeCharacters(requestQueue) {
       x: Math.round(actor.x + actor.width / 2),
       y: Math.round(actor.y + actor.height / 2),
     };
+    // const startTime = new Date();
     const waypoints = PathFinding.dijikstras({ graph, start, finish, exclude });
+    // const endTime = new Date();
     const newWaypoints = waypoints.slice(1);
     // No way found
     if (waypoints[0] == null) {

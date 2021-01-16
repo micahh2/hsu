@@ -152,28 +152,12 @@ window.addEventListener('load', async () => {
 
   /* eslint-enable no-use-before-define */
 
-  // Add some random characters
-  const newCharacters = new Array(4).fill(gameState.characters[0])
-    .map((t, i) => {
-      let spriteIndex = 8;
-      while (spriteIndex === 8) {
-        spriteIndex = Math.floor(Math.random() * 13);
-      }
-      return {
-        ...t,
-        dialog: null,
-        id: i + gameState.characters.length + 1,
-        spriteIndex,
-        type: '',
-      }; // other NPCs' IDs follow the 'vip' NPCs'
-    });
-
   let oldItems;
   let oldViewport;
   let physicsState = {
     pixels,
     player: gameState.player,
-    characters: gameState.characters.concat(newCharacters),
+    characters: gameState.characters,
     items: gameState.items,
     quests: gameState.quests,
     width: mapDim.width,
@@ -275,22 +259,34 @@ window.addEventListener('load', async () => {
   });
   /* eslint-enable no-use-before-define */
 
+  let lastDrop = new Date();
+  const maxSoundEffectInterval = 1000; // 2 seconds
   // Update game state with the latest from story
   storyWorker.onmessage = (e) => {
     /* eslint-disable no-use-before-define */
     const oldState = physicsState;
     physicsState = Story.applyChanges(physicsState, e.data);
+
+    // Play sound effect if exposed
+    if (oldState.player.exposureLevel < physicsState.player.exposureLevel
+      && (new Date() - lastDrop) > maxSoundEffectInterval) {
+      Music.playTrack('#waterdrop', false);
+      lastDrop = new Date();
+    }
+    // Show end screen if it's the end
     if (physicsState.end) {
       alert('Bummer'); // eslint-disable-line no-alert
       window.location = window.location; // eslint-disable-line no-self-assign
       return;
     }
+    // Show/update conversation if that changes
     if (oldState.conversation !== physicsState.conversation) {
       const updateConvo = (newConvo) => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
       renderConversation(physicsState.conversation, updateConvo);
     }
+    // Update inventory if items change
     if (oldState.items !== physicsState.items) {
       InventoryUI.renderOverlay({
         icon: inventoryIcon,
@@ -298,6 +294,7 @@ window.addEventListener('load', async () => {
         items: physicsState.items,
       });
     }
+    // Update quests ui if quest status changes
     if (oldState.quests !== physicsState.quests) {
       QuestUI.renderOverlay({
         icon: questIcon,
@@ -314,7 +311,7 @@ window.addEventListener('load', async () => {
       quests: physicsState.quests,
       conversation: physicsState.conversation,
     };
-    // Update story worker with new game state
+    // Update story worker with new game state -- this is a cycle/loop
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
@@ -692,7 +689,7 @@ function renderMessageOverlay(element) {
 let playing = false;
 function playMusic() {
   if (playing) { return; }
-  Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
+  Music.playTrack('#backgroundchill', false).catch(() => { playing = false; });
   playing = true;
 }
 
