@@ -151,7 +151,8 @@
     "width": 10,
     "height": 10,
     "spriteIndex": 8,
-    "speed": 3
+    "speed": 3,
+    "type": "human"
   },
   "events": [
     {
@@ -182,12 +183,24 @@
       "selector": {
         "characterId": -1
       }
+    },
+    {
+      "type": "set-zombie-destination",
+      "trigger": {
+        "type": "interval",
+        "start": 2000,
+        "interval": 5000
+      },
+      "selector": {
+        "type": "zombie"
+      }
     }
   ],
   "characters": [
     {
       "id": 2,
       "name": "Herr Katzer",
+      "type": "human",
       "x": 1108,
       "y": 640,
       "speed": 1,
@@ -232,6 +245,7 @@
       "height": 10,
       "speed": 1,
       "name": "Doktor Strahnen",
+      "type": "human",
       "attachedAreaId": 8
     },
     {
@@ -243,6 +257,7 @@
       "height": 10,
       "speed": 1,
       "name": "Professor Frey",
+      "type": "human",
       "infectionFactor": 10,
       "attachedAreaId": 9
     },
@@ -255,12 +270,14 @@
       "height": 10,
       "speed": 1,
       "name": "Frau Bosch",
+      "type": "human",
       "infectionFactor": 10,
       "attachedAreaId": 9
     },
     {
       "id": 1,
       "name": "Frau Kold",
+      "type": "human",
       "x": 997,
       "y": 2558,
       "speed": 1,

@@ -191,8 +191,18 @@ export const Story = {
           });
           changes = changes.concat(convoUpdates.changes);
           events = events.concat(convoUpdates.events);
-          break;
         }
+          break;
+        case 'set-zombie-destination':
+          // Set destination
+          changes = changes.concat(
+            Story.setDestination({
+              characters,
+              selector,
+              destination: { x: player.x, y: player.y },
+            }),
+          );
+          break;
         case 'show-item':
           changes = changes.concat({
             type: 'update-item',
@@ -507,6 +517,9 @@ export const Story = {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }
+    if (sel.type != null) {
+      return (t) => t.type === sel.type;
+    }
     throw Error(`Unknown selector type: ${JSON.stringify(sel)}`);
   },
 
@@ -524,6 +537,7 @@ export const Story = {
    *
    * @param {}
    */
+
   setSingleDestination({ actor, destination, exclude, mustHaveCollision }) {
     return {
       type: 'request-path-finding',

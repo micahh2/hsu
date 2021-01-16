@@ -152,12 +152,23 @@ window.addEventListener('load', async () => {
 
   /* eslint-enable no-use-before-define */
 
+  const newZombies = new Array(1).fill(gameState.characters[0])
+    .map((t, i) => {
+      const spriteIndex = 1;
+      return {
+        ...t,
+        dialog: null,
+        id: i + gameState.characters.length + 1,
+        spriteIndex,
+        type: 'zombie',
+      };
+    });
   let oldItems;
   let oldViewport;
   let physicsState = {
     pixels,
     player: gameState.player,
-    characters: gameState.characters,
+    characters: gameState.characters.concat(newZombies),
     items: gameState.items,
     quests: gameState.quests,
     width: mapDim.width,
