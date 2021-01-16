@@ -194,7 +194,6 @@ export const Story = {
         }
           break;
         case 'set-zombie-destination':
-          // Set destination
           changes = changes.concat(
             Story.setDestination({
               characters,
@@ -209,13 +208,14 @@ export const Story = {
             character: {
               type: 'zombie',
               id: gameState.characters.length + 1,
-              x: 810,
-              y: 2110,
+              x: Story.getRandomInt(width),
+              y: height,
               speed: 1,
               width: 10,
               height: 10,
               isNew: true,
               spriteIndex: Story.getRandomZombieSprite(),
+              infectionFactor: 20,
             } });
           break;
         case 'show-item':
@@ -604,10 +604,15 @@ export const Story = {
       y: Math.floor(Math.random() * area.height) + area.y,
     };
   },
+  // Returns a random int between 0 and max
+  getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  },
+  // Sets zombie NPC's sprite to one of the zombie variants(every odd one)
   getRandomZombieSprite() {
     let i = 0;
     while (i % 2 !== 1) {
-      i = Math.floor(Math.random() * 13);
+      i = Story.getRandomInt(13);
     }
     return i;
   },
