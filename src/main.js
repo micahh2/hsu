@@ -140,7 +140,6 @@ window.addEventListener('load', async () => {
   /* eslint-disable no-use-before-define */
 
   Time.ingameTime(0);
-
   // Music - Might not work the first time due to browser permissions
   playMusic();
 
