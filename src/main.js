@@ -681,13 +681,26 @@ function renderMessageOverlay(element) {
   }
 }
 
+function increaseInfection() {
+  const progressbar = document.getElementById("progress-bar");
+  const currentValue = parseInt(progressbar.getAttribute("value"));
+  progressbar.setAttribute("value", currentValue+1);
+  console.log(currentValue+1);
+}
+
+function decreaseInfection() {
+  const progressbar = document.getElementById("progress-bar");
+  const currentValue = parseInt(progressbar.getAttribute("value"));
+  progressbar.setAttribute("value", (currentValue-1));
+  console.log(currentValue-1);
+
+}
 let playing = false;
 function playMusic() {
   if (playing) { return; }
   Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
   playing = true;
 }
-
 // updates the volume based on where the volumeslider is
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('rangeSlider').addEventListener('input', Music.updateVolume);

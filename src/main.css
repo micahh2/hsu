@@ -183,12 +183,6 @@ body {
   font-family: 'Press Start 2P';
   color: rgb(22, 22, 22);
 }
-#progress-bar {
-  -webkit-appearance: none;
-  width: 230px;
-  height: 20px;
-}
-
 #progress-bar::-webkit-progress-value {
   background-color: #00dd3c;
 }
@@ -199,7 +193,10 @@ body {
 
 #progress-bar {
   border: 2px solid black;
-  background-color:rgba(55, 55, 55, 0.5)
+  background-color:rgba(55, 55, 55, 0.5);
+  -webkit-appearance: none;
+  width: 230px;
+  height: 20px;
 }
 #progress-bar::-moz-progress-bar {
   background-color: #00dd3c;
