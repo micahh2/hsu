@@ -15,8 +15,8 @@ export const Camera = {
   getCanvasData(canvas) {
     const bounds = canvas.getBoundingClientRect();
     const ratio = bounds.width / bounds.height;
-    const canvasWidth = Math.round(Math.min(bounds.width, 700) * ratio);
-    const canvasHeight = Math.round(Math.min(bounds.height, 700));
+    const canvasWidth = Math.round(Math.min(bounds.width, 800) * ratio);
+    const canvasHeight = Math.round(Math.min(bounds.height, 800));
     const context = canvas.getContext('2d');
 
     return {

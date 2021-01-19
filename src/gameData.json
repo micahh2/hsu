@@ -146,12 +146,13 @@
     }
   ],
   "player": {
-    "x": 20,
-    "y": 20,
+    "x": 1000,
+    "y": 2100,
     "width": 10,
     "height": 10,
     "spriteIndex": 8,
-    "speed": 3
+    "speed": 3,
+    "type": "human"
   },
   "events": [
     {
@@ -182,12 +183,24 @@
       "selector": {
         "characterId": -1
       }
+    },
+    {
+      "type": "set-zombie-destination",
+      "trigger": {
+        "type": "interval",
+        "start": 2000,
+        "interval": 5000
+      },
+      "selector": {
+        "type": "zombie"
+      }
     }
   ],
   "characters": [
     {
       "id": 2,
       "name": "Herr Katzer",
+      "type": "human",
       "x": 1108,
       "y": 640,
       "speed": 1,
@@ -230,8 +243,10 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Doktor Strahnen"
+      "speed": 1,
+      "name": "Doktor Strahnen",
+      "type": "human",
+      "attachedAreaId": 8
     },
     {
       "id": 4,
@@ -240,8 +255,11 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Professor Frey"
+      "speed": 1,
+      "name": "Professor Frey",
+      "type": "human",
+      "infectionFactor": 10,
+      "attachedAreaId": 9
     },
     {
       "id": 5,
@@ -250,12 +268,16 @@
       "spriteIndex": 12,
       "width": 10,
       "height": 10,
-      "speed": 3,
-      "name": "Frau Bosch"
+      "speed": 1,
+      "name": "Frau Bosch",
+      "type": "human",
+      "infectionFactor": 10,
+      "attachedAreaId": 9
     },
     {
       "id": 1,
       "name": "Frau Kold",
+      "type": "human",
       "x": 997,
       "y": 2558,
       "speed": 1,
@@ -268,6 +290,7 @@
         "t": "start-conversation",
         "a": "attack"
       },
+      "stuck": true,
       "dialog": {
         "response": "Hello then.",
         "options": [
@@ -311,13 +334,49 @@
               {
                 "id": 6,
                 "query": "Where is delicious?",
-                "response": "No where around here!"
+                "response": "Nowhere around here!"
               }
             ],
             "events": []
           }
         ]
       }
+    },
+    {
+      "id": 6,
+      "x": 1200,
+      "y": 2100,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
+    },
+    {
+      "id": 7,
+      "x": 300,
+      "y": 300,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
+    },
+    {
+      "id": 7,
+      "x": 800,
+      "y": 3200,
+      "spriteIndex": 4,
+      "width": 10,
+      "height": 10,
+      "speed": 1,
+      "name": "Student",
+      "infectionFactor": 10,
+      "copies": 50
     }
   ],
   "items": [

@@ -11,7 +11,7 @@ describe('applyChanges', () => {
     expect(Story.applyChanges(state, changes)).to.eql({ a: 1, b: 2, c: 3, conversation });
   });
 
-  it('should should apply item changes', () => {
+  it('should apply item changes', () => {
     const items = [{ id: 1 }];
     const state = { a: 1, b: 2, c: 3, items };
     const changes = [{ type: 'update-item', id: 1, prop: 'cool', value: true }];
@@ -21,7 +21,7 @@ describe('applyChanges', () => {
     );
   });
 
-  it('should should update character waypoints/destinations', () => {
+  it('should update character waypoints/destinations', () => {
     const waypoints = [1, 2, 3];
     const exclude = [4, 5, 6];
     const destination = 1;
@@ -45,6 +45,9 @@ describe('applyChanges', () => {
         waypoints,
         exclude,
         destination,
+        waitStart: null,
+        blockedSince: null,
+        isPathFinding: false,
       }],
     });
   });
@@ -119,12 +122,14 @@ describe('startConversation', () => {
   });
   it('should select the nearest npc if no selector', () => {
     const player = { x: 30, y: 70, width: 10 };
-    const { conversation } = Story.startConversation({ characters, player });
+    const nearByCharacters = characters;
+    const { conversation } = Story.startConversation({ characters, nearByCharacters, player });
     expect(conversation.character).to.eql(characters[0]);
   });
   it('should do nothing if no selector and no near npc', () => {
     const player = { x: 300, y: 700, width: 10 };
-    const events = Story.startConversation({ characters, player });
+    const nearByCharacters = characters;
+    const events = Story.startConversation({ characters, nearByCharacters, player });
     expect(events).to.eql([]);
   });
 });
@@ -306,7 +311,7 @@ describe('updateGameState', () => {
       mapDim: { width: 100, height: 100 },
     });
     expect(destChange.destination).to.eql(e.destination);
-    expect(destChange.id).to.eql(character.id);
+    expect(destChange.actor.id).to.eql(character.id);
   });
 });
 

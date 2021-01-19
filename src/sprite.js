@@ -38,6 +38,7 @@ export const Sprite = {
       canvas.style.width = canvasWidth;
       canvas.style.height = canvasHeight;
       const context = canvas.getContext('2d', { alpha });
+      context.imageSmoothingEnabled = false;
       context.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
       const parts = [];

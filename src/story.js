@@ -1,5 +1,4 @@
 import { Util } from './util.js';
-import { PathFinding } from './path-finding.js';
 
 /**
  * Story.
@@ -11,8 +10,36 @@ export const Story = {
    * @param {}
    */
   loadGameState(gameData) {
-    // Extension point for adding dynamic things
-    return gameData;
+    // Add some random characters
+    const characters = (gameData.characters || []).filter((t) => t.copies == null);
+    const maxId = characters.reduce((a, b) => Math.max(a, b.id), 0);
+    const copyCharacters = (gameData.characters || []).filter((t) => t.copies);
+    const newCharacters = copyCharacters
+      .map((t) => new Array(t.copies).fill(t).map((k, i) => ({
+        ...k,
+        name: `${k.name} ${i}`,
+      })))
+      .reduce((a, b) => a.concat(b), [])
+      .map((t, i) => {
+        let { spriteIndex } = t;
+        if (t.spriteIndexes instanceof Array) {
+          const len = t.spriteIndexes.length;
+          spriteIndex = t.spriteIndexes[Math.floor(Math.random() * len)];
+        }
+        return {
+          ...t,
+          id: i + maxId + 1,
+          spriteIndex,
+        };
+      });
+
+    return {
+      ...gameData,
+      characters: characters.concat(newCharacters).map((t) => ({
+        ...t,
+        isNew: true,
+      })),
+    };
   },
 
   /**
@@ -105,7 +132,7 @@ export const Story = {
    *
    * @param {}
    */
-  updateGameState({ graph, gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
+  updateGameState({ gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
     const { player, areas, items, quests } = gameState;
     const { width, height } = mapDim;
     const { attack } = flags || { attack: false };
@@ -118,6 +145,8 @@ export const Story = {
     let changes = [];
     let expired = [];
     const { characters, conversation } = gameState;
+
+    const nearByCharacters = Story.nearByCharacters({ player, characters });
 
     for (let i = 0; i < events.length; i++) {
       if (!Story.isTriggered({
@@ -139,7 +168,6 @@ export const Story = {
           // Set destination
           changes = changes.concat(
             Story.setDestination({
-              graph,
               characters,
               selector,
               destination: events[i].destination,
@@ -150,6 +178,7 @@ export const Story = {
           changes = changes.concat(
             Story.startConversation({
               player,
+              nearByCharacters,
               characters,
               selector,
             }),
@@ -162,8 +191,18 @@ export const Story = {
           });
           changes = changes.concat(convoUpdates.changes);
           events = events.concat(convoUpdates.events);
-          break;
         }
+          break;
+        case 'set-zombie-destination':
+          // Set destination
+          changes = changes.concat(
+            Story.setDestination({
+              characters,
+              selector,
+              destination: { x: player.x, y: player.y },
+            }),
+          );
+          break;
         case 'show-item':
           changes = changes.concat({
             type: 'update-item',
@@ -183,10 +222,16 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
+    // Update exposure
+    changes = changes.concat(
+      Story.exposureChanges({ player, nearByCharacters, timeSinceLast }),
+    );
+
     // If near an item, pick it up.
-    changes = changes.concat((items || [])
+    const itemChanges = (items || [])
       .filter((t) => !t.inInventory && !t.hidden && Util.dist(t, player) < 2 * player.width)
-      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true })));
+      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true }));
+    changes = changes.concat(itemChanges);
 
     // Check completed quests
     changes = changes.concat(
@@ -198,7 +243,7 @@ export const Story = {
     // If an npc is bored or blocked, reroute it
     changes = changes.concat(
       Story.blockedBoredNPCChanges({
-        characters, changes, graph, areas, width, height, player, attack,
+        characters, changes, areas, width, height, player, attack, now,
       }),
     );
 
@@ -226,6 +271,23 @@ export const Story = {
               return t;
             }),
           };
+        case 'set-characters-wait':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (t.isNew) { return t; }
+              if (t.destination == null && t.waitStart == null) {
+                return { ...t, waitStart: e.waitStart };
+              }
+              if (t.hasCollision && t.blockedSince == null) {
+                return { ...t, blockedSince: e.waitStart };
+              }
+              if (!t.hasCollision && t.blockedSince != null) {
+                return { ...t, blockedSince: null };
+              }
+              return t;
+            }),
+          };
         case 'set-character-waypoints':
           return {
             ...state,
@@ -236,13 +298,38 @@ export const Story = {
                   destination: e.destination,
                   waypoints: e.waypoints,
                   exclude: e.exclude,
+                  waitStart: null,
+                  blockedSince: null,
+                  isPathFinding: false,
                 };
+              }
+              return t;
+            }),
+          };
+        case 'set-characters-path-finding-request':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (!t.isPathFinding && e.ids.includes(t.id)) {
+                return { ...t, isPathFinding: true };
+              }
+              return t;
+            }),
+          };
+        case 'remove-character-path-finding-request':
+          return {
+            ...state,
+            characters: state.characters.map((t) => {
+              if (t.isPathFinding && e.id === t.id) {
+                return { ...t, isPathFinding: false };
               }
               return t;
             }),
           };
         case 'set-conversation':
           return { ...state, conversation: e.conversation };
+        case 'update-player':
+          return { ...state, player: { ...state.player, [e.prop]: e.value } };
         case 'set-task-done':
           return {
             ...state,
@@ -260,11 +347,33 @@ export const Story = {
               return t;
             }),
           };
+        case 'end-game':
+          return { ...state, end: true };
         default:
           console.warn('Unknown event type', e.type); // eslint-disable-line no-console
           return state;
       }
     }, inState);
+  },
+
+  nearByCharacters({ player, characters }) {
+    return characters
+      .filter((t) => Util.dist(t, player) < player.width * 2);
+  },
+
+  exposureChanges({ player, nearByCharacters, timeSinceLast }) {
+    const newExposure = nearByCharacters
+      .reduce((a, b) => a + b.infectionFactor, 0);
+    if (newExposure === 0) { return []; }
+    const level = (player.exposureLevel || 0) + newExposure * (timeSinceLast / 1000);
+    if (level >= 100) {
+      return { type: 'end-game' };
+    }
+    return {
+      type: 'update-player',
+      prop: 'exposureLevel',
+      value: level,
+    };
   },
 
   completedTaskChanges({
@@ -299,40 +408,55 @@ export const Story = {
     });
   },
 
-  blockedBoredNPCChanges({ characters, changes, graph, areas, width, height, player, attack }) {
-    // Select one directionless/blocked npc per round. This keeps the engine somewhat responsive
-    const directionlessNPC = characters
-      .find((npc) => npc.destination == null
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+  blockedBoredNPCChanges({
+    characters, changes, areas, width, height, player, attack, now,
+  }) {
+    let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
 
-    if (directionlessNPC != null) {
-      const newDest = Story.newDestination({
-        areas, width, height, attack, player, npc: directionlessNPC,
-      });
-      return Story.setSingleDestination({ actor: directionlessNPC, destination: newDest, graph });
-    }
+    const nonChanged = characters
+      .filter((npc) => !npc.isPathFinding && !npc.stuck)
+      .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id));
 
-    const blockedNPC = characters
+    waitChanges = nonChanged
       .filter((npc) => !npc.isNew
-        && npc.waypoints != null
-        && npc.waypoints.length > 0
         && npc.hasCollision
-        && !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+        && !npc.stuck
+        && npc.waypoints != null
+        && npc.waypoints.length > 0)
       .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
-      .find(() => true);
+      .map((npc) => {
+        const destination = npc.waypoints[npc.waypoints.length - 1];
+        const exclude = (npc.exclude || []).concat(npc.destination);
+        return Story.setSingleDestination({
+          actor: npc,
+          destination,
+          exclude,
+          mustHaveCollision: true,
+        });
+      })
+      .reduce((a, b) => a.concat(b), waitChanges);
 
-    if (blockedNPC) {
-      const destination = blockedNPC.waypoints[blockedNPC.waypoints.length - 1];
-      const exclude = (blockedNPC.exclude || []).concat(blockedNPC.destination);
-      return Story.setSingleDestination({
-        actor: blockedNPC,
-        destination,
-        graph,
-        exclude,
-        mustHaveCollision: true,
-      });
-    }
-    return [];
+    const timeBetweenMovement = 3000; // 3 seconds
+    const maxBlockTime = 5000; // 5 seconds
+    waitChanges = nonChanged
+      .filter((npc) => {
+        const waitTime = (now - (npc.waitStart || 0));
+        if (npc.destination == null && (npc.isNew || waitTime > timeBetweenMovement)) {
+          return true;
+        }
+        const blockedTime = (now - (npc.blockedSince || 0));
+        if (!npc.isNew && npc.hasCollision && blockedTime > maxBlockTime) {
+          return true;
+        }
+        return false;
+      })
+      .map((npc) => {
+        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+        return Story.setSingleDestination({ actor: npc, destination: newDest });
+      })
+      .reduce((a, b) => a.concat(b), waitChanges);
+
+    return waitChanges;
   },
 
   /**
@@ -340,9 +464,9 @@ export const Story = {
    *
    * @param {}
    */
-  startConversation({ player, characters, selector }) {
+  startConversation({ player, nearByCharacters, characters, selector }) {
     const nearestNPC = () => {
-      const res = characters
+      const res = nearByCharacters
         .filter((t) => t.dialog != null) // Only speaking npc's
         .map((t) => ({
           npc: t,
@@ -393,6 +517,9 @@ export const Story = {
     if (sel.characterId != null) {
       return (t) => t.id === sel.characterId;
     }
+    if (sel.type != null) {
+      return (t) => t.type === sel.type;
+    }
     throw Error(`Unknown selector type: ${JSON.stringify(sel)}`);
   },
 
@@ -401,32 +528,23 @@ export const Story = {
    *
    * @param {}
    */
-  setDestination({ characters, destination, selector, graph }) {
+  setDestination({ characters, destination, selector }) {
     return characters.filter(selector)
-      .map((actor) => Story.setSingleDestination({ actor, destination, graph }));
+      .map((actor) => Story.setSingleDestination({ actor, destination }));
   },
   /**
    * setSingleDestination.
    *
    * @param {}
    */
-  setSingleDestination({ actor, destination, graph, exclude, mustHaveCollision }) {
-    const finish = destination;
-    const start = {
-      x: actor.x, // Math.round(actor.x + actor.width / 2),
-      y: actor.y, // Math.round(actor.y + actor.height / 2),
-    };
-    const waypoints = PathFinding.dijikstras({ graph, start, finish, exclude });
-    const newWaypoints = waypoints.slice(1);
-    // No way found
-    if (waypoints[0] == null) { return []; }
+
+  setSingleDestination({ actor, destination, exclude, mustHaveCollision }) {
     return {
-      type: 'set-character-waypoints',
-      id: actor.id,
-      destination: waypoints[0],
-      waypoints: newWaypoints,
-      mustHaveCollision,
+      type: 'request-path-finding',
+      actor,
+      destination,
       exclude,
+      mustHaveCollision,
     };
   },
 
@@ -455,6 +573,14 @@ export const Story = {
 
     if (npc.attachedAreaId != null) {
       area = areas.find((t) => t.id === npc.attachedAreaId);
+    }
+    if (npc.isNew) {
+      area = {
+        x: Math.max(0, npc.x - 150),
+        y: Math.max(0, npc.y - 150),
+        width: 300,
+        height: 300,
+      };
     }
     return {
       x: Math.floor(Math.random() * area.width) + area.x,

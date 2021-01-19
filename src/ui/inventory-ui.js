@@ -4,8 +4,8 @@ export const InventoryUI = {
       .filter((item) => item.inInventory)
       .map((item, index) => {
         const size = 4; // Sprite width & height
-        const posx = (item.spriteIndex % size) * 100;
-        const posy = Math.floor(item.spriteIndex / size) * 100;
+        const posx = (item.spriteIndex % size) * 33;
+        const posy = Math.floor(item.spriteIndex / size) * 33;
         const css = `
         background-position: ${posx}% ${posy}%;
         background-size: ${size}00%;
