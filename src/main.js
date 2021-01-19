@@ -283,6 +283,9 @@ window.addEventListener('load', async () => {
       Music.playTrack('#waterdrop', false);
       lastDrop = new Date();
     }
+    if (oldState.player.exposureLevel !== physicsState.player.exposureLevel) {
+    document.getElementById('progress-bar').setAttribute('value', physicsState.player.exposureLevel);
+    }
     // Show end screen if it's the end
     if (physicsState.end) {
       alert('Bummer'); // eslint-disable-line no-alert
@@ -696,20 +699,6 @@ function renderMessageOverlay(element) {
   }
 }
 
-function increaseInfection() {
-  const progressbar = document.getElementById("progress-bar");
-  const currentValue = parseInt(progressbar.getAttribute("value"));
-  progressbar.setAttribute("value", currentValue+1);
-  console.log(currentValue+1);
-}
-
-function decreaseInfection() {
-  const progressbar = document.getElementById("progress-bar");
-  const currentValue = parseInt(progressbar.getAttribute("value"));
-  progressbar.setAttribute("value", (currentValue-1));
-  console.log(currentValue-1);
-
-}
 let playing = false;
 function playMusic() {
   if (playing) { return; }
