@@ -11,7 +11,7 @@ export const Story = {
    */
   loadGameState(gameData) {
     // Add some random characters
-    const characters = (gameData.characters || []).filter((t) => t.copies == null);
+    let characters = (gameData.characters || []).filter((t) => t.copies == null);
     const maxId = characters.reduce((a, b) => Math.max(a, b.id), 0);
     const copyCharacters = (gameData.characters || []).filter((t) => t.copies);
     const newCharacters = copyCharacters
@@ -20,15 +20,23 @@ export const Story = {
         name: `${k.name} ${i}`,
       })))
       .reduce((a, b) => a.concat(b), [])
-      .map((t, i) => Story.newCopyCharacter({ id: maxId + i, character: t }));
+      .map((t, i) => Story.newCopyCharacter({ id: maxId + i + 1, character: t }));
 
-    return {
-      ...gameData,
-      characters: characters.concat(newCharacters).map((t) => ({
+    characters = characters.concat(newCharacters)
+      .filter((t, index, current) => {
+        const foundIndex = current.findIndex((k) => k.id === t.id);
+        if (foundIndex !== index) {
+          console.warn('Duplicate ID found', t.name, t.id); // eslint-disable-line no-console
+          return false;
+        }
+        return true;
+      })
+      .map((t) => ({
         ...t,
         isNew: true,
-      })),
-    };
+      }));
+
+    return { ...gameData, characters };
   },
 
   newCopyCharacter({ id, character }) {
@@ -497,8 +505,10 @@ export const Story = {
             exclude: [],
           }];
         }
-        // If there's no destination, set one
-        if (!npc.destination) {
+        // If there's no destination, or if it's already tried rerouting and is blocked),
+        // set a new destination
+        const maxReroutes = 4;
+        if (!npc.destination || (npc.hasCollision && (npc.exclude || []).length >= maxReroutes)) {
           const newDest = { x: player.x, y: player.y };
           return Story.setSingleDestination({ actor: npc, destination: newDest });
         }
