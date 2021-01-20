@@ -20,18 +20,7 @@ export const Story = {
         name: `${k.name} ${i}`,
       })))
       .reduce((a, b) => a.concat(b), [])
-      .map((t, i) => {
-        let { spriteIndex } = t;
-        if (t.spriteIndexes instanceof Array) {
-          const len = t.spriteIndexes.length;
-          spriteIndex = t.spriteIndexes[Math.floor(Math.random() * len)];
-        }
-        return {
-          ...t,
-          id: i + maxId + 1,
-          spriteIndex,
-        };
-      });
+      .map((t, i) => Story.newCopyCharacter({ id: maxId + i, character: t }));
 
     return {
       ...gameData,
@@ -40,6 +29,15 @@ export const Story = {
         isNew: true,
       })),
     };
+  },
+
+  newCopyCharacter({ id, character }) {
+    let { spriteIndex } = character;
+    if (character.spriteIndexes instanceof Array) {
+      const len = character.spriteIndexes.length;
+      spriteIndex = character.spriteIndexes[Math.floor(Math.random() * len)];
+    }
+    return { ...character, id, spriteIndex };
   },
 
   /**
