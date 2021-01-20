@@ -376,7 +376,7 @@ export const Story = {
         case 'add-character':
           return { ...state, characters: state.characters.concat(e.character) };
         case 'end-game':
-          return { ...state, end: true };
+          return { ...state, end: true, win: e.win };
         case 'set-option-text':
           return { ...state, optionText: e.optionText };
         default:
@@ -416,7 +416,7 @@ export const Story = {
     if (newExposure === 0) { return []; }
     const level = (player.exposureLevel || 0) + newExposure * (timeSinceLast / 1000);
     if (level >= 100) {
-      return { type: 'end-game' };
+      return { type: 'end-game', win: false };
     }
     return {
       type: 'update-player',
@@ -435,6 +435,10 @@ export const Story = {
         task: quest.tasks.find((t) => !t.hidden && !t.done),
       }))
       .filter((t) => t.task != null);
+
+    if (activeTasks.length === 0) {
+      return { type: 'end-game', win: true };
+    }
 
     return activeTasks.filter(({ task }) => Story.isTriggered({
       player,

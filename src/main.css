@@ -368,3 +368,25 @@ body {
   text-align: center;
   text-shadow: 2px 2px black;
 }
+
+#end-screen {
+  z-index: 100;
+  background-color: darkblue;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 5%;
+  box-sizing: border-box;
+  text-shadow:  2px 2px black;
+}
+#end-screen h1 {
+  font-size: 5em;
+}
+
+#end-screen,
+#end-screen .failure,
+#end-screen .success {
+  display: none;
+}

@@ -9,6 +9,7 @@ import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
 import { OptionsUI } from './ui/options-ui.js';
+import { EndScreenUI } from './ui/end-screen-ui.js';
 import { InventoryUI } from './ui/inventory-ui.js';
 import { PathFinding } from './path-finding.js';
 
@@ -271,10 +272,9 @@ window.addEventListener('load', async () => {
 
   // Options UI
   const options = document.getElementById('options');
-  OptionsUI.renderOptions({
-    element: options,
-    optionText: 'Some options',
-  });
+
+  // End Screen UI
+  const endScreen = document.getElementById('end-screen');
 
   /* eslint-enable no-use-before-define */
 
@@ -299,9 +299,12 @@ window.addEventListener('load', async () => {
 
     // Show end screen if it's the end
     if (physicsState.end) {
-      alert('Bummer'); // eslint-disable-line no-alert
-      window.location = window.location; // eslint-disable-line no-self-assign
-      return;
+      if (!physicsState.win) {
+        EndScreenUI.showFailure(endScreen);
+      } else {
+        EndScreenUI.showSuccess(endScreen);
+      }
+      return; // This ends the story engine cycle
     }
 
     // Show/update conversation if that changes
