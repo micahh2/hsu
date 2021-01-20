@@ -225,6 +225,13 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
+    // Don't do general updates if paused
+    if (paused) { return changes; };
+
+    // ---------------
+    // General updates
+    // ---------------
+
     // Update exposure
     changes = changes.concat(
       Story.exposureChanges({ player, nearByCharacters, timeSinceLast }),
@@ -371,7 +378,7 @@ export const Story = {
 
   exposureChanges({ player, nearByCharacters, timeSinceLast }) {
     const newExposure = nearByCharacters
-      .reduce((a, b) => a + b.infectionFactor, 0);
+      .reduce((a, b) => a + (b.infectionFactor || 0), 0);
     if (newExposure === 0) { return []; }
     const level = (player.exposureLevel || 0) + newExposure * (timeSinceLast / 1000);
     if (level >= 100) {

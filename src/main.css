@@ -177,8 +177,8 @@ body {
 
 .progress {
   position: absolute;
-  top: 12%;
-  left: 45.8%;
+  bottom: 20px;
+  left: 20px;
   text-align: center;
   font-family: 'Press Start 2P';
   color: rgb(22, 22, 22);

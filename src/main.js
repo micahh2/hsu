@@ -285,20 +285,16 @@ window.addEventListener('load', async () => {
     }
     // Update exposure bar
     if (oldState.player.exposureLevel !== physicsState.player.exposureLevel) {
-      if (isNaN(physicsState.player.exposureLevel)) {
-        document.getElementById('progress-bar').setAttribute('value', 0);
-    } else {
-      document.getElementById('progress-bar').setAttribute('value', physicsState.player.exposureLevel);
+      document.getElementById('progress-bar').setAttribute('value', physicsState.player.exposureLevel || 0);
     }
-  }
-    
+
     // Show end screen if it's the end
     if (physicsState.end) {
       alert('Bummer'); // eslint-disable-line no-alert
       window.location = window.location; // eslint-disable-line no-self-assign
       return;
     }
-    
+
     // Show/update conversation if that changes
     if (oldState.conversation !== physicsState.conversation) {
       const updateConvo = (newConvo) => {
