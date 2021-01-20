@@ -239,8 +239,15 @@ export const Story = {
     // Update Events
     events = events.filter((t) => !expired.includes(t));
 
+    // Always check completed quests
+    changes = changes.concat(
+      Story.completedTaskChanges({
+        quests, characters, areas, player, items, conversation, timeSinceLast, now,
+      }),
+    );
+
     // Don't do general updates if paused
-    if (paused) { return changes; };
+    if (paused) { return changes; }
 
     // ---------------
     // General updates
@@ -249,13 +256,6 @@ export const Story = {
     // Update exposure
     changes = changes.concat(
       Story.exposureChanges({ player, nearByCharacters, timeSinceLast }),
-    );
-
-    // Check completed quests
-    changes = changes.concat(
-      Story.completedTaskChanges({
-        quests, characters, areas, player, items, conversation, timeSinceLast, now,
-      }),
     );
 
     // If an npc is bored or blocked, reroute it
