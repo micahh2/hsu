@@ -133,7 +133,6 @@ export const Story = {
   updateGameState({ gameState, now, timeSinceLast, flags, eventQueue = [], mapDim }) {
     const { player, areas, items, quests } = gameState;
     const { width, height } = mapDim;
-    const { attack } = flags || { attack: false };
     const paused = (gameState.conversation && gameState.conversation.active)
        || (flags && flags.paused);
 
@@ -246,16 +245,12 @@ export const Story = {
 
     // If an npc is bored or blocked, reroute it
     changes = changes.concat(
-      Story.blockedBoredNPCChanges({
-        characters, changes, areas, width, height, player, attack, now,
-      }),
+      Story.blockedBoredNPCChanges({ characters, changes, areas, width, height, player, now }),
     );
 
     // Zombies gotta change too
     changes = changes.concat(
-      Story.zombieChanges({
-        characters, changes, areas, width, height, player, attack, now,
-      }),
+      Story.zombieChanges({ characters, changes, player }),
     );
 
     // If we've removed or added events
@@ -421,9 +416,7 @@ export const Story = {
     });
   },
 
-  blockedBoredNPCChanges({
-    characters, changes, areas, width, height, player, attack, now,
-  }) {
+  blockedBoredNPCChanges({ characters, changes, areas, width, height, player, now }) {
     let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
 
     const nonChanged = characters
@@ -467,7 +460,7 @@ export const Story = {
         return false;
       })
       .map((npc) => {
-        const newDest = Story.newDestination({ areas, width, height, attack, player, npc });
+        const newDest = Story.newDestination({ areas, width, height, player, npc });
         return Story.setSingleDestination({ actor: npc, destination: newDest });
       })
       .reduce((a, b) => a.concat(b), waitChanges);
@@ -475,9 +468,7 @@ export const Story = {
     return waitChanges;
   },
 
-  zombieChanges({
-    characters, changes, areas, width, height, player, attack,
-  }) {
+  zombieChanges({ characters, changes, player }) {
     const nonChanged = characters
       .filter((npc) => !npc.isPathFinding && !npc.stuck)
       .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id))

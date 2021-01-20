@@ -326,7 +326,7 @@ window.addEventListener('load', async () => {
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
-      flags: { attack }, // eslint-disable-line no-use-before-define
+      flags: { paused: pause },
     });
     /* eslint-enable no-use-before-define */
   };
@@ -364,7 +364,6 @@ let up = false;
 let down = false;
 let left = false;
 let right = false;
-let attack = false;
 let pause = false;
 let zoom = false;
 let debugPathfinding = false;
@@ -421,9 +420,6 @@ window.addEventListener('keyup', (e) => {
     case 'KeyD':
     case 'ArrowRight':
       right = false;
-      break;
-    case 'Space':
-      attack = !attack;
       break;
     case 'KeyP':
       pause = !pause;
