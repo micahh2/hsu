@@ -68,6 +68,7 @@ body {
   padding: 30px;
   box-sizing: border-box;
   display: none;
+  z-index: 30;
 }
 
 .icon {
