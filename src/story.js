@@ -191,15 +191,6 @@ export const Story = {
           events = events.concat(convoUpdates.events);
         }
           break;
-        case 'set-zombie-destination':
-          changes = changes.concat(
-            Story.setDestination({
-              characters,
-              selector,
-              destination: { x: player.x, y: player.y },
-            }),
-          );
-          break;
         case 'spawn-zombie':
           changes = changes.concat({
             type: 'add-character',
@@ -256,6 +247,13 @@ export const Story = {
     // If an npc is bored or blocked, reroute it
     changes = changes.concat(
       Story.blockedBoredNPCChanges({
+        characters, changes, areas, width, height, player, attack, now,
+      }),
+    );
+
+    // Zombies gotta change too
+    changes = changes.concat(
+      Story.zombieChanges({
         characters, changes, areas, width, height, player, attack, now,
       }),
     );
@@ -429,16 +427,18 @@ export const Story = {
     let waitChanges = [{ type: 'set-characters-wait', waitStart: now }];
 
     const nonChanged = characters
+      .filter((npc) => npc.type !== 'zombie')
       .filter((npc) => !npc.isPathFinding && !npc.stuck)
-      .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id));
+      .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+      .filter((npc) => !changes.some((t) => t.type.includes('request-path-finding') && t.actor.id === npc.id));
 
+    // Blocked changes (Reroute)
     waitChanges = nonChanged
       .filter((npc) => !npc.isNew
         && npc.hasCollision
         && !npc.stuck
         && npc.waypoints != null
         && npc.waypoints.length > 0)
-      .sort((a, b) => (a.exclude || []).length - (b.exclude || []).length)
       .map((npc) => {
         const destination = npc.waypoints[npc.waypoints.length - 1];
         const exclude = (npc.exclude || []).concat(npc.destination);
@@ -451,6 +451,7 @@ export const Story = {
       })
       .reduce((a, b) => a.concat(b), waitChanges);
 
+    // Bored or very blocked changes (New Destination)
     const timeBetweenMovement = 3000; // 3 seconds
     const maxBlockTime = 5000; // 5 seconds
     waitChanges = nonChanged
@@ -472,6 +473,51 @@ export const Story = {
       .reduce((a, b) => a.concat(b), waitChanges);
 
     return waitChanges;
+  },
+
+  zombieChanges({
+    characters, changes, areas, width, height, player, attack,
+  }) {
+    const nonChanged = characters
+      .filter((npc) => !npc.isPathFinding && !npc.stuck)
+      .filter((npc) => !changes.some((t) => t.type.includes('character') && t.id === npc.id))
+      .filter((npc) => !changes.some((t) => t.type.includes('request-path-finding') && t.actor.id === npc.id));
+
+    const maxDist = player.width * 10;
+    return nonChanged
+      .filter((npc) => npc.type === 'zombie')
+      .map((npc) => {
+        const dist = Util.dist(player, npc);
+        // If they are close, don't use path finding
+        if (dist < maxDist) {
+          return [{
+            type: 'set-character-waypoints',
+            id: npc.id,
+            destination: { x: player.x, y: player.y },
+            waypoints: [],
+            mustHaveCollision: false,
+            exclude: [],
+          }];
+        }
+        // If there's no destination, set one
+        if (!npc.destination) {
+          const newDest = { x: player.x, y: player.y };
+          return Story.setSingleDestination({ actor: npc, destination: newDest });
+        }
+        // If there's a collision route around
+        if (npc.hasCollision) {
+          const destination = npc.waypoints[npc.waypoints.length - 1] || npc.destination;
+          const exclude = (npc.exclude || []).concat(npc.destination);
+          return Story.setSingleDestination({
+            actor: npc,
+            destination,
+            exclude,
+            mustHaveCollision: true,
+          });
+        }
+        return [];
+      })
+      .reduce((a, b) => a.concat(b), []);
   },
 
   /**
@@ -577,12 +623,12 @@ export const Story = {
    *
    * @param {}
    */
-  newDestination({ areas, width, height, player, attack, npc }) {
+  newDestination({ areas, width, height, player, npc }) {
     let area = {
       x: 0, y: 0, width, height,
     };
 
-    if (player && attack) {
+    if (player && npc.type === 'zombie') {
       return { x: player.x, y: player.y };
     }
 

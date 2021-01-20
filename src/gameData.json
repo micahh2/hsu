@@ -185,17 +185,6 @@
       }
     },
     {
-      "type": "set-zombie-destination",
-      "trigger": {
-        "type": "interval",
-        "start": 1000,
-        "interval": 2000
-      },
-      "selector": {
-        "type": "zombie"
-      }
-    },
-    {
       "type": "spawn-zombie",
       "trigger": {
         "type": "interval",
@@ -360,7 +349,7 @@
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 50
+      "copies": 5
     },
     {
       "id": 7,
@@ -372,7 +361,7 @@
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 50
+      "copies": 5
     },
     {
       "id": 7,
@@ -384,7 +373,7 @@
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 50
+      "copies": 5
     }
   ],
   "items": [

@@ -12,6 +12,13 @@ pathFindingWorker.onmessage = (e) => {
   pathFindingChanges = pathFindingChanges.concat(e.data);
 };
 
+const pathFindingWorker2 = new Worker('./path-finding-worker.js');
+
+pathFindingWorker2.onmessage = (e) => {
+  pathFindingChanges = pathFindingChanges.concat(e.data);
+};
+
+let lastWorker = 0;
 let last = new Date();
 const start = new Date();
 function updateStory() {
@@ -33,7 +40,10 @@ function updateStory() {
   eventQueue = [];
   const pathFindingRequests = changes.filter((t) => t.type === 'request-path-finding');
   if (pathFindingRequests.length > 0) {
-    pathFindingWorker.postMessage({
+    const workers = [pathFindingWorker, pathFindingWorker2];
+    const worker = workers[lastWorker % 2];
+    lastWorker++;
+    worker.postMessage({
       type: 'add-requests',
       requests: pathFindingRequests,
     });
@@ -56,6 +66,7 @@ onmessage = (e) => {
   switch (e.data.type) {
     case 'update-grid':
       pathFindingWorker.postMessage(e.data);
+      pathFindingWorker2.postMessage(e.data);
       mapDim = e.data.mapDim;
       break;
     case 'update-game-state':
