@@ -140,7 +140,6 @@ window.addEventListener('load', async () => {
   /* eslint-disable no-use-before-define */
 
   Time.ingameTime(0);
-
   // Music - Might not work the first time due to browser permissions
   playMusic();
 
@@ -284,12 +283,22 @@ window.addEventListener('load', async () => {
       Music.playTrack('#waterdrop', false);
       lastDrop = new Date();
     }
+    // Update exposure bar
+    if (oldState.player.exposureLevel !== physicsState.player.exposureLevel) {
+      if (isNaN(physicsState.player.exposureLevel)) {
+        document.getElementById('progress-bar').setAttribute('value', 0);
+    } else {
+      document.getElementById('progress-bar').setAttribute('value', physicsState.player.exposureLevel);
+    }
+  }
+    
     // Show end screen if it's the end
     if (physicsState.end) {
       alert('Bummer'); // eslint-disable-line no-alert
       window.location = window.location; // eslint-disable-line no-self-assign
       return;
     }
+    
     // Show/update conversation if that changes
     if (oldState.conversation !== physicsState.conversation) {
       const updateConvo = (newConvo) => {
@@ -696,10 +705,9 @@ function renderMessageOverlay(element) {
 let playing = false;
 function playMusic() {
   if (playing) { return; }
-  Music.playTrack('#backgroundchill', false).catch(() => { playing = false; });
+  Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
   playing = true;
 }
-
 // updates the volume based on where the volumeslider is
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('rangeSlider').addEventListener('input', Music.updateVolume);

@@ -161,7 +161,7 @@ body {
 
 #timer {
     visibility: hidden;
-    margin-left: -36.5px;
+    margin-left: 70px;
     width: 78px;
     align-items: center;
     text-align: center;
@@ -173,6 +173,33 @@ body {
     color:#00dd3c;
     font-family: 'Press Start 2P';
     font-size: 10px;
+}
+
+.progress {
+  position: absolute;
+  top: 12%;
+  left: 45.8%;
+  text-align: center;
+  font-family: 'Press Start 2P';
+  color: rgb(22, 22, 22);
+}
+#progress-bar::-webkit-progress-value {
+  background-color: #00dd3c;
+}
+
+#progress-bar::-webkit-progress-bar {
+  background-color: rgba(55, 55, 55, 0.5);
+}
+
+#progress-bar {
+  border: 2px solid black;
+  background-color:rgba(55, 55, 55, 0.5);
+  -webkit-appearance: none;
+  width: 230px;
+  height: 20px;
+}
+#progress-bar::-moz-progress-bar {
+  background-color: #00dd3c;
 }
 
 .music {
