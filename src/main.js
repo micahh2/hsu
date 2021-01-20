@@ -8,6 +8,7 @@ import { Music } from './music.js';
 import { Time } from './time.js';
 import { StartPageUI } from './ui/start-page-ui.js';
 import { QuestUI } from './ui/quest-ui.js';
+import { OptionsUI } from './ui/options-ui.js';
 import { InventoryUI } from './ui/inventory-ui.js';
 import { PathFinding } from './path-finding.js';
 
@@ -267,6 +268,14 @@ window.addEventListener('load', async () => {
     overlay: questOverlay,
     quests: gameState.quests,
   });
+
+  // Options UI
+  const options = document.getElementById('options');
+  OptionsUI.renderOptions({
+    element: options,
+    optionText: 'Some options',
+  });
+
   /* eslint-enable no-use-before-define */
 
   let lastDrop = new Date();
@@ -318,6 +327,13 @@ window.addEventListener('load', async () => {
         quests: physicsState.quests,
       });
     }
+    // Update option text if there's a change
+    if (oldState.optionText !== physicsState.optionText) {
+      OptionsUI.renderOptions({
+        element: options,
+        optionText: physicsState.optionText,
+      });
+    }
     // TODO: Fix this whole physicsState/gameState mess
     gameState = {
       ...gameState,
@@ -326,6 +342,7 @@ window.addEventListener('load', async () => {
       items: physicsState.items,
       quests: physicsState.quests,
       conversation: physicsState.conversation,
+      optionText: physicsState.optionText,
     };
     // Update story worker with new game state -- this is a cycle/loop
     storyWorker.postMessage({
@@ -434,6 +451,9 @@ window.addEventListener('keyup', (e) => {
       break;
     case 'KeyC':
       sendStoryEvent({ type: 'start-conversation' });
+      break;
+    case 'KeyX':
+      sendStoryEvent({ type: 'pickup-item' });
       break;
     case 'Digit0':
       debugPathfinding = !debugPathfinding;

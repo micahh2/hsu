@@ -151,7 +151,8 @@ export const Story = {
     let expired = [];
     const { characters, conversation } = gameState;
 
-    const nearByCharacters = Story.nearByCharacters({ player, characters });
+    const nearByCharacters = Story.nearByActors({ player, actors: characters });
+    const nearByItems = Story.nearByActors({ player, actors: items || [] });
 
     for (let i = 0; i < events.length; i++) {
       if (!Story.isTriggered({
@@ -222,6 +223,11 @@ export const Story = {
             value: false,
           });
           break;
+        case 'pickup-item':
+          changes = changes.concat(
+            Story.pickupItem({ player, nearByItems }),
+          );
+          break;
         default:
           break;
       }
@@ -245,12 +251,6 @@ export const Story = {
       Story.exposureChanges({ player, nearByCharacters, timeSinceLast }),
     );
 
-    // If near an item, pick it up.
-    const itemChanges = (items || [])
-      .filter((t) => !t.inInventory && !t.hidden && Util.dist(t, player) < 2 * player.width)
-      .map((t) => ({ type: 'update-item', id: t.id, prop: 'inInventory', value: true }));
-    changes = changes.concat(itemChanges);
-
     // Check completed quests
     changes = changes.concat(
       Story.completedTaskChanges({
@@ -273,6 +273,11 @@ export const Story = {
       || events.some((t, index) => gameState.events[index] !== t)) {
       changes = changes.concat({ type: 'update-events', events });
     }
+
+    // Update what the player can do
+    changes = changes.concat(
+      Story.optionChanges({ nearByItems, nearByCharacters, optionText: gameState.optionText }),
+    );
 
     return changes;
   },
@@ -372,6 +377,8 @@ export const Story = {
           return { ...state, characters: state.characters.concat(e.character) };
         case 'end-game':
           return { ...state, end: true };
+        case 'set-option-text':
+          return { ...state, optionText: e.optionText };
         default:
           console.warn('Unknown event type', e.type); // eslint-disable-line no-console
           return state;
@@ -379,9 +386,28 @@ export const Story = {
     }, inState);
   },
 
-  nearByCharacters({ player, characters }) {
-    return characters
-      .filter((t) => Util.dist(t, player) < player.width * 2);
+  optionChanges({ nearByItems, nearByCharacters, optionText }) {
+    let newOptionText = '';
+    const nearestItem = nearByItems.find((t) => !t.inInventory && !t.hidden);
+    const nearestChar = nearByCharacters.find((t) => t.dialog != null);
+
+    if (nearestItem) {
+      newOptionText = `Press [x] to pick-up "${nearestItem.name}"`;
+    } else if (nearestChar) {
+      newOptionText = `Press [c] to chat with ${nearestChar.name}`;
+    }
+    if (newOptionText !== optionText) {
+      return { type: 'set-option-text', optionText: newOptionText };
+    }
+    return [];
+  },
+
+  nearByActors({ player, actors }) {
+    return actors
+      .map((actor) => ({ dist: Util.dist(actor, player), actor }))
+      .filter(({ dist }) => dist < player.width * 2)
+      .sort((a, b) => a.dist - b.dist)
+      .map((t) => t.actor);
   },
 
   exposureChanges({ player, nearByCharacters, timeSinceLast }) {
@@ -526,6 +552,17 @@ export const Story = {
         return [];
       })
       .reduce((a, b) => a.concat(b), []);
+  },
+
+  pickupItem({ nearByItems }) {
+    const nearest = nearByItems.find((t) => !t.inInventory && !t.hidden);
+    if (!nearest) { return []; }
+    return {
+      type: 'update-item',
+      id: nearest.id,
+      prop: 'inInventory',
+      value: true,
+    };
   },
 
   /**

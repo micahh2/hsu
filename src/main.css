@@ -359,3 +359,12 @@ body {
 .task-done {
   text-decoration: line-through;
 }
+
+#options {
+  position: absolute;
+  bottom: 30px;
+  width: 50%;
+  left: 25%;
+  text-align: center;
+  text-shadow: 2px 2px black;
+}
