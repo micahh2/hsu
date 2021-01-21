@@ -10,15 +10,6 @@
       "name": "upper trees"
     },
     {
-      "id": 0,
-      "x": 768,
-      "y": 1928,
-      "width": 974,
-      "height": 496,
-      "color": "rgba(74,238,72,0.5)",
-      "name": "quad"
-    },
-    {
       "id": 2,
       "x": 2240,
       "y": 619,
@@ -143,6 +134,15 @@
       "height": 161,
       "color": "rgba(16,98,185,0.5)",
       "name": "strahnen's lab"
+    },
+    {
+      "id": 0,
+      "x": 766,
+      "y": 1919,
+      "width": 974,
+      "height": 496,
+      "color": "rgba(74,238,72,0.5)",
+      "name": "quad"
     }
   ],
   "player": {
@@ -150,7 +150,7 @@
     "y": 2100,
     "width": 10,
     "height": 10,
-    "spriteIndex": 8,
+    "spriteIndex": 18,
     "speed": 3,
     "type": "human"
   },
@@ -196,14 +196,15 @@
   "characters": [
     {
       "id": 2,
-      "name": "Herr Katzer",
+      "name": "Professor Katzer",
       "type": "human",
       "x": 1108,
       "y": 640,
       "speed": 1,
       "width": 10,
       "height": 10,
-      "spriteIndex": 12,
+      "spriteIndex": 5,
+      "spriteName": "uniqueCharacterSprite",
       "isNew": true,
       "attachedAreaId": 1,
       "actions": {
@@ -211,23 +212,24 @@
         "a": "attack"
       },
       "dialog": {
-        "response": "Yo sup!",
+        "response": "Hello, ladies and gentlemen!",
         "options": [
           {
             "id": 1,
-            "query": "Goodbye.",
-            "event": "end-conversation"
-          },
-          {
-            "id": 2,
-            "query": "haha?",
+            "query": "Have you seen my notebook?",
             "response": "No.",
             "event": "return-response"
           },
           {
-            "id": 3,
+            "id": 2,
             "query": "Is that criminal?",
-            "response": "Yes.",
+            "response": "Very.",
+            "event": "return-response"
+          },
+          {
+            "id": 3,
+            "query": "...I'm not ladies or gentlemen",
+            "response": "It's just an expression.",
             "event": "return-response"
           }
         ]
@@ -237,39 +239,69 @@
       "id": 3,
       "x": 1176,
       "y": 1781,
-      "spriteIndex": 12,
+      "spriteIndex": 2,
+      "spriteName": "uniqueCharacterSprite",
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Doktor Strahnen",
       "type": "human",
-      "attachedAreaId": 8
+      "attachedAreaId": 8,
+      "dialog": {
+        "response": "Have you a question for me?",
+        "options": [
+          {
+            "id": 1,
+            "query": "Have you seen my notebook?",
+            "response": "No."
+          }
+        ]
+      }
     },
     {
       "id": 4,
       "x": 1540,
       "y": 1129,
-      "spriteIndex": 12,
+      "spriteIndex": 1,
+      "spriteName": "uniqueCharacterSprite",
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Professor Frey",
       "type": "human",
-      "infectionFactor": 10,
-      "attachedAreaId": 9
+      "attachedAreaId": 9,
+      "dialog": {
+        "response": "Hello?",
+        "options": [
+          {
+            "id": 1,
+            "query": "Have you seen my notebook?",
+            "response": "No."
+          }
+        ]
+      }
     },
     {
       "id": 5,
       "x": 903,
       "y": 1587,
-      "spriteIndex": 12,
+      "spriteIndex": 10,
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Frau Bosch",
       "type": "human",
-      "infectionFactor": 10,
-      "attachedAreaId": 9
+      "attachedAreaId": 9,
+      "dialog": {
+        "response": "Hi there!",
+        "options": [
+          {
+            "id": 1,
+            "query": "Have you seen my notebook?",
+            "response": "No."
+          }
+        ]
+      }
     },
     {
       "id": 1,
@@ -280,7 +312,8 @@
       "speed": 1,
       "width": 10,
       "height": 10,
-      "spriteIndex": 12,
+      "spriteIndex": 3,
+      "spriteName": "uniqueCharacterSprite",
       "isNew": true,
       "attachedAreaId": 0,
       "actions": {
@@ -338,48 +371,93 @@
       "id": 6,
       "x": 1200,
       "y": 2100,
-      "spriteIndex": 4,
+      "spriteIndexes": [
+        0,
+        2,
+        8,
+        12,
+        14,
+        16,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38
+      ],
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 5
+      "copies": 15
     },
     {
       "id": 7,
       "x": 300,
       "y": 300,
-      "spriteIndex": 4,
+      "spriteIndexes": [
+        0,
+        2,
+        8,
+        12,
+        14,
+        16,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38
+      ],
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 5
+      "copies": 15
     },
     {
       "id": 8,
       "x": 800,
       "y": 3200,
-      "spriteIndex": 4,
+      "spriteIndexes": [
+        0,
+        2,
+        8,
+        12,
+        14,
+        16,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38
+      ],
       "width": 10,
       "height": 10,
       "speed": 1,
       "name": "Student",
       "infectionFactor": 10,
-      "copies": 5
+      "copies": 15
     },
     {
       "id": 9,
-      "name": "Professor Bär",
+      "name": "Professor Bear",
       "type": "human",
-      "x": 1010,
-      "y": 2100,
+      "x": 1063.5,
+      "y": 2154,
       "speed": 1,
       "width": 10,
       "height": 10,
-      "spriteIndex": 12,
+      "spriteIndex": 40,
       "isNew": true,
       "attachedAreaId": 0,
       "dialog": {
@@ -396,7 +474,8 @@
             "response": "The most beautiful thing in this life."
           }
         ]
-      }
+      },
+      "spriteName": "characterSprite"
     }
   ],
   "items": [

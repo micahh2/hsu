@@ -26,6 +26,9 @@ export const CharactersLayer = {
         case 'update-character':
           updateCharacters(characters.map((t) => { // eslint-disable-line
             if (t.id !== change.id) { return t; }
+            if (change.prop2 != null) {
+              return { ...t, [change.prop]: change.value, [change.prop2]: change.value2 };
+            }
             return { ...t, [change.prop]: change.value };
           }));
           break;
@@ -166,16 +169,28 @@ export const CharactersLayer = {
     newCtx.putImageData(imageData, 0, 0);
     return newCanvas;
   },
-  createSpritePicker({ sprite, selected, changeCharacters }) {
+  createSpritePicker({ sprite, selected, changeCharacters, name }) {
     return Elements.wrap(
       Elements.create('div', { class: 'character-options' }),
       sprite.parts.map((t, index) => {
         const smallCanvas = CharactersLayer.createSmallerCanvas(sprite.canvas, t);
-        if (selected && selected.spriteIndex === index) {
+        const selectedSpriteName = selected && (selected.spriteName || 'characterSprite');
+        if (selected && selected.spriteIndex === index && selectedSpriteName === name) {
           smallCanvas.setAttribute('class', 'selected');
         }
         Render.registerEvent(smallCanvas, 'click', () => {
           if (!selected) { return; }
+          if (selectedSpriteName !== name) {
+            changeCharacters({
+              type: 'update-character',
+              id: selected.id,
+              prop: 'spriteName',
+              value: name,
+              prop2: 'spriteIndex',
+              value2: index,
+            });
+            return;
+          }
           changeCharacters({ type: 'update-character', id: selected.id, prop: 'spriteIndex', value: index });
         });
         return smallCanvas;
@@ -187,7 +202,16 @@ export const CharactersLayer = {
     const content = [
       Elements.wrap('h2', 'Characters'),
       CharactersLayer.createSpritePicker({
-        sprite: sprites.characterSprite[player.width * 2], selected, changeCharacters,
+        sprite: sprites.characterSprite[player.width * 2],
+        name: 'characterSprite',
+        selected,
+        changeCharacters,
+      }),
+      CharactersLayer.createSpritePicker({
+        sprite: sprites.uniqueCharacterSprite[player.width * 2],
+        name: 'uniqueCharacterSprite',
+        selected,
+        changeCharacters,
       }),
       ul,
     ];

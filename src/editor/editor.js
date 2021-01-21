@@ -36,14 +36,22 @@ window.addEventListener('load', async () => {
 
   // Load sprites
   const characterSprite = document.getElementById('character-sprite');
+  const uniqueCharacterSprite = document.getElementById('unique-character-sprite');
+  const scales = [gameData.player.width, gameData.player.width * 2];
   const sprites = Sprite.loadSprites({
     characterSprite: {
       image: characterSprite, // Actual image data
-      columns: 3, // How many columns
-      rows: 5, // How many rows
+      columns: 4, // How many columns
+      rows: 11, // How many rows
       padding: 60, // How much whitespace to ignore
-      // How big should the cached tile versions be - we just have two sizes
-      scales: [gameData.player.width, gameData.player.width * 2],
+      scales,
+    },
+    uniqueCharacterSprite: {
+      image: uniqueCharacterSprite,
+      columns: 2,
+      rows: 3,
+      padding: 60,
+      scales,
     },
   }, canvasProvider); // eslint-disable-line no-use-before-define
   // set background
