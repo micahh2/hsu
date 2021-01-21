@@ -322,6 +322,7 @@ describe('gridToGraph', () => {
     ]);
   });
 });
+
 describe('hasBlock', () => {
   it('should receive a blocked grid and return true', () => {
     const grid = [
@@ -372,66 +373,6 @@ describe('getGatewayPoint', () => {
   });
 });
 
-describe('graphToForest', () => {
-  it('should split a graph into a forest of trees', () => {
-    const a = {};
-    const b = {};
-    const c = {};
-    a.neighbors = [b, c];
-    b.neighbors = [a, c];
-    c.neighbors = [a, b];
-    const graph = [a, b, c];
-    const forest = PathFinding.graphToForest(graph);
-    expect(forest).not.null;
-    const leaf = { neighbors: [] };
-    expect(forest).to.eql([
-      { neighbors: [leaf, leaf] },
-      { neighbors: [leaf, leaf] },
-      { neighbors: [leaf, leaf] },
-    ]);
-  });
-  it('should work in a cycle', () => {
-    const a = {};
-    const b = {};
-    const c = {};
-    a.neighbors = [b];
-    b.neighbors = [c];
-    c.neighbors = [a];
-    const graph = [a, b, c];
-    const forest = PathFinding.graphToForest(graph);
-    expect(forest).not.null;
-    const n = (t) => ({ neighbors: t });
-    expect(forest).to.eql([
-      n([n([n([])])]),
-      n([n([n([])])]),
-      n([n([n([])])]),
-    ]);
-  });
-  it('should work on a large graph', () => {
-    let a = {};
-    let graph = [a];
-    const n = 12;
-    for (let i = 0; i < n; i++) {
-      const b = {};
-      const c = {};
-      a.neighbors = [b];
-      b.neighbors = [c];
-      c.neighbors = [a];
-      graph = graph.concat([b, c]);
-      a = c;
-    }
-    const forest = PathFinding.graphToForest(graph);
-    expect(forest).not.null;
-    expect(forest.length).to.equal(n * 2 + 1);
-    let count = 0;
-    let current = forest[0];
-    while (current.neighbors.length > 0) {
-      [current] = current.neighbors;
-      count++;
-    }
-    expect(count).to.equal(n * 2);
-  });
-});
 describe('splitGraphIntoPoints', () => {
   it('should return a new graph with points', () => {
     const a = { x: 0, y: 0, width: 10, height: 10 };

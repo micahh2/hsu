@@ -11,9 +11,7 @@ toc:
         - clearStats
         - updateStats
         - updateDiagnostDisp
-        - renderConversation
         - canvasProvider
-        - ingameTime
   - name: Modules
     children:
         - Camera

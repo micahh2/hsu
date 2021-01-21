@@ -1,5 +1,15 @@
 /** A module for dealing with perspective and rendering */
 export const Camera = {
+  /**
+   * setCanvasResolution.
+   * receives a canvas and the resolution to set it to,
+   * then sets the width and height of that canvas.
+   *
+   * @param {Canvas} canvas
+   * @param {number} canvasWidth
+   * @param {number} canvasHeight
+   * @returns {undefined}
+   */
   setCanvasResolution(canvas, canvasWidth, canvasHeight) {
     /* eslint-disable no-param-reassign */
     // Set the new rounded size
@@ -11,7 +21,13 @@ export const Camera = {
     /* eslint-enable no-param-reassign */
   },
 
-  // This is used when initializing the game world and should only be called once
+  /**
+   * getCanvasData.
+   * This is used when initializing the game world.
+   * It should (generally) only be called once for each layer.
+   * @param {Canvas} canvas
+   * @returns {Object} - An object containing: context, bounds, ration, canvasWidth, canvasHeight
+   */
   getCanvasData(canvas) {
     const bounds = canvas.getBoundingClientRect();
     const ratio = bounds.width / bounds.height;
@@ -19,11 +35,21 @@ export const Camera = {
     const canvasHeight = Math.round(Math.min(bounds.height, 800));
     const context = canvas.getContext('2d');
 
-    return {
-      context, bounds, ratio, canvasWidth, canvasHeight,
-    };
+    return { context, bounds, ratio, canvasWidth, canvasHeight };
   },
 
+  /**
+   * getContextPixels.
+   * This returns an 2D array with the values of the alpha layer of a context.
+   * We use data calculated in this function to in the physics engine
+   * to do collision detection between actors and the terrain.
+   *
+   * @param {Object} arguments
+   * @param {CanvasRenderingContext2D} arguments.context - context to read the alpha pixels from
+   * @param {number} arguments.canvasWidth - absolute width of the canvas to process
+   * @param {number} arguments.canvasHeight - absolute height of the canvas to process
+   * @returns {Uint8Array[]}
+   */
   getContextPixels({ context, canvasWidth, canvasHeight }) {
     const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight);
     const allAlpha = imageData.data
@@ -41,16 +67,19 @@ export const Camera = {
   },
 
   /**
-   * updateViewport
+   * updateViewport.
+   * Calculates what the new viewport should be.
    *
    * @param {Object} arguments
-   * @param {Viewport=} arguments.oldViewport - old viewport which will be returned if there
+   * @param {Viewport} arguments.oldViewport - old viewport which will be returned if there
    *                                    is no difference between the new and the old viewport
    * @param {number} arguments.canvasWidth - absolute width of the canvas/screen
    * @param {number} arguments.canvasHeight - absolute height of the canvas/screen
    * @param {number} arguments.mapWidth - absolute width of the map
    * @param {number} arguments.mapHeight - absolute height of the map
    * @param {number} arguments.scale - an integer, 1 => no scaling
+   * @param {Actor} arguments.player - the player to center the viewport on
+   * @returns {Viewport}
    */
   updateViewport({
     oldViewport, player, mapWidth, mapHeight, scale, canvasWidth, canvasHeight,
@@ -87,14 +116,24 @@ export const Camera = {
   },
 
   /**
-   * updateViewport
-   *
+   * drawScene.
+   * Draws an entire scene.
+   * This function should be called once per frame to redraw the three layers.
    * @param {Object} arguments
-   * @param {Player} arguments.player the player
-   * @param {Characters} arguments.characters Non-playable characters
-   * @param {CanvasRenderingContext2D} arguments.context The active collision context scene
-   * @param {Viewport} arguments.viewport The current viewport
-   * @param {Viewport} arguments.[oldViewport] The viewport from last time
+   * @param {Actor} arguments.player,
+   * @param {Actor[]} arguments.characters,
+   * @param {Actor[]} arguments.items,
+   * @param {Actor[]} arguments.oldItems,
+   * @param {CanvasRenderingContext2D} arguments.context,
+   * @param {number} arguments.width,
+   * @param {number} arguments.height,
+   * @param {number} arguments.sprites,
+   * @param {Viewport} arguments.viewport,
+   * @param {Viewport} arguments.oldViewport,
+   * @param {CanvasRenderingContext2D} arguments.layoutContext,
+   * @param {CanvasRenderingContext2D} arguments.aboveContext,
+   * @param {function} arguments.drawActorToContext,
+   * @returns undefined
    */
   drawScene({
     player,
@@ -185,13 +224,15 @@ export const Camera = {
   },
   /**
    * drawGraph.
-   *
-   * @param {} args
-   * @param {} args.graph the graph
-   * @param {} args.context the context to draw to
+   * Draws out a graph of areas and their connection points.
+   * This function is used for debugging path-finding and player movement.
+   * @param {Object} args
+   * @param {Object[]} args.graph - the graph
+   * @param {CanvasRenderingContext2D} args.context the context to draw to
+   * @param {Object} args.viewport the vewport to draw in
+   * @returns {undefined}
    */
   drawGraph({ graph, context, viewport }) {
-    // context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     graph.forEach((area) => {
       context.strokeStyle = 'black';
       context.strokeRect(
@@ -212,6 +253,16 @@ export const Camera = {
     });
   },
 
+  /**
+   * drawDestinations.
+   * Draws all of the characters paths and
+   * This function is used for debugging path-finding and player movement.
+   * @param {Object} args
+   * @param {Actor[]} args.characters
+   * @param {CanvasRenderingContext2D} args.context
+   * @param {Viewport} args.viewport
+   * @returns {undefined}
+   */
   drawDestinations({ characters, context, viewport }) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.fillStyle = 'black';
@@ -243,6 +294,15 @@ export const Camera = {
       context.stroke();
     });
   },
+  /**
+   * isWithinViewport.
+   * Returns truy if an actor is within a viewport.
+   * Used to select which actors to draw.
+   * @param {Object} args
+   * @param {Viewport} args.viewport
+   * @param {Actor} args.actor
+   * @returns {boolean}
+   */
   isWithinViewport({ viewport, actor }) {
     if (viewport.x > (actor.x + actor.width) || (viewport.x + viewport.width) < actor.x) {
       return false;

@@ -16,18 +16,22 @@ export const Physics = {
    * @param {function} state.getGameState Function to get game state
    * @returns {Object} changes
    */
-  updatePhysicsState(state) {
-    const {
-      pixels, player,
-      characters, width, height,
-      locMap, updateStats,
-      moveNPC, movePlayer,
-      conversation,
-      paused, up, down, left, right,
-    } = state;
+  updateGameState({
+    gameState,
+    pixels,
+    flags,
+    moveNPC,
+    updateStats,
+    movePlayer,
+    width,
+    height,
+    locMap,
+  }) {
+    const { up, down, left, right, paused } = flags;
+    const { player, characters, conversation } = gameState;
 
     const isPaused = paused || (conversation && conversation.active);
-    if (isPaused) { return state; }
+    if (isPaused) { return gameState; }
 
     // Get the move the player wants to make
     let newPlayer = movePlayer({
@@ -68,7 +72,7 @@ export const Physics = {
     updateStats('frames', 1);
 
     return {
-      ...state,
+      ...gameState,
       player: newPlayer,
       characters: newOthers,
     };

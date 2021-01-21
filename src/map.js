@@ -39,7 +39,7 @@ export const Map = {
   /**
    * loads images
    * @param {Object} args
-   * @param {function} [args.fetch] - to request files from an url
+   * @param {function} [args.fetch] - to request files from an url, defaults to (window.fetch)
    * @param {function} [args.convertBlob] - to convert a blob to image
    * @param {string} [args.prepend] - string to prepend to image urls (use this to set local folder)
    * @param {function} args.mapJson - map information

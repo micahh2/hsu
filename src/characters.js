@@ -1,13 +1,21 @@
 import { Util } from './util.js';
 
-/** A class containing methods for dealing with characters  */
+/**
+ * Characters.
+ * A module containing methods for dealing with characters.
+ *
+ * @example
+ * const newActor = Characters.moveNPC({ npc: characters[i], width, height });
+ * */
 export const Characters = {
   /**
-   * This function determines the next move for a given NPC
-   * @param {Object} state
-   * @param {Character} state.npc the npc in question
-   * @param {number} state.width the width of the whole map
-   * @param {number} state.height the height of the whole map
+   * moveNPC.
+   * This function determines the next move for a given NPC.
+   * It is given to the physics engine and called there.
+   * @param {Object} args
+   * @param {Character} args.npc the npc in question
+   * @param {number} args.width the width of the whole map
+   * @param {number} args.height the height of the whole map
    * @returns {Character} an updated version of the npc
    */
   moveNPC({ npc, width, height }) {
@@ -30,7 +38,6 @@ export const Characters = {
         ...newNPC,
         destination: waypoints[0],
         waypoints: waypoints.slice(1),
-        exclude: null,
       };
     }
     if (newNPC.destination == null) { return newNPC; }

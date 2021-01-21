@@ -286,21 +286,6 @@ export const PathFinding = {
     return false;
   },
 
-  graphToForest(graph, marked = [], root = true) {
-    if (marked.length > 1240) { return []; }
-    const newMarks = graph.filter((t) => !marked.includes(t));
-    const treeLevel = newMarks
-      .map((t) => ({
-        ...t,
-        neighbors: PathFinding.graphToForest(
-          t.neighbors,
-          root ? [t] : newMarks.concat(marked),
-          false,
-        ),
-      }));
-    return treeLevel;
-  },
-
   splitGraphIntoPoints(graph, minSize, replace = {}) {
     const key = (t) => `${t.x}:${t.y}`;
     const newMap = graph.map((t) => {

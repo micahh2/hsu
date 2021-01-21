@@ -15,29 +15,29 @@ The roadmap should evolve over time as it is primarily an overview, and not a pl
     - ✅ Initial Physics
 1. M.V.P. (Minimum viable product)
     - NPCs
-        + Busy waiting
-        + 🔨 Optional conversations
-        + 🔨 Path finding
+        + ✅ Busy waiting
+        + ✅ Optional conversations
+        + ✅ Path finding
     - Player
-        + Pickup Items
-        + Receive Items
+        + ✅ Pickup Items
+        + ✅ Receive Items
     - Story Engine
-        + Detect simple complete tasks/quests
-        + Show when player has won the game
+        + ✅ Detect simple complete tasks/quests
+        + ✅ Show when player has won the game
     - UI
         + ✅ Show Inventory
-        + Show a simple Quest
-        + Show time progression
+        + ✅ Show a simple Quest
+        + ✅ Show time progression
 1. Expanded Features I
     - NPCs
-        + Take / "recieve" items
-        + Force conversations with player
+        + ✅ Take / "recieve" items
+        + ✅ Force conversations with player
     - Player
         + Drop items
     - Story Engine
-        + Zombies
+        + ✅ Zombies
     - Map
-        + 🔨 Realistic Map
+        + ✅ Realistic Map
     - Multi-player
         + Chat between players on the same network
 1. Expanded Features II

@@ -29,6 +29,11 @@ export const Music = {
     return song.pause();
   },
 
+  /**
+   * updateVolume.
+   * Updates the global volume based on the 'rangeSlider' UI element
+   * @returns {undefined}
+   */
   updateVolume() {
     const newVolume = document.getElementById('rangeSlider').value;
     document.querySelectorAll('audio').forEach((element) => {

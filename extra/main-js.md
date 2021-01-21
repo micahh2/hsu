@@ -26,20 +26,21 @@ Since some resources depend on other resources, they have to be loaded dynamical
 
 *2. Parse and configure resources (images, json) and output (canvas)*
 
-Not everything structural can be defined in index.html or main.css, some information about the canvases need to be determined based on, for example, the size of images after they loaded. This step also involves some basic parsing of the sprites, scaling them to the sizes they'll use.
+Not everything structural can be defined in index.html or main.css, some information about the canvases need to be determined based on, for example, the size of images after they loaded. This step also involves some basic parsing of the sprites, scaling them to the sizes we will use.
 
 
 *3. Start the game loops*
 
-Currently we have two game loops running, one for the Story and one for the Physics. Both are not "proper" `while` or `for` loops but instead functions that are called repetitively.
+We have two game loops, one for the Story and one for the Physics. Both are not "proper" `while` or `for` loops but instead functions that are called repetitively, or messages that are passed back-and-forth in a cycle.
 
-The physics loop is recursive, calling it self using [`window.requestAnimationFrame`](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It has three current jobs:
+The physics loop is recursive, calling it self using [`window.requestAnimationFrame`](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It has two current jobs:
 
 - Update the game state to the next state (one "tick")
-- Apply changes from the story loop
 - Display the new state on screen
 
-The story loop is simpler, and runs less often than the physics loop. It only has one job: create updates for the physic loop to apply. 
+The story loop runs in its own thread. It only has one job: evaluate the game logic and create updates. 
+The story loop is started by sending an 'update-game-state' message to the [storyWorker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers).
+The story worker uses the updated game state to create changes, and passes those changes back to an event handler in main.js. The main.js event-handler applies those changes to the current state (using Story.applyChanges) and sends the newly updated state back to the story worker with 'update-game-state'. This goes on in a cycle until the game ends.
 
 **Auxiliary Event Listeners and Functions**
 
@@ -48,6 +49,6 @@ There are a few auxiliary event listeners, and functions that are used to suppor
 - [`keydown`](https://developer.mozilla.org/en-US/docs/Web/API/Document/keydown_event)
 - [`keyup`](https://developer.mozilla.org/en-US/docs/Web/API/Document/keyup_event)
 
-There are also some small functions for updating on-screen statistics and the like.
+There are also some functions for updating on-screen statistics and parts of the general UI.
 
 

@@ -11,6 +11,8 @@ import { QuestUI } from './ui/quest-ui.js';
 import { OptionsUI } from './ui/options-ui.js';
 import { EndScreenUI } from './ui/end-screen-ui.js';
 import { InventoryUI } from './ui/inventory-ui.js';
+import { ConversationUI } from './ui/conversation-ui.js';
+import { EmailUI } from './ui/email-ui.js';
 import { PathFinding } from './path-finding.js';
 
 import gameData from './gameData.json';
@@ -27,13 +29,140 @@ function sendStoryEvent(event) {
   storyWorker.postMessage({ type: 'add-event', event });
 }
 
+/**
+ * canvasProvider.
+ * wraps document.createElement, allowing for easy replacement when testing
+ * @example
+ *    const canvas = canvasProvider();
+ */
+function canvasProvider() {
+  return document.createElement('canvas');
+}
+
+// These are modified by updateStats and clearStats
+let stats = {};
+
+/**
+ * clearStats.
+ * This clears all of the statistics/metrics that we've been keeping track o.
+ * @example
+ clearStats();
+ */
+function clearStats() {
+  stats = {};
+}
+
+/**
+ * updateStats.
+ * Used to keep track of statistics/metrics (fps, collision checking time, ect..),
+ * at somepoint it will be rewritten to be more flexible
+ * @param {'frames'|'mapMakingTime'|'collisionCalls'|'collisionChecks'} key
+ * @param {number} value
+ */
+function updateStats(key, value) {
+  stats[key] = (stats[key] || 0) + value;
+}
+
+/**
+ * updateDiagnostDisp.
+ * Used to update the metrics on screen,
+ * at somepoint it will be rewritten to be more flexible
+ *
+ * @param {Object} args
+ * @param {number} args.fps
+ * @param {number} args.collisionTime
+ * @param {number} args.mapMakingTime
+ * @param {number} args.collisionChecks
+ * @param {number} args.collisionCalls
+ */
+function updateDiagnostDisp({ frames }) {
+  const el = document.getElementById('fps');
+  el.innerHTML = `<div>${frames} FPS</div>`;
+}
+let playing = false;
+function playMusic() {
+  if (playing) { return; }
+  Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
+  playing = true;
+}
+
+// Modified by the keydown/up eventListeners
+let up = false;
+let down = false;
+let left = false;
+let right = false;
+let pause = false;
+let zoom = true;
+let debugPathfinding = false;
+
 const zoomLevels = [1, 3];
+
+/* eslint-disable no-shadow */
+/**
+ * Take all the input requests give an updated player
+ *
+ * @param {Object} args
+ * @param {Actor} args.player - Player
+ * @param {number} args.width - Map width
+ * @param {number} args.height - Map height
+ * @param {boolean} args.up - Is the up key pressed?
+ * @param {boolean} args.down - Is the down key pressed?
+ * @param {boolean} args.left - Is the left key pressed?
+ * @param {boolean} args.right - Is the right key pressed?
+ * @returns {Actor} an updated actor
+ * @example
+ *    movePlayer({ player, width, height, up, down, left, right });
+ */
+function movePlayer({
+  player,
+  width,
+  height,
+  up,
+  down,
+  left,
+  right,
+}) {
+  /* eslint-enable no-shadow */
+  let newPlayer = player;
+  let prefix = '';
+  if (up && !down) {
+    prefix = 'up';
+    newPlayer = {
+      ...newPlayer,
+      y: Math.max(newPlayer.y - newPlayer.speed, 0),
+      facing: prefix,
+    };
+  }
+  if (down && !up) {
+    prefix = 'down';
+    newPlayer = {
+      ...newPlayer,
+      y: Math.min(newPlayer.y + newPlayer.speed, height - newPlayer.height),
+      facing: prefix,
+    };
+  }
+  if (left && !right) {
+    newPlayer = {
+      ...newPlayer,
+      x: Math.max(newPlayer.x - newPlayer.speed, 0),
+      facing: `${prefix}left`,
+    };
+  }
+  if (right && !left) {
+    newPlayer = {
+      ...newPlayer,
+      x: Math.min(newPlayer.x + newPlayer.speed, width - newPlayer.height),
+      facing: `${prefix}right`,
+    };
+  }
+  return newPlayer;
+}
 window.addEventListener('load', async () => {
   const mapDim = Map.getTileMapDim(tilemap);
   const loadedTilesets = await Promise.all(Map.loadImages({ mapJson: tilemap }));
   const tileSprites = Map.loadTileMapSprites({
     loadedTilesets,
-    canvasProvider, // eslint-disable-line no-use-before-define
+    canvasProvider,
     zoomLevels,
   });
 
@@ -56,7 +185,7 @@ window.addEventListener('load', async () => {
   Camera.setCanvasResolution(layoutCanvas, canvasWidth, canvasHeight);
   Camera.setCanvasResolution(aboveCanvas, canvasWidth, canvasHeight);
 
-  const virtualCanvas = canvasProvider(); // eslint-disable-line no-use-before-define
+  const virtualCanvas = canvasProvider();
   Camera.setCanvasResolution(virtualCanvas, mapDim.width, mapDim.width);
   Map.drawTileMapToContext({
     context: virtualCanvas.getContext('2d'),
@@ -117,7 +246,7 @@ window.addEventListener('load', async () => {
       padding: 30,
       scales,
     },
-  }, canvasProvider); // eslint-disable-line no-use-before-define
+  }, canvasProvider);
   // set background
   sprites.background = Map.loadTileMapAsSpriteData({
     tilemap,
@@ -126,7 +255,7 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     canvasWidth,
     zoomLevels,
-    canvasProvider, // eslint-disable-line no-use-before-define
+    canvasProvider,
     except: ['Above'],
   });
   sprites.above = Map.loadTileMapAsSpriteData({
@@ -136,7 +265,7 @@ window.addEventListener('load', async () => {
     sprites: tileSprites,
     canvasWidth,
     zoomLevels,
-    canvasProvider, // eslint-disable-line no-use-before-define
+    canvasProvider,
     only: ['Above'],
     alpha: 0.9,
   });
@@ -147,8 +276,6 @@ window.addEventListener('load', async () => {
   });
   await readyToStart;
 
-  /* eslint-disable no-use-before-define */
-
   Time.ingameTime(0);
   // Music - Might not work the first time due to browser permissions
   playMusic();
@@ -156,37 +283,13 @@ window.addEventListener('load', async () => {
   const emailIcon = document.getElementById('email');
   const messageOverlay = document.getElementById('message-overlay-container');
   emailIcon.addEventListener('click', () => {
-    renderMessageOverlay(messageOverlay);
+    EmailUI.renderOverlay(messageOverlay);
   });
 
-  /* eslint-enable no-use-before-define */
-
-  const newZombies = new Array(1).fill(gameState.characters[0])
-    .map((t, i) => {
-      const spriteIndex = 1;
-      return {
-        ...t,
-        dialog: null,
-        id: i + gameState.characters.length + 1,
-        spriteIndex,
-        type: 'zombie',
-      };
-    });
   let oldItems;
   let oldViewport;
-  let physicsState = {
-    pixels,
-    player: gameState.player,
-    characters: gameState.characters.concat(newZombies),
-    items: gameState.items,
-    quests: gameState.quests,
-    width: mapDim.width,
-    height: mapDim.height,
-    locMap: {},
-    updateStats, // eslint-disable-line no-use-before-define
-    moveNPC: Characters.moveNPC,
-    movePlayer, // eslint-disable-line no-use-before-define
-  };
+  // Modified in Physics.updateGameState
+  const locMap = {};
 
   /**
    * physicsLoop.
@@ -200,37 +303,31 @@ window.addEventListener('load', async () => {
    *    window.requestAnimationFrame(physicsLoop);
    */
   const physicsLoop = () => {
-    /* eslint-disable no-use-before-define */
-    physicsState = Physics.updatePhysicsState({
-      ...physicsState,
-      up,
-      down,
-      left,
-      right,
-      paused: pause,
+    const flags = { up, down, left, right, paused: pause };
+    gameState = Physics.updateGameState({
+      gameState,
+      pixels,
+      flags,
+      moveNPC: Characters.moveNPC,
+      updateStats,
+      movePlayer,
+      width: mapDim.width,
+      height: mapDim.height,
+      locMap,
     });
 
-    // Update global game state object
-    gameState = {
-      ...gameState,
-      player: physicsState.player,
-      characters: physicsState.characters,
-      items: physicsState.items,
-    };
-
-    /* eslint-enable no-use-before-define */
     const viewport = Camera.updateViewport({
       oldViewport,
-      player: physicsState.player,
-      mapWidth: physicsState.width,
-      mapHeight: physicsState.height,
+      player: gameState.player,
+      mapWidth: mapDim.width,
+      mapHeight: mapDim.height,
       canvasWidth,
       canvasHeight,
-      scale: zoom ? zoomLevels[1] : zoomLevels[0], // eslint-disable-line no-use-before-define
+      scale: zoom ? zoomLevels[1] : zoomLevels[0],
     });
     Camera.drawScene({
-      player: physicsState.player,
-      characters: physicsState.characters,
+      player: gameState.player,
+      characters: gameState.characters,
       items: gameState.items,
       oldItems,
       context,
@@ -243,10 +340,10 @@ window.addEventListener('load', async () => {
       drawActorToContext: Sprite.drawActorToContext,
       aboveContext,
     });
-    if (debugPathfinding && oldViewport !== viewport) { // eslint-disable-line no-use-before-define
+    if (debugPathfinding && oldViewport !== viewport) {
       Camera.drawDestinations({
         viewport,
-        characters: physicsState.characters,
+        characters: gameState.characters,
         context: aboveContext,
       });
       Camera.drawGraph({ viewport, graph, context: aboveContext });
@@ -254,11 +351,9 @@ window.addEventListener('load', async () => {
     oldViewport = viewport;
     oldItems = gameState.items;
 
-    if (physicsState.end) { return; }
+    if (gameState.end) { return; }
     window.requestAnimationFrame(physicsLoop);
   };
-
-  /* eslint-disable no-use-before-define */
 
   // Inventory UI
   const inventoryIcon = document.getElementById('inventory');
@@ -284,30 +379,44 @@ window.addEventListener('load', async () => {
   // End Screen UI
   const endScreen = document.getElementById('end-screen');
 
-  /* eslint-enable no-use-before-define */
+  // Bind to Music Slider
+  document.getElementById('rangeSlider').addEventListener('input', Music.updateVolume);
+
+  // Music UI
+  const musicnote = document.getElementById('musicnote');
+  let showVolumeSlider = false;
+  const volumeSlider = document.getElementById('volumeslider');
+  musicnote.addEventListener('click', () => {
+    if (showVolumeSlider) {
+      volumeSlider.style.visibility = 'hidden';
+    } else {
+      volumeSlider.style.visibility = 'visible';
+    }
+    showVolumeSlider = !showVolumeSlider;
+  });
 
   let lastDrop = new Date();
-  const maxSoundEffectInterval = 1000; // 2 seconds
+  const maxSoundEffectInterval = 1000; // 1 second
+
   // Update game state with the latest from story
   storyWorker.onmessage = (e) => {
-    /* eslint-disable no-use-before-define */
-    const oldState = physicsState;
-    physicsState = Story.applyChanges(physicsState, e.data);
+    const oldState = gameState;
+    gameState = Story.applyChanges(gameState, e.data);
 
     // Play sound effect if exposed
-    if (oldState.player.exposureLevel < physicsState.player.exposureLevel
+    if (oldState.player.exposureLevel < gameState.player.exposureLevel
       && (new Date() - lastDrop) > maxSoundEffectInterval) {
       Music.playTrack('#waterdrop', false);
       lastDrop = new Date();
     }
     // Update exposure bar
-    if (oldState.player.exposureLevel !== physicsState.player.exposureLevel) {
-      document.getElementById('progress-bar').setAttribute('value', physicsState.player.exposureLevel || 0);
+    if (oldState.player.exposureLevel !== gameState.player.exposureLevel) {
+      document.getElementById('progress-bar').setAttribute('value', gameState.player.exposureLevel || 0);
     }
 
     // Show end screen if it's the end
-    if (physicsState.end) {
-      if (!physicsState.win) {
+    if (gameState.end) {
+      if (!gameState.win) {
         EndScreenUI.showFailure(endScreen);
       } else {
         EndScreenUI.showSuccess(endScreen);
@@ -316,59 +425,51 @@ window.addEventListener('load', async () => {
     }
 
     // Show/update conversation if that changes
-    if (oldState.conversation !== physicsState.conversation) {
+    if (oldState.conversation !== gameState.conversation) {
       const updateConvo = (newConvo) => {
         sendStoryEvent({ type: 'update-conversation', conversation: newConvo });
       };
-      renderConversation(physicsState.conversation, updateConvo);
+      ConversationUI.renderConversation(gameState.conversation, updateConvo);
     }
     // Update inventory if items change
-    if (oldState.items !== physicsState.items) {
+    if (oldState.items !== gameState.items) {
       InventoryUI.renderOverlay({
         icon: inventoryIcon,
         overlay: inventoryOverlay,
-        items: physicsState.items,
+        items: gameState.items,
       });
     }
     // Update quests ui if quest status changes
-    if (oldState.quests !== physicsState.quests) {
+    if (oldState.quests !== gameState.quests) {
       QuestUI.renderOverlay({
         icon: questIcon,
         overlay: questOverlay,
-        quests: physicsState.quests,
+        quests: gameState.quests,
       });
     }
     // Update option text if there's a change
-    if (oldState.optionText !== physicsState.optionText) {
+    if (oldState.optionText !== gameState.optionText) {
       OptionsUI.renderOptions({
         element: options,
-        optionText: physicsState.optionText,
+        optionText: gameState.optionText,
       });
     }
-    // TODO: Fix this whole physicsState/gameState mess
-    gameState = {
-      ...gameState,
-      player: physicsState.player,
-      characters: physicsState.characters,
-      items: physicsState.items,
-      quests: physicsState.quests,
-      conversation: physicsState.conversation,
-      optionText: physicsState.optionText,
-    };
     // Update story worker with new game state -- this is a cycle/loop
     storyWorker.postMessage({
       type: 'update-game-state',
       gameState,
       flags: { paused: pause },
     });
-    /* eslint-enable no-use-before-define */
   };
+
+  // Prep story worker
   storyWorker.postMessage({
     type: 'update-grid',
     grid: pixels,
     mapDim,
     actorSize,
   });
+  // Start story worker cycle
   storyWorker.postMessage({
     type: 'update-game-state',
     gameState,
@@ -376,30 +477,14 @@ window.addEventListener('load', async () => {
 
   // Update FPS/other stats every 1000ms
   setInterval(() => {
-    /* eslint-disable no-use-before-define */
-    updateDiagnostDisp({
-      fps: frames,
-      mapMakingTime,
-      collisionTime,
-      collisionChecks,
-      collisionCalls,
-    });
+    updateDiagnostDisp(stats);
     clearStats();
-    /* eslint-enable no-use-before-define */
   }, 1000);
 
-  // Start main game loop
-  setTimeout(physicsLoop(performance.now()));
+  // Start physics loop
+  physicsLoop(performance.now());
 });
 
-// Modified by the eventListener
-let up = false;
-let down = false;
-let left = false;
-let right = false;
-let pause = false;
-let zoom = true;
-let debugPathfinding = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled
   if (e.defaultPrevented) {
@@ -473,281 +558,5 @@ window.addEventListener('keyup', (e) => {
       console.log(e.code); // eslint-disable-line no-console
       break;
   }
-  playMusic(); // eslint-disable-line no-use-before-define
-});
-
-/**
- * canvasProvider.
- * wraps document.createElement, allowing for easy replacement when testing
- * @example
- *    const canvas = canvasProvider();
- */
-function canvasProvider() {
-  return document.createElement('canvas');
-}
-
-/**
- * renderConversation.
- *
- * @param {Object} conversation
- * @param {Character} conversation.character
- * @param {currentDialog} conversation.currentDialog
- * @example
- renderConversation(gameState.conversation);
- */
-function renderConversation(conversation, updateConvo) {
-  const el = document.getElementById('conversation');
-  if (!conversation) {
-    el.style.display = 'none';
-    return;
-  }
-  const {
-    character,
-    currentDialog,
-  } = conversation;
-  const { response } = currentDialog;
-  const goodbye = { query: 'Goodbye' };
-  const options = (currentDialog.options || []).concat(goodbye);
-
-  el.style.display = 'block';
-
-  // add multiple conversation options
-  const optionHTML = Object.keys(options)
-    .map(
-      (i) => `<button class="option_button">${options[i].query}</button><br>`,
-    )
-    .join('');
-
-  const html = `<p>
-                 <b>${character.name}:</b>
-                 ${response}
-                </p>`;
-
-  const buttonHTML = `<p>${optionHTML}</p>`;
-
-  const finalHTML = html + buttonHTML;
-
-  el.innerHTML = finalHTML;
-
-  // add onclick functions to all buttons
-  const buttons = el.querySelectorAll('button');
-  Object.keys(options)
-    .forEach((i) => {
-      const button = buttons[i];
-      button.addEventListener('click', () => {
-        const option = options[i];
-        if (option === goodbye || option.response == null) {
-          updateConvo({ ...conversation, active: false });
-          return;
-        }
-        updateConvo({
-          ...conversation,
-          currentDialog: option,
-        });
-      });
-    });
-
-  if (!conversation.active) {
-    el.style.display = 'none';
-  }
-}
-
-/* eslint-disable no-shadow */
-/**
- * Take all the input requests give an updated player
- *
- * @param {Object} args
- * @param {Actor} args.player - Player
- * @param {number} args.width - Map width
- * @param {number} args.height - Map height
- * @param {boolean} args.up - Is the up key pressed?
- * @param {boolean} args.down - Is the down key pressed?
- * @param {boolean} args.left - Is the left key pressed?
- * @param {boolean} args.right - Is the right key pressed?
- * @returns {Actor} an updated actor
- * @example
- *    movePlayer({ player, width, height, up, down, left, right });
- */
-function movePlayer({
-  player,
-  width,
-  height,
-  up,
-  down,
-  left,
-  right,
-}) {
-  /* eslint-enable no-shadow */
-  let newPlayer = player;
-  let prefix = '';
-  if (up && !down) {
-    prefix = 'up';
-    newPlayer = {
-      ...newPlayer,
-      y: Math.max(newPlayer.y - newPlayer.speed, 0),
-      facing: prefix,
-    };
-  }
-  if (down && !up) {
-    prefix = 'down';
-    newPlayer = {
-      ...newPlayer,
-      y: Math.min(newPlayer.y + newPlayer.speed, height - newPlayer.height),
-      facing: prefix,
-    };
-  }
-  if (left && !right) {
-    newPlayer = {
-      ...newPlayer,
-      x: Math.max(newPlayer.x - newPlayer.speed, 0),
-      facing: `${prefix}left`,
-    };
-  }
-  if (right && !left) {
-    newPlayer = {
-      ...newPlayer,
-      x: Math.min(newPlayer.x + newPlayer.speed, width - newPlayer.height),
-      facing: `${prefix}right`,
-    };
-  }
-  return newPlayer;
-}
-
-// These are modified by updateStats and clearStats
-let frames = 0;
-let mapMakingTime = 0;
-let collisionTime = 0;
-let collisionChecks = 0;
-let collisionCalls = 0;
-
-/**
- * clearStats.
- * This clears all of the statistics/metrics that we've been keeping track of,
- * at somepoint it will be rewritten to be more flexible
- * @example
- clearStats();
- */
-function clearStats() {
-  frames = 0;
-  mapMakingTime = 0;
-  collisionTime = 0;
-  collisionChecks = 0;
-  collisionCalls = 0;
-}
-
-/**
- * updateStats.
- * Used to keep track of statistics/metrics (fps, collision checking time, ect..),
- * at somepoint it will be rewritten to be more flexible
- * @param {'frames'|'mapMakingTime'|'collisionCalls'|'collisionChecks'} key
- * @param {number} value
- */
-function updateStats(key, value) {
-  switch (key) {
-    case 'frames':
-      frames += value;
-      return;
-    case 'mapMakingTime':
-      mapMakingTime += value;
-      return;
-    case 'collisionTime':
-      collisionTime += value;
-      return;
-    case 'collisionChecks':
-      collisionChecks += value;
-      return;
-    case 'collisionCalls':
-      collisionCalls += value;
-      break;
-    default:
-      break;
-  }
-}
-
-/* eslint-disable no-shadow */
-/**
- * updateDiagnostDisp.
- * Used to update the metrics on screen,
- * at somepoint it will be rewritten to be more flexible
- *
- * @param {Object} args
- * @param {number} args.fps
- * @param {number} args.collisionTime
- * @param {number} args.mapMakingTime
- * @param {number} args.collisionChecks
- * @param {number} args.collisionCalls
- */
-function updateDiagnostDisp({ fps }) {
-  /* eslint-enable no-shadow */
-  const el = document.getElementById('fps');
-  el.innerHTML = `<div>${fps} FPS</div>`;
-}
-
-function renderMessageOverlay(element) {
-  const innerEl = element.querySelector('#message-overlay');
-  const background = element.querySelector('.overlay');
-  const html = `
-    <button class="accHead">Course Schedule</button>
-    <div class="accBody">Unavilable.</div>
-
-    <button class="accHead">Reregistration for Next Semester</button>
-    <div class="accBody">Gib Money.</div>
-
-    <button class="accHead">Greetings from a Nigerian Prince</button>
-    <div class="accBody">Need help, send money and get money.</div>
-
-    <button class="accHead">Maultaschen?</button>
-    <div class="accBody">Maultaschen!</div>
-  `;
-  innerEl.innerHTML = html; // eslint-disable-line
-
-  let isOpen = true;
-  background.style.display = 'block';
-  innerEl.style.display = 'block';
-  background.addEventListener('click', () => {
-    if (isOpen) {
-      innerEl.style.display = 'none';
-      background.style.display = 'none';
-    } else {
-      innerEl.style.display = 'block';
-      background.style.display = 'block';
-    }
-    isOpen = !isOpen;
-  });
-
-  const accHeadList = innerEl.querySelectorAll('.accHead');
-  for (let i = 0; i < accHeadList.length; i++) {
-    accHeadList[i].addEventListener('click', (e) => {
-      e.preventDefault();
-      const accBodyList = e.target.nextElementSibling;
-      if (accBodyList.style.display === 'block') {
-        accBodyList.style.display = 'none';
-      } else {
-        accBodyList.style.display = 'block';
-      }
-    });
-  }
-}
-
-let playing = false;
-function playMusic() {
-  if (playing) { return; }
-  Music.playTrack('#backgroundchill', true).catch(() => { playing = false; });
-  playing = true;
-}
-// updates the volume based on where the volumeslider is
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('rangeSlider').addEventListener('input', Music.updateVolume);
-});
-
-const musicnote = document.getElementById('musicnote');
-let currentstate = false;
-const volumeslider = document.getElementById('volumeslider');
-musicnote.addEventListener('click', () => {
-  if (currentstate) {
-    volumeslider.style.visibility = 'hidden';
-  } else {
-    volumeslider.style.visibility = 'visible';
-  }
-  currentstate = !currentstate;
+  playMusic();
 });
