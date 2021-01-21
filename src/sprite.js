@@ -68,11 +68,24 @@ export const Sprite = {
    */
   drawActorToContext({
     context, actor, sprites, offset = { x: 0, y: 0 }, scale, defaultSprite,
+    color,
   }) {
     const x = actor.x - offset.x;
     const y = actor.y - offset.y;
     const centerx = (x + actor.width / 2);
     const centery = (y + actor.height / 2);
+
+    if (scale === 1 && color) {
+      context.fillStyle = color;
+      context.beginPath();
+      context.arc(
+        centerx,
+        centery,
+        Math.round(actor.width / 2 + 2), 0, 2 * Math.PI,
+      );
+      context.closePath();
+      context.fill();
+    }
 
     context.scale(scale, scale);
     context.translate(centerx, centery);

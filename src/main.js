@@ -390,7 +390,7 @@ let down = false;
 let left = false;
 let right = false;
 let pause = false;
-let zoom = false;
+let zoom = true;
 let debugPathfinding = false;
 window.addEventListener('keydown', (e) => {
   // Do nothing if event already handled

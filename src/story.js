@@ -34,6 +34,7 @@ export const Story = {
       .map((t) => ({
         ...t,
         isNew: true,
+        color: !t.dialog ? t.color : 'white',
       }));
 
     return { ...gameData, characters };
@@ -204,7 +205,7 @@ export const Story = {
             type: 'add-character',
             character: {
               type: 'zombie',
-              id: gameState.characters.length + 1,
+              id: characters.reduce((a, b) => Math.max(a, b.id), 0) + 1,
               x: Story.getRandomInt(width),
               y: height,
               speed: 1,
@@ -213,6 +214,7 @@ export const Story = {
               isNew: true,
               spriteIndex: Story.getRandomZombieSprite(),
               infectionFactor: 20,
+              color: 'green',
             } });
           break;
         case 'show-item':

@@ -149,6 +149,7 @@ export const Camera = {
           offset: viewport,
           scale: viewport.scale,
           defaultSprite: 'itemSprite',
+          color: 'lightblue',
         });
       }
     }
@@ -164,6 +165,7 @@ export const Camera = {
       offset: viewport,
       scale: viewport.scale,
       defaultSprite: 'characterSprite',
+      color: 'white',
     });
 
     for (let i = 0; i < characters.length; i++) {
@@ -177,6 +179,7 @@ export const Camera = {
         offset: viewport,
         scale: viewport.scale,
         defaultSprite: 'characterSprite',
+        color: actor.color || 'darkblue',
       });
     }
   },

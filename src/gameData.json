@@ -289,21 +289,16 @@
       },
       "stuck": true,
       "dialog": {
-        "response": "Hello then.",
+        "response": "Hello there.",
         "options": [
           {
             "id": 1,
-            "query": "Goodbye.",
-            "events": []
-          },
-          {
-            "id": 2,
             "query": "Are you going home?",
             "response": "No.",
             "events": []
           },
           {
-            "id": 3,
+            "id": 2,
             "query": "Have you seen my notebook?",
             "response": "I think one of the other students picked it up. Not sure which one. You all look alike to me.",
             "events": [
@@ -314,7 +309,7 @@
             ]
           },
           {
-            "id": 4,
+            "id": 3,
             "query": "Where can I find food?",
             "response": "There's a number of places.",
             "options": [
@@ -374,6 +369,34 @@
       "name": "Student",
       "infectionFactor": 10,
       "copies": 5
+    },
+    {
+      "id": 9,
+      "name": "Professor Bär",
+      "type": "human",
+      "x": 1010,
+      "y": 2100,
+      "speed": 1,
+      "width": 10,
+      "height": 10,
+      "spriteIndex": 12,
+      "isNew": true,
+      "attachedAreaId": 0,
+      "dialog": {
+        "response": "Hello!",
+        "options": [
+          {
+            "id": 1,
+            "query": "Have you seen my notebook?",
+            "response": "No."
+          },
+          {
+            "id": 2,
+            "query": "What is RUP?",
+            "response": "The most beautiful thing in this life."
+          }
+        ]
+      }
     }
   ],
   "items": [
@@ -543,7 +566,7 @@
       "tasks": [
         {
           "id": 0,
-          "description": "You last left your notebook in a classroom. Talk to your teachers.",
+          "description": "You last left your notebook in a classroom. Talk to the faculty.",
           "trigger": {
             "type": "conversation",
             "characterId": 1,
